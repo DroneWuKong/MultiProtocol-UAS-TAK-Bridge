@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="utf-8"?>
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="48dp"
+    android:height="48dp"
+    android:viewportWidth="48"
+    android:viewportHeight="48">
+
+    <!-- Outer glow circle -->
+    <path
+        android:fillColor="#334ECDC4"
+        android:pathData="M24,24m-20,0a20,20 0,1 1,40 0a20,20 0,1 1,-40 0" />
+
+    <!-- Heading chevron (pointing up = 0°) -->
+    <path
+        android:fillColor="#4ECDC4"
+        android:pathData="M24,6 L36,34 L24,26 L12,34 Z" />
+
+    <!-- Center dot -->
+    <path
+        android:fillColor="#FFFFFF"
+        android:pathData="M24,22m-3,0a3,3 0,1 1,6 0a3,3 0,1 1,-6 0" />
+</vector>

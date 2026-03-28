@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- CP2102/CP2104 (common FC USB) -->
+    <usb-device vendor-id="4292" product-id="60000" />
+    <!-- FTDI FT232 -->
+    <usb-device vendor-id="1027" product-id="24577" />
+    <!-- STM32 CDC (Betaflight/PX4 native USB) -->
+    <usb-device vendor-id="1155" product-id="22336" />
+    <!-- CH340/CH341 -->
+    <usb-device vendor-id="6790" product-id="29987" />
+</resources>
