@@ -48,8 +48,6 @@ Phone USB-C → OTG adapter → FC USB port. Simplest path — no radio config n
 ### Through Transmitter (For live flight telemetry)
 Phone USB-C → OTG adapter → Transmitter USB port. Requires EdgeTX USB serial mode set to VCP/Debug with telemetry mirroring enabled on the external module.
 
-> **Note:** The Orqa TAC controller is a USB host — direct USB connection won't work. Use FC-direct or a radio with USB serial telemetry output.
-
 ## TAK Integration
 
 ### Multicast (No Server)
