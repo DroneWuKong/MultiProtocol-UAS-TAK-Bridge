@@ -110,4 +110,21 @@ object ConfigStore {
             p.getString(KEY_TLS_CERT_PASSWORD, "") ?: ""
         )
     }
+
+    // ── Coordinate format ──
+
+    private const val KEY_COORD_FORMAT = "coord_format"
+
+    fun saveCoordFormat(context: Context, format: com.dronewukong.takbridge.mgrs.CoordinateFormatter.Format) {
+        prefs(context).edit().putString(KEY_COORD_FORMAT, format.name).apply()
+    }
+
+    fun loadCoordFormat(context: Context): com.dronewukong.takbridge.mgrs.CoordinateFormatter.Format {
+        val name = prefs(context).getString(KEY_COORD_FORMAT, "MGRS") ?: "MGRS"
+        return try {
+            com.dronewukong.takbridge.mgrs.CoordinateFormatter.Format.valueOf(name)
+        } catch (e: Exception) {
+            com.dronewukong.takbridge.mgrs.CoordinateFormatter.Format.MGRS
+        }
+    }
 }

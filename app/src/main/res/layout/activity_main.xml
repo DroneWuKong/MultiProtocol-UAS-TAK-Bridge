@@ -94,18 +94,34 @@
                 android:fontFamily="monospace" />
         </LinearLayout>
 
-        <!-- MGRS (big, primary) -->
+        <!-- Coordinate format label (tap to cycle) -->
+        <TextView
+            android:id="@+id/coordFormatLabel"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="MGRS  ▼"
+            android:textColor="#4ECDC4"
+            android:textSize="10sp"
+            android:fontFamily="monospace"
+            android:gravity="center"
+            android:layout_marginTop="2dp"
+            android:clickable="true"
+            android:focusable="true" />
+
+        <!-- Primary coordinate (big, tap to cycle format) -->
         <TextView
             android:id="@+id/mgrsText"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:text="-- --- ----- -----"
             android:textColor="#FFFFFF"
-            android:textSize="24sp"
+            android:textSize="22sp"
             android:textStyle="bold"
             android:fontFamily="monospace"
             android:gravity="center"
-            android:layout_marginTop="4dp" />
+            android:layout_marginTop="0dp"
+            android:clickable="true"
+            android:focusable="true" />
 
         <!-- Lat/Lon + metadata row -->
         <LinearLayout

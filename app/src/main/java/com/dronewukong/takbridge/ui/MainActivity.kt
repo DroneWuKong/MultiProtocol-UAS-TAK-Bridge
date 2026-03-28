@@ -23,7 +23,7 @@ import com.dronewukong.takbridge.R
 import com.dronewukong.takbridge.cot.CotFormatter
 import com.dronewukong.takbridge.mavlink.GpsPosition
 import com.dronewukong.takbridge.mavlink.ProtocolRouter
-import com.dronewukong.takbridge.mgrs.MgrsConverter
+import com.dronewukong.takbridge.mgrs.CoordinateFormatter
 import com.dronewukong.takbridge.transport.*
 import org.osmdroid.config.Configuration
 import org.osmdroid.tileprovider.tilesource.TileSourceFactory
@@ -53,6 +53,7 @@ class MainActivity : AppCompatActivity() {
     private lateinit var multicastDot: View
     private lateinit var tcpDot: View
     private lateinit var mgrsText: TextView
+    private lateinit var coordFormatLabel: TextView
     private lateinit var latLonText: TextView
     private lateinit var fixText: TextView
     private lateinit var satsText: TextView
@@ -97,6 +98,7 @@ class MainActivity : AppCompatActivity() {
     private var isBridgeActive = false
     private val handler = Handler(Looper.getMainLooper())
     private var gpsUpdateCount = 0
+    private var coordFormat = CoordinateFormatter.Format.MGRS
     private var lastRateCalcTime = System.currentTimeMillis()
     private var currentGpsHz = 0.0
 
@@ -182,6 +184,7 @@ class MainActivity : AppCompatActivity() {
         multicastDot = findViewById(R.id.multicastDot)
         tcpDot = findViewById(R.id.tcpDot)
         mgrsText = findViewById(R.id.mgrsText)
+        coordFormatLabel = findViewById(R.id.coordFormatLabel)
         latLonText = findViewById(R.id.latLonText)
         fixText = findViewById(R.id.fixText)
         satsText = findViewById(R.id.satsText)
@@ -302,6 +305,16 @@ class MainActivity : AppCompatActivity() {
     }
 
     private fun setupListeners() {
+        // Tap coordinate or label to cycle format: MGRS → DD → DMS → UTM → MGRS
+        val cycleFormat = View.OnClickListener {
+            coordFormat = coordFormat.next()
+            coordFormatLabel.text = "${coordFormat.label}  \u25BC"
+            ConfigStore.saveCoordFormat(this, coordFormat)
+            lastPosition?.let { pos -> updatePositionDisplay(pos) }
+        }
+        mgrsText.setOnClickListener(cycleFormat)
+        coordFormatLabel.setOnClickListener(cycleFormat)
+
         btnConnect.setOnClickListener {
             if (usbTransport.isConnected) {
                 stopBridge()
@@ -490,6 +503,10 @@ class MainActivity : AppCompatActivity() {
             tlsCertLocalPath = certPath
             certStatus.text = File(certPath).name
         }
+
+        // Coordinate format
+        coordFormat = ConfigStore.loadCoordFormat(this)
+        coordFormatLabel.text = "${coordFormat.label}  \u25BC"
     }
 
     private fun saveConfig() {
@@ -539,9 +556,8 @@ class MainActivity : AppCompatActivity() {
 
     private fun updatePositionDisplay(pos: GpsPosition) {
         if (pos.hasValidFix) {
-            val mgrs = MgrsConverter.toMgrs(pos.lat, pos.lon)
-            mgrsText.text = MgrsConverter.formatForDisplay(mgrs)
-            latLonText.text = "${"%.6f".format(pos.lat)} / ${"%.6f".format(pos.lon)}"
+            mgrsText.text = CoordinateFormatter.formatPrimary(pos.lat, pos.lon, coordFormat)
+            latLonText.text = CoordinateFormatter.formatSecondary(pos.lat, pos.lon, coordFormat)
         } else {
             mgrsText.text = "ACQUIRING FIX..."
             latLonText.text = "---.------ / ---.------"
@@ -558,7 +574,7 @@ class MainActivity : AppCompatActivity() {
         satsText.text = if (pos.satellites >= 0) "${pos.satellites}sv" else "--sv"
         spdText.text = "${"%.1f".format(pos.groundSpeed)} m/s"
         altText.text = "${"%.0f".format(pos.altMsl)}m MSL"
-        hdgText.text = "HDG ${"%.0f".format(pos.heading)}°"
+        hdgText.text = "HDG ${"%.0f".format(pos.heading)}\u00B0"
     }
 
     private fun updateRateDisplay() {
