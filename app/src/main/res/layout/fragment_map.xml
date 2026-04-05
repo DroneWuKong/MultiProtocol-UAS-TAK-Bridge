@@ -1,0 +1,450 @@
+<?xml version="1.0" encoding="utf-8"?>
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="#121212"
+    android:fitsSystemWindows="true">
+
+    <!-- ═══ MAP (full screen behind everything) ═══ -->
+    <org.osmdroid.views.MapView
+        android:id="@+id/mapView"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent" />
+
+    <!-- ═══ TOP OVERLAY — MGRS + status ═══ -->
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:background="#CC121212"
+        android:paddingStart="10dp"
+        android:paddingEnd="10dp"
+        android:paddingBottom="10dp"
+        android:paddingTop="4dp"
+        android:layout_gravity="top">
+
+        <!-- Header row: title + connection dots -->
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:gravity="center_vertical">
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="TAK BRIDGE"
+                android:textColor="#4ECDC4"
+                android:textSize="16sp"
+                android:textStyle="bold"
+                android:fontFamily="monospace" />
+
+            <View
+                android:layout_width="0dp"
+                android:layout_height="0dp"
+                android:layout_weight="1" />
+
+            <!-- USB dot -->
+            <View
+                android:id="@+id/usbStatusDot"
+                android:layout_width="10dp"
+                android:layout_height="10dp"
+                android:background="@drawable/dot_red"
+                android:layout_marginEnd="4dp" />
+
+            <TextView
+                android:id="@+id/usbStatusText"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="USB"
+                android:textColor="#888888"
+                android:textSize="10sp"
+                android:fontFamily="monospace"
+                android:layout_marginEnd="10dp" />
+
+            <!-- Multicast dot -->
+            <View
+                android:id="@+id/multicastDot"
+                android:layout_width="10dp"
+                android:layout_height="10dp"
+                android:background="@drawable/dot_red"
+                android:layout_marginEnd="4dp" />
+
+            <TextView
+                android:id="@+id/multicastLabel"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="MC"
+                android:textColor="#888888"
+                android:textSize="10sp"
+                android:fontFamily="monospace"
+                android:layout_marginEnd="10dp" />
+
+            <!-- TCP dot -->
+            <View
+                android:id="@+id/tcpDot"
+                android:layout_width="10dp"
+                android:layout_height="10dp"
+                android:background="@drawable/dot_red"
+                android:layout_marginEnd="4dp" />
+
+            <TextView
+                android:id="@+id/tcpLabel"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="TAK"
+                android:textColor="#888888"
+                android:textSize="10sp"
+                android:fontFamily="monospace" />
+        </LinearLayout>
+
+        <!-- Coordinate format label (tap to cycle) -->
+        <TextView
+            android:id="@+id/coordFormatLabel"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="MGRS  ▼"
+            android:textColor="#4ECDC4"
+            android:textSize="10sp"
+            android:fontFamily="monospace"
+            android:gravity="center"
+            android:layout_marginTop="2dp"
+            android:clickable="true"
+            android:focusable="true" />
+
+        <!-- Primary coordinate (big, tap to cycle format) -->
+        <TextView
+            android:id="@+id/mgrsText"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="-- --- ----- -----"
+            android:textColor="#FFFFFF"
+            android:textSize="22sp"
+            android:textStyle="bold"
+            android:fontFamily="monospace"
+            android:gravity="center"
+            android:layout_marginTop="0dp"
+            android:clickable="true"
+            android:focusable="true" />
+
+        <!-- Lat/Lon + metadata row -->
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:gravity="center"
+            android:layout_marginTop="2dp">
+
+            <TextView
+                android:id="@+id/latLonText"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="---.------ / ---.------"
+                android:textColor="#888888"
+                android:textSize="11sp"
+                android:fontFamily="monospace" />
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="  |  "
+                android:textColor="#444444"
+                android:textSize="11sp" />
+
+            <TextView
+                android:id="@+id/fixText"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="No Fix"
+                android:textColor="#FF4444"
+                android:textSize="11sp"
+                android:fontFamily="monospace" />
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="  "
+                android:textSize="11sp" />
+
+            <TextView
+                android:id="@+id/satsText"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="0sv"
+                android:textColor="#888888"
+                android:textSize="11sp"
+                android:fontFamily="monospace" />
+        </LinearLayout>
+
+        <!-- Speed / Alt / Heading / CoT rate -->
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:gravity="center"
+            android:layout_marginTop="2dp">
+
+            <TextView
+                android:id="@+id/spdText"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="0.0 m/s"
+                android:textColor="#888888"
+                android:textSize="11sp"
+                android:fontFamily="monospace" />
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="  |  "
+                android:textColor="#444444"
+                android:textSize="11sp" />
+
+            <TextView
+                android:id="@+id/altText"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="0m MSL"
+                android:textColor="#888888"
+                android:textSize="11sp"
+                android:fontFamily="monospace" />
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="  |  "
+                android:textColor="#444444"
+                android:textSize="11sp" />
+
+            <TextView
+                android:id="@+id/hdgText"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="HDG 000°"
+                android:textColor="#888888"
+                android:textSize="11sp"
+                android:fontFamily="monospace" />
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="  |  "
+                android:textColor="#444444"
+                android:textSize="11sp" />
+
+            <TextView
+                android:id="@+id/cotRateText"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="CoT: 0"
+                android:textColor="#555555"
+                android:textSize="11sp"
+                android:fontFamily="monospace" />
+        </LinearLayout>
+    </LinearLayout>
+
+    <!-- ═══ BOTTOM PANEL — Controls ═══ -->
+    <LinearLayout
+        android:id="@+id/bottomPanel"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:background="#CC121212"
+        android:padding="10dp"
+        android:layout_gravity="bottom">
+
+        <!-- USB connect row -->
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:gravity="center_vertical">
+
+            <Spinner
+                android:id="@+id/spinnerProtocol"
+                android:layout_width="0dp"
+                android:layout_height="36dp"
+                android:layout_weight="1"
+                android:backgroundTint="#4ECDC4"
+                android:layout_marginEnd="6dp" />
+
+            <Spinner
+                android:id="@+id/spinnerBaud"
+                android:layout_width="0dp"
+                android:layout_height="36dp"
+                android:layout_weight="1"
+                android:backgroundTint="#4ECDC4"
+                android:layout_marginEnd="6dp" />
+
+            <Button
+                android:id="@+id/btnConnect"
+                android:layout_width="wrap_content"
+                android:layout_height="36dp"
+                android:text="CONNECT"
+                android:textSize="11sp"
+                android:backgroundTint="#4ECDC4"
+                android:textColor="#121212"
+                android:minWidth="90dp" />
+        </LinearLayout>
+
+        <!-- Callsign + TAK row -->
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:gravity="center_vertical"
+            android:layout_marginTop="6dp">
+
+            <EditText
+                android:id="@+id/editCallsign"
+                android:layout_width="0dp"
+                android:layout_height="34dp"
+                android:layout_weight="1"
+                android:text="DRONE-01"
+                android:textColor="#FFFFFF"
+                android:textSize="13sp"
+                android:fontFamily="monospace"
+                android:backgroundTint="#4ECDC4"
+                android:inputType="textCapCharacters"
+                android:hint="Callsign"
+                android:textColorHint="#555555"
+                android:padding="4dp"
+                android:singleLine="true"
+                android:layout_marginEnd="6dp" />
+
+            <EditText
+                android:id="@+id/editTakHost"
+                android:layout_width="0dp"
+                android:layout_height="34dp"
+                android:layout_weight="1"
+                android:hint="TAK Server IP"
+                android:textColor="#FFFFFF"
+                android:textColorHint="#555555"
+                android:textSize="12sp"
+                android:fontFamily="monospace"
+                android:backgroundTint="#4ECDC4"
+                android:inputType="text"
+                android:padding="4dp"
+                android:singleLine="true"
+                android:layout_marginEnd="4dp" />
+
+            <EditText
+                android:id="@+id/editTakPort"
+                android:layout_width="55dp"
+                android:layout_height="34dp"
+                android:text="8087"
+                android:textColor="#FFFFFF"
+                android:textSize="12sp"
+                android:fontFamily="monospace"
+                android:backgroundTint="#4ECDC4"
+                android:inputType="number"
+                android:padding="4dp"
+                android:singleLine="true"
+                android:layout_marginEnd="4dp" />
+
+            <CheckBox
+                android:id="@+id/checkTls"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="TLS"
+                android:textColor="#999999"
+                android:textSize="10sp"
+                android:buttonTint="#4ECDC4"
+                android:layout_marginEnd="4dp" />
+
+            <Button
+                android:id="@+id/btnTakConnect"
+                android:layout_width="wrap_content"
+                android:layout_height="34dp"
+                android:text="TAK"
+                android:textSize="11sp"
+                android:backgroundTint="#333333"
+                android:textColor="#4ECDC4"
+                android:minWidth="50dp" />
+        </LinearLayout>
+
+        <!-- Hidden cert picker button (shown when TLS checked) -->
+        <Button
+            android:id="@+id/btnLoadCert"
+            android:layout_width="wrap_content"
+            android:layout_height="30dp"
+            android:text="LOAD .P12 CERT"
+            android:textSize="10sp"
+            android:backgroundTint="#222222"
+            android:textColor="#4ECDC4"
+            android:layout_marginTop="4dp"
+            android:visibility="gone" />
+
+        <TextView
+            android:id="@+id/certStatus"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text=""
+            android:textColor="#555555"
+            android:textSize="10sp"
+            android:fontFamily="monospace"
+            android:visibility="gone" />
+
+        <!-- Status bar -->
+        <TextView
+            android:id="@+id/statusBar"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Ready — plug in drone via USB"
+            android:textColor="#666666"
+            android:textSize="10sp"
+            android:fontFamily="monospace"
+            android:gravity="center"
+            android:layout_marginTop="4dp" />
+
+        <!-- Protocol detection -->
+        <TextView
+            android:id="@+id/protocolStatus"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text=""
+            android:textColor="#444444"
+            android:textSize="9sp"
+            android:fontFamily="monospace"
+            android:gravity="center" />
+    </LinearLayout>
+
+    <!-- ═══ MAP CONTROLS (right edge) ═══ -->
+    <LinearLayout
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:layout_gravity="end|center_vertical"
+        android:layout_marginEnd="8dp">
+
+        <Button
+            android:id="@+id/btnCenterDrone"
+            android:layout_width="44dp"
+            android:layout_height="44dp"
+            android:text="◎"
+            android:textSize="20sp"
+            android:backgroundTint="#CC121212"
+            android:textColor="#4ECDC4"
+            android:layout_marginBottom="8dp" />
+
+        <Button
+            android:id="@+id/btnZoomIn"
+            android:layout_width="44dp"
+            android:layout_height="44dp"
+            android:text="+"
+            android:textSize="20sp"
+            android:backgroundTint="#CC121212"
+            android:textColor="#FFFFFF"
+            android:layout_marginBottom="4dp" />
+
+        <Button
+            android:id="@+id/btnZoomOut"
+            android:layout_width="44dp"
+            android:layout_height="44dp"
+            android:text="−"
+            android:textSize="20sp"
+            android:backgroundTint="#CC121212"
+            android:textColor="#FFFFFF" />
+    </LinearLayout>
+
+</FrameLayout>

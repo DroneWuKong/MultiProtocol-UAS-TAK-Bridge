@@ -25,6 +25,7 @@ import com.dronewukong.takbridge.mavlink.GpsPosition
 import com.dronewukong.takbridge.mavlink.ProtocolRouter
 import com.dronewukong.takbridge.mgrs.CoordinateFormatter
 import com.dronewukong.takbridge.transport.*
+import com.google.android.material.bottomnavigation.BottomNavigationView
 import org.osmdroid.config.Configuration
 import org.osmdroid.tileprovider.tilesource.TileSourceFactory
 import org.osmdroid.util.GeoPoint
@@ -76,6 +77,12 @@ class MainActivity : AppCompatActivity() {
     private lateinit var btnZoomOut: Button
     private lateinit var statusBar: TextView
     private lateinit var protocolStatus: TextView
+
+    // ── Navigation ─────────────────────────────────────────────
+    private lateinit var bottomNav: BottomNavigationView
+    private val mapFragment  = MapFragment()
+    private val toolsFragment = ToolsFragment()
+    private var activeFragment: androidx.fragment.app.Fragment? = null
 
     // ── Map overlays ───────────────────────────────────────────
     private var droneMarker: Marker? = null
@@ -150,6 +157,27 @@ class MainActivity : AppCompatActivity() {
 
         setContentView(R.layout.activity_main)
 
+        // ── Fragment setup ──────────────────────────────────────
+        supportFragmentManager.beginTransaction()
+            .add(R.id.fragmentContainer, mapFragment,   "map")
+            .add(R.id.fragmentContainer, toolsFragment, "tools")
+            .hide(toolsFragment)
+            .commit()
+        activeFragment = mapFragment
+
+        bottomNav = findViewById(R.id.bottomNav)
+        bottomNav.setOnItemSelectedListener { item ->
+            when (item.itemId) {
+                R.id.nav_map   -> showFragment(mapFragment)
+                R.id.nav_tools -> showFragment(toolsFragment)
+            }
+            true
+        }
+
+        // ── Existing setup (runs after fragment transaction) ────
+        // Views are bound after the map fragment is visible
+        supportFragmentManager.executePendingTransactions()
+
         bindViews()
         setupMap()
         setupSpinners()
@@ -167,6 +195,22 @@ class MainActivity : AppCompatActivity() {
         super.onPause()
         mapView.onPause()
         saveConfig()
+    }
+
+    private fun showFragment(fragment: androidx.fragment.app.Fragment) {
+        if (fragment === activeFragment) return
+        supportFragmentManager.beginTransaction()
+            .hide(activeFragment!!)
+            .show(fragment)
+            .commit()
+        activeFragment = fragment
+    }
+
+    @Deprecated("Deprecated in Java")
+    override fun onBackPressed() {
+        if (activeFragment === toolsFragment && toolsFragment.onBackPressed()) return
+        @Suppress("DEPRECATION")
+        super.onBackPressed()
     }
 
     override fun onDestroy() {
