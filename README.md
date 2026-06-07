@@ -9,18 +9,19 @@ Part of the [AI Wingman](https://github.com/DroneWuKong/Ai-Project) ecosystem, b
 ## What It Does
 
 ```
-Drone FC ──USB OTG──→ Protocol Auto-Detect ──→ MGRS Converter ──→ CoT Formatter ──→ TAK
-                       ├─ MAVLink v2                                                  ├─ Multicast UDP (239.2.3.1:6969)
-                       ├─ MSP v1/v2              Live Map with                        ├─ TAK Server TCP
-                       └─ GHST/CRSF              Drone Marker + Trail                 └─ TAK Server TLS (.p12 cert)
+Drone FC ──USB OTG──→ Protocol Auto-Detect ──→ Coordinate Formatter ──→ CoT Formatter ──→ TAK
+                       ├─ MAVLink v2          (MGRS/DD/DMS/UTM display)                ├─ Multicast UDP (239.2.3.1:6969)
+                       ├─ MSP v1/v2              Live Map with                         ├─ TAK Server TCP
+                       └─ GHST/CRSF              Drone Marker + Trail                  └─ TAK Server TLS (.p12 cert)
 ```
 
 1. **Connects** to a flight controller via USB OTG (phone → FC or phone → transmitter)
 2. **Auto-detects** protocol: MAVLink v2, MSP v1/v2, or GHST/CRSF
 3. **Parses** GPS from any firmware: PX4, ArduPilot, Betaflight, iNav
 4. **Converts** lat/lon to MGRS using NGA's official library
-5. **Displays** live map with drone marker (heading rotation), breadcrumb trail, MGRS grid coordinate, fix quality, satellites, altitude, speed
+5. **Displays** live map with drone marker (heading rotation), breadcrumb trail, coordinate readout (tap to cycle MGRS / Lat-Lon DD / Lat-Lon DMS / UTM), fix quality, satellites, altitude, speed
 6. **Pushes** CoT events to ATAK/WinTAK/iTAK via multicast (zero config), TAK Server TCP, or TAK Server TLS
+7. **Tools tab** — the Forge RF tools suite (Channel Planner, Range Estimator, Fresnel Zone, Harmonics, Dipole Length, VTX Config, FC Matcher, ELRS, etc.) runs offline in an embedded WebView; a "Use GPS" bridge pulls the device fix straight into the calculators
 
 ## Supported Protocols
 
@@ -73,7 +74,7 @@ Check the TLS box, load your `.p12` client certificate, port 8089. Mutual TLS wi
 - **Drone marker** — teal chevron that rotates with heading
 - **Breadcrumb trail** — teal line showing flight path (500 point history, 2m minimum spacing)
 - **Auto-follow** — map tracks drone position, tap map to pan freely, tap ◎ to re-center
-- **MGRS overlay** — large monospace grid coordinate displayed over map
+- **Coordinate overlay** — large monospace coordinate displayed over map; tap it (or the format label) to cycle MGRS → Lat/Lon DD → Lat/Lon DMS → UTM. Selection persists across launches; CoT always transmits in decimal degrees regardless of display format.
 
 ## Architecture
 
@@ -86,18 +87,27 @@ com.dronewukong.takbridge/
 │   ├── GhstPassthrough.kt      # GHST/CRSF frame parser + MSP passthrough
 │   └── ProtocolRouter.kt       # Auto-detect + route to correct parser
 ├── mgrs/
-│   └── MgrsConverter.kt        # NGA MGRS library wrapper
+│   └── CoordinateFormatter.kt  # Multi-format coordinate display (MGRS/DD/DMS/UTM) over NGA MGRS lib
 ├── cot/
-│   ├── CotTypes.kt             # MIL-STD-2525 type codes
+│   ├── CotTypes.kt             # MIL-STD-2525 type codes + multicast group/ports
 │   └── CotFormatter.kt         # CoT XML event builder
+├── tak/
+│   ├── TakProtocol.kt          # TAK Protocol v1 framing + ATAK-CIV endpoint/group constants
+│   └── TakInboundMonitor.kt    # Listens on multicast for inbound CoT (emergency, SPI, peer discovery)
 ├── transport/
 │   ├── UsbSerialTransport.kt   # USB serial connection manager
 │   ├── TakSender.kt            # Multicast + TCP + TLS output
 │   ├── TakConfig.kt            # TAK output configuration
 │   └── ConfigStore.kt          # SharedPreferences persistence
 └── ui/
-    └── MainActivity.kt         # Map-first single-screen UI
+    ├── MainActivity.kt         # Hosts the bottom-nav shell + map logic (Map / Tools tabs)
+    ├── MapFragment.kt          # Map tab — inflates the map layout owned by MainActivity
+    ├── ToolsFragment.kt        # Tools tab — Forge RF tools suite in an offline WebView
+    └── bridge/
+        └── WingmanJsBridge.kt  # JS ↔ Android bridge (GPS location into WebView tools)
 ```
+
+The app is a dual-tab Activity: a bottom navigation bar switches between the **Map** tab and the **Tools** tab.
 
 ## Building
 
