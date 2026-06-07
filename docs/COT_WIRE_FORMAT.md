@@ -64,7 +64,7 @@ Source: `takproto/`, `takcot/xsd/`, `commoncommo/core/` from ATAK-CIV.
     <status battery="85"/>
 
     <!-- sender identification -->
-    <takv device="Orqa APB" platform="TAK Bridge" os="Android" version="1.0"/>
+    <takv device="TAK Bridge" platform="TAK Bridge" os="Android" version="1.0"/>
   </detail>
 </event>
 ```
