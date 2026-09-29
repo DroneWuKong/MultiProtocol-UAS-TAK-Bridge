@@ -1,5 +1,19 @@
 # Changelog
 
+## 0.2.0 — TAC.CTRL USB compatibility (2026-09-29)
+
+- TAC MAVLink/GHST profiles, configurable DTR, Android permission/retry handling,
+  serial-port selection and disconnect/session cleanup.
+- Correct GHST GPS framing, CRC, units and fix flags; separate CRSF GPS decoding.
+- CRC-checked MAVLink 1/2, zero-truncated/signed frames and source isolation.
+- RC-only versus GPS diagnostics and fresh-position-only CoT publication.
+- Software wire fixtures, a complete Gradle wrapper and Android build CI.
+- Repair pre-existing build errors in the CoT caller/comment, MSP constant,
+  launcher icon and TAK reconnect coroutine; guard optional phone GPS access.
+
+Hardware aircraft-GPS-through-TAC-USB acceptance remains pending; see
+[setup and test steps](docs/TAC_CTRL_SETUP.md).
+
 All notable changes to the MultiProtocol UAS TAK Bridge, most recent first.
 
 ## Unreleased

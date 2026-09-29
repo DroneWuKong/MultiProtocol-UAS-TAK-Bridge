@@ -62,6 +62,9 @@ class MainActivity : AppCompatActivity() {
     private lateinit var altText: TextView
     private lateinit var hdgText: TextView
     private lateinit var cotRateText: TextView
+    private lateinit var spinnerConnectionProfile: Spinner
+    private lateinit var checkDtr: CheckBox
+    private var profile = ConnectionProfile.TAC_MAVLINK
     private lateinit var spinnerProtocol: Spinner
     private lateinit var spinnerBaud: Spinner
     private lateinit var btnConnect: Button
@@ -109,7 +112,7 @@ class MainActivity : AppCompatActivity() {
     private var lastRateCalcTime = System.currentTimeMillis()
     private var currentGpsHz = 0.0
 
-    private val protocols = arrayOf("Auto", "MAVLink", "MSP", "GHST")
+    private val protocols = arrayOf("Auto (passive)", "MAVLink 1/2", "MSP", "GHST / CRSF")
     private val baudRates = arrayOf(115200, 230400, 57600, 921600, 9600, 460800)
     private var tlsCertLocalPath = ""
 
@@ -236,6 +239,8 @@ class MainActivity : AppCompatActivity() {
         altText = findViewById(R.id.altText)
         hdgText = findViewById(R.id.hdgText)
         cotRateText = findViewById(R.id.cotRateText)
+        spinnerConnectionProfile = findViewById(R.id.spinnerConnectionProfile)
+        checkDtr = findViewById(R.id.checkDtr)
         spinnerProtocol = findViewById(R.id.spinnerProtocol)
         spinnerBaud = findViewById(R.id.spinnerBaud)
         btnConnect = findViewById(R.id.btnConnect)
@@ -303,6 +308,8 @@ class MainActivity : AppCompatActivity() {
     }
 
     private fun setupSpinners() {
+        spinnerConnectionProfile.adapter = ArrayAdapter(this,
+            android.R.layout.simple_spinner_dropdown_item, ConnectionProfile.values().map { it.label })
         spinnerProtocol.adapter = ArrayAdapter(
             this, android.R.layout.simple_spinner_dropdown_item, protocols
         )
@@ -315,7 +322,11 @@ class MainActivity : AppCompatActivity() {
     private fun initComponents() {
         usbTransport = UsbSerialTransport(this)
         usbTransport.onConnectionChanged = { connected ->
-            runOnUiThread { updateUsbStatus(connected) }
+            runOnUiThread {
+                updateUsbStatus(connected)
+                if (connected) startBridge()
+                else usbTransport.lastError?.let { statusBar.text = it }
+            }
         }
 
         protocolRouter = ProtocolRouter()
@@ -331,7 +342,7 @@ class MainActivity : AppCompatActivity() {
             runOnUiThread {
                 protocolStatus.text = protocolRouter.getStatusString()
                 statusBar.text = "${proto.name} detected"
-                if (proto == ProtocolRouter.Protocol.MSP || proto == ProtocolRouter.Protocol.GHST) {
+                if (proto == ProtocolRouter.Protocol.MSP && profile.pollsMsp) {
                     handler.removeCallbacks(mspPollRunnable)
                     handler.postDelayed(mspPollRunnable, 500)
                 }
@@ -359,23 +370,41 @@ class MainActivity : AppCompatActivity() {
         mgrsText.setOnClickListener(cycleFormat)
         coordFormatLabel.setOnClickListener(cycleFormat)
 
+        spinnerConnectionProfile.onItemSelectedListener = object : AdapterView.OnItemSelectedListener {
+            override fun onNothingSelected(parent: AdapterView<*>?) = Unit
+            override fun onItemSelected(parent: AdapterView<*>?, view: View?, position: Int, id: Long) {
+                val selected = ConnectionProfile.values()[position]
+                if (selected != profile) {
+                    profile = selected
+                    checkDtr.isChecked = profile.dtr
+                    spinnerProtocol.setSelection(profile.protocol.ordinal)
+                    spinnerBaud.setSelection(0)
+                    saveConfig()
+                }
+            }
+        }
         btnConnect.setOnClickListener {
-            if (usbTransport.isConnected) {
-                stopBridge()
+            if (usbTransport.isConnected || usbTransport.isPermissionPending) {
                 usbTransport.disconnect()
             } else {
+                lastPosition = null
+                droneMarker?.isEnabled = false
+                protocolRouter.setProtocol(ProtocolRouter.Protocol.values()[spinnerProtocol.selectedItemPosition])
                 usbTransport.baudRate = baudRates[spinnerBaud.selectedItemPosition]
-                when (spinnerProtocol.selectedItemPosition) {
-                    0 -> protocolRouter.reset()
-                    1 -> protocolRouter.setProtocol(ProtocolRouter.Protocol.MAVLINK)
-                    2 -> protocolRouter.setProtocol(ProtocolRouter.Protocol.MSP)
-                    3 -> protocolRouter.setProtocol(ProtocolRouter.Protocol.GHST)
-                }
-                if (usbTransport.connect()) {
-                    startBridge()
+                usbTransport.assertDtr = checkDtr.isChecked
+                usbTransport.allowMspPolling = profile.pollsMsp &&
+                    protocolRouter.detectedProtocol == ProtocolRouter.Protocol.MSP
+                saveConfig()
+                val ports = usbTransport.listPorts()
+                if (ports.isEmpty()) {
+                    statusBar.text = "No USB serial interface — use a data cable and TAC telemetry USB mode"
+                } else if (ports.size == 1) {
+                    connectUsbPort(ports.single())
                 } else {
-                    statusBar.text = usbTransport.lastError ?: "Connection failed"
-                    Toast.makeText(this, usbTransport.lastError, Toast.LENGTH_SHORT).show()
+                    androidx.appcompat.app.AlertDialog.Builder(this)
+                        .setTitle("Choose USB serial port")
+                        .setItems(ports.map { it.label }.toTypedArray()) { _, which -> connectUsbPort(ports[which]) }
+                        .setNegativeButton("Cancel", null).show()
                 }
             }
         }
@@ -430,9 +459,26 @@ class MainActivity : AppCompatActivity() {
         btnZoomOut.setOnClickListener { mapView.controller.zoomOut() }
     }
 
+    private fun connectUsbPort(port: UsbSerialTransport.Candidate) {
+        usbTransport.connect(port)
+        if (usbTransport.isPermissionPending) {
+            btnConnect.text = "CANCEL"
+            statusBar.text = "Allow USB access in the Android prompt"
+            setConnectionControlsEnabled(false)
+        }
+    }
+
+    private fun setConnectionControlsEnabled(enabled: Boolean) {
+        spinnerConnectionProfile.isEnabled = enabled
+        spinnerProtocol.isEnabled = enabled
+        spinnerBaud.isEnabled = enabled
+        checkDtr.isEnabled = enabled
+    }
+
     // ── Bridge control ─────────────────────────────────────────
 
     private fun startBridge() {
+        if (isBridgeActive) return
         val callsign = editCallsign.text.toString().trim().ifBlank { "DRONE-01" }
         takSender.updateConfig(TakConfig(
             multicastEnabled = true, callsign = callsign,
@@ -453,16 +499,21 @@ class MainActivity : AppCompatActivity() {
         handler.postDelayed(rateDisplayRunnable, 1000)
 
         val proto = protocolRouter.detectedProtocol
-        if (proto == ProtocolRouter.Protocol.MSP || proto == ProtocolRouter.Protocol.GHST) {
+        if (proto == ProtocolRouter.Protocol.MSP && profile.pollsMsp) {
             handler.postDelayed(mspPollRunnable, 500)
         }
 
         protocolStatus.text = protocolRouter.getStatusString()
-        statusBar.text = "Bridge active — waiting for GPS fix"
+        statusBar.text = "${usbTransport.deviceName} · waiting for GPS fix"
     }
 
     private fun stopBridge() {
         isBridgeActive = false
+        lastPosition = null
+        droneMarker?.isEnabled = false
+        protocolRouter.reset()
+        mgrsText.text = "NO LIVE POSITION"
+        fixText.text = "No Fix"
         handler.removeCallbacks(cotPushRunnable)
         handler.removeCallbacks(mspPollRunnable)
         handler.removeCallbacks(rateDisplayRunnable)
@@ -472,17 +523,17 @@ class MainActivity : AppCompatActivity() {
 
     private fun pollMspGps() {
         if (!usbTransport.isConnected) return
-        protocolRouter.getMspGpsRequest()?.let { usbTransport.write(it) }
+        protocolRouter.getMspGpsRequest(profile.pollsMsp)?.let { usbTransport.write(it) }
     }
 
     private fun pushCoT() {
         val pos = lastPosition ?: return
-        if (!pos.hasValidFix) return
-        val cotXml = CotFormatter.buildEvent(
-            position = pos, uid = takSender.config.uid,
+        if (!isBridgeActive || !usbTransport.isConnected || !pos.hasValidFix || !pos.isFresh()) return
+        val cotXml = CotFormatter.buildDroneSA(
+            pos = pos, uid = takSender.config.uid,
             callsign = takSender.config.callsign,
             cotType = takSender.config.cotType,
-            staleSeconds = takSender.config.staleSeconds
+            staleSec = takSender.config.staleSeconds
         )
         takSender.send(cotXml)
         runOnUiThread { updateTakStatus() }
@@ -491,14 +542,15 @@ class MainActivity : AppCompatActivity() {
     // ── Map updates ────────────────────────────────────────────
 
     private fun updateMapPosition(pos: GpsPosition) {
-        if (!pos.hasValidFix) return
+        droneMarker?.isEnabled = pos.hasValidFix && pos.isFresh()
+        if (!pos.hasValidFix || !pos.isFresh()) { mapView.invalidate(); return }
 
         val geoPoint = GeoPoint(pos.lat, pos.lon)
 
         // Update drone marker position and rotation
         droneMarker?.apply {
             position = geoPoint
-            rotation = -(pos.heading.toFloat()) // OSMDroid rotates counter-clockwise
+            rotation = -(pos.heading.coerceAtLeast(0.0).toFloat()) // OSMDroid rotates counter-clockwise
         }
 
         // Add to breadcrumb trail
@@ -534,6 +586,9 @@ class MainActivity : AppCompatActivity() {
         val baudIndex = baudRates.indexOf(baud)
         if (baudIndex >= 0) spinnerBaud.setSelection(baudIndex)
 
+        profile = ConfigStore.loadConnectionProfile(this)
+        spinnerConnectionProfile.setSelection(profile.ordinal)
+        checkDtr.isChecked = ConfigStore.loadDtr(this)
         val proto = ConfigStore.loadProtocol(this)
         spinnerProtocol.setSelection(when (proto) {
             ProtocolRouter.Protocol.MAVLINK -> 1
@@ -561,6 +616,7 @@ class MainActivity : AppCompatActivity() {
             callsign = callsign, tcpHost = host, tcpPort = port,
             useTls = checkTls.isChecked
         ))
+        ConfigStore.saveConnectionProfile(this, profile, checkDtr.isChecked)
         ConfigStore.saveBaudRate(this, baudRates[spinnerBaud.selectedItemPosition])
         ConfigStore.saveProtocol(this, when (spinnerProtocol.selectedItemPosition) {
             1 -> ProtocolRouter.Protocol.MAVLINK
@@ -592,6 +648,8 @@ class MainActivity : AppCompatActivity() {
         usbStatusText.text = if (connected) "USB" else "USB"
         usbStatusText.setTextColor(if (connected) Color.parseColor("#4ECDC4") else Color.parseColor("#888888"))
         btnConnect.text = if (connected) "STOP" else "CONNECT"
+        setConnectionControlsEnabled(!connected)
+        if (connected) statusBar.text = usbTransport.deviceName
         if (!connected) {
             stopBridge()
             protocolStatus.text = ""
@@ -616,12 +674,19 @@ class MainActivity : AppCompatActivity() {
         })
 
         satsText.text = if (pos.satellites >= 0) "${pos.satellites}sv" else "--sv"
-        spdText.text = "${"%.1f".format(pos.groundSpeed)} m/s"
+        spdText.text = if (pos.groundSpeed >= 0) "${"%.1f".format(pos.groundSpeed)} m/s" else "-- m/s"
         altText.text = "${"%.0f".format(pos.altMsl)}m MSL"
-        hdgText.text = "HDG ${"%.0f".format(pos.heading)}\u00B0"
+        hdgText.text = if (pos.heading >= 0) "HDG ${"%.0f".format(pos.heading)}\u00B0" else "HDG --"
     }
 
     private fun updateRateDisplay() {
+        protocolStatus.text = protocolRouter.getStatusString()
+        if (lastPosition?.isFresh() == false) {
+            droneMarker?.isEnabled = false
+            mgrsText.text = "GPS STALE"
+            fixText.text = "Stale"
+            mapView.invalidate()
+        }
         val now = System.currentTimeMillis()
         val elapsed = (now - lastRateCalcTime) / 1000.0
         if (elapsed > 0) currentGpsHz = gpsUpdateCount / elapsed

@@ -29,7 +29,7 @@ class MspGpsParser {
         private const val MSP_COMP_GPS: Int = 107
 
         // Request commands (send to FC to poll GPS)
-        const val MSP_REQUEST_RAW_GPS: ByteArray = byteArrayOf(
+        val MSP_REQUEST_RAW_GPS: ByteArray = byteArrayOf(
             '$'.code.toByte(), 'M'.code.toByte(), '<'.code.toByte(),
             0x00, // payload length
             0x6A, // MSP_RAW_GPS = 106
@@ -97,9 +97,7 @@ class MspGpsParser {
                 if (b == MSP_DIR_FROM_FC) {
                     state = if (isV2) ParseState.V2_FLAG else ParseState.V1_LEN
                 } else {
-                    // Response from FC ('>') — we're reading, not sending
-                    // Also handle '<' for requests we might see echo'd
-                    if (isV2) state = ParseState.V2_FLAG else state = ParseState.V1_LEN
+                    reset() // Requests/errors are not GPS observations.
                 }
             }
 
@@ -149,6 +147,7 @@ class MspGpsParser {
             }
             ParseState.V2_LEN_HI -> {
                 payloadLen = payloadLen or ((b.toInt() and 0xFF) shl 8)
+                if (payloadLen > buffer.size) { reset(); return }
                 crc = crc8DvbS2(crc, b)
                 payloadPos = 0
                 state = if (payloadLen > 0) ParseState.V2_PAYLOAD else ParseState.V2_CRC
@@ -242,7 +241,7 @@ class MspGpsParser {
         homeDirection = buf.getShort().toInt() and 0xFFFF
     }
 
-    private fun reset() {
+    fun reset() {
         state = ParseState.IDLE
         bufferPos = 0
         payloadPos = 0

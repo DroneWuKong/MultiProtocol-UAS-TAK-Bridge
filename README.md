@@ -2,21 +2,30 @@
 
 **Drone GPS → MGRS → TAK**
 
-Standalone Android app that reads GPS telemetry from any drone flight controller over USB — MAVLink, MSP, or GHST — converts coordinates to MGRS, and pushes Cursor on Target (CoT) events to TAK (ATAK/WinTAK/iTAK) in real time.
+Standalone Android app that reads supported GPS telemetry from a flight controller or transmitter over USB — MAVLink, MSP, or GHST — converts coordinates to MGRS, and pushes Cursor on Target (CoT) events to TAK (ATAK/WinTAK/iTAK) in real time.
 
 Part of the [AI Wingman](https://github.com/DroneWuKong/Ai-Project) ecosystem, but runs independently with zero dependencies on other Wingman components.
+
+## TAC.CTRL setup
+
+Version 0.2 adds TAC.CTRL USB profiles with Android permission handling and DTR.
+Start with **MAVLink transcode** on TAC and **TAC.CTRL · MAVLink transcode** in the
+app (115200, DTR on). See [the ordered setup and diagnostics](docs/TAC_CTRL_SETUP.md).
+The alternate GHST profile decodes actual GHST GPS types and reports RC-only
+streams separately. Software compatibility is tested; direct TAC USB GPS still
+requires the physical acceptance check in that guide.
 
 ## What It Does
 
 ```
 Drone FC ──USB OTG──→ Protocol Auto-Detect ──→ Coordinate Formatter ──→ CoT Formatter ──→ TAK
-                       ├─ MAVLink v2          (MGRS/DD/DMS/UTM display)                ├─ Multicast UDP (239.2.3.1:6969)
+                       ├─ MAVLink v1/v2          (MGRS/DD/DMS/UTM display)                ├─ Multicast UDP (239.2.3.1:6969)
                        ├─ MSP v1/v2              Live Map with                         ├─ TAK Server TCP
                        └─ GHST/CRSF              Drone Marker + Trail                  └─ TAK Server TLS (.p12 cert)
 ```
 
 1. **Connects** to a flight controller via USB OTG (phone → FC or phone → transmitter)
-2. **Auto-detects** protocol: MAVLink v2, MSP v1/v2, or GHST/CRSF
+2. **Auto-detects** protocol: MAVLink v1/v2, MSP v1/v2, or GHST/CRSF
 3. **Parses** GPS from any firmware: PX4, ArduPilot, Betaflight, iNav
 4. **Converts** lat/lon to MGRS using NGA's official library
 5. **Displays** live map with drone marker (heading rotation), breadcrumb trail, coordinate readout (tap to cycle MGRS / Lat-Lon DD / Lat-Lon DMS / UTM), fix quality, satellites, altitude, speed
@@ -27,11 +36,11 @@ Drone FC ──USB OTG──→ Protocol Auto-Detect ──→ Coordinate Format
 
 | Protocol | Firmware | GPS Behavior | Default Baud |
 |----------|----------|--------------|--------------|
-| MAVLink v2 | PX4, ArduPilot | Auto-streams GPS | 115200 |
+| MAVLink v1/v2 | PX4, ArduPilot | Auto-streams GPS | 115200 |
 | MSP v1/v2 | Betaflight, iNav | Polled at 2Hz by app | 115200 |
-| GHST/CRSF | Via IRONghost radio | Native GPS frames + MSP passthrough | 115200 |
+| GHST/CRSF | Via IRONghost radio | Native GHST / separate CRSF GPS frames | 115200 |
 
-Auto-detect feeds all three parsers simultaneously — first valid GPS fix locks the protocol. Manual override available via protocol spinner.
+Auto-detect passively feeds all three parsers; decoded GPS locks the protocol. Manual override is available. Only the explicit Direct FC MSP profile sends GPS read requests.
 
 ## Supported Hardware
 
@@ -82,9 +91,9 @@ Check the TLS box, load your `.p12` client certificate, port 8089. Mutual TLS wi
 com.dronewukong.takbridge/
 ├── mavlink/
 │   ├── GpsPosition.kt          # Source-agnostic GPS data class
-│   ├── MavlinkGpsParser.kt     # MAVLink v2 GPS extraction
+│   ├── MavlinkGpsParser.kt     # MAVLink v1/v2 GPS extraction
 │   ├── MspGpsParser.kt         # MSP v1/v2 GPS extraction (Betaflight/iNav)
-│   ├── GhstPassthrough.kt      # GHST/CRSF frame parser + MSP passthrough
+│   ├── GhstPassthrough.kt      # CRC-checked GHST and CRSF GPS parsers
 │   └── ProtocolRouter.kt       # Auto-detect + route to correct parser
 ├── mgrs/
 │   └── CoordinateFormatter.kt  # Multi-format coordinate display (MGRS/DD/DMS/UTM) over NGA MGRS lib
@@ -114,8 +123,7 @@ The app is a dual-tab Activity: a bottom navigation bar switches between the **M
 Standard Android Studio project. Clone, open, sync Gradle, build.
 
 ```bash
-gradle wrapper --gradle-version 8.5
-./gradlew assembleDebug
+./gradlew testDebugUnitTest assembleDebug
 ```
 
 ## Dependencies
@@ -131,7 +139,7 @@ See [`docs/TAK_Bridge_Quick_Start.pdf`](docs/TAK_Bridge_Quick_Start.pdf) for a p
 
 ## What This Is NOT
 
-This is not a flight controller. This is not a GCS. This is not ATAK. This is a **bridge** — it reads position data and relays it to TAK. It does not command the drone, change flight modes, or modify any parameters. It just watches and reports.
+This is not a flight controller. This is not a GCS. This is not ATAK. This is a **bridge** — it reads position data and relays it to TAK. It does not command the drone, change flight modes, or modify parameters. TAC/passive profiles only receive; the explicit direct-FC MSP profile sends GPS read requests. Stale or invalid GPS is not published.
 
 ## Visual Identity
 

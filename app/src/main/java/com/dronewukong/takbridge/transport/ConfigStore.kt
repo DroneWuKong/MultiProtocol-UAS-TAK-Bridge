@@ -88,7 +88,7 @@ object ConfigStore {
     }
 
     fun loadProtocol(context: Context): ProtocolRouter.Protocol {
-        val name = prefs(context).getString(KEY_PROTOCOL, "AUTO_DETECT") ?: "AUTO_DETECT"
+        val name = prefs(context).getString(KEY_PROTOCOL, loadConnectionProfile(context).protocol.name) ?: loadConnectionProfile(context).protocol.name
         return try {
             ProtocolRouter.Protocol.valueOf(name)
         } catch (e: Exception) {
@@ -110,6 +110,18 @@ object ConfigStore {
             p.getString(KEY_TLS_CERT_PASSWORD, "") ?: ""
         )
     }
+
+    fun loadConnectionProfile(context: Context): ConnectionProfile = try {
+        ConnectionProfile.valueOf(prefs(context).getString("connection_profile", "TAC_MAVLINK")!!)
+    } catch (_: Exception) { ConnectionProfile.TAC_MAVLINK }
+
+    fun saveConnectionProfile(context: Context, profile: ConnectionProfile, dtr: Boolean) {
+        prefs(context).edit().putString("connection_profile", profile.name)
+            .putBoolean("serial_dtr", dtr).apply()
+    }
+
+    fun loadDtr(context: Context): Boolean =
+        prefs(context).getBoolean("serial_dtr", loadConnectionProfile(context).dtr)
 
     // ── Coordinate format ──
 

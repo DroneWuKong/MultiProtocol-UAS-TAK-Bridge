@@ -223,7 +223,7 @@ class TakSender(private val context: Context) {
     }
 
     private suspend fun monitorTcp() {
-        while (isActive) {
+        while (currentCoroutineContext().isActive) {
             delay(15_000)
             if (tcpSocket?.isConnected != true || tcpSocket?.isClosed == true) {
                 isTcpConnected = false

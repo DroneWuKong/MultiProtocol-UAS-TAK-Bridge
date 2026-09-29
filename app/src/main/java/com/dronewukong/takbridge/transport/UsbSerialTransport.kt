@@ -1,132 +1,149 @@
 package com.dronewukong.takbridge.transport
 
+import android.app.PendingIntent
+import android.content.BroadcastReceiver
 import android.content.Context
+import android.content.Intent
+import android.content.IntentFilter
 import android.hardware.usb.UsbDevice
 import android.hardware.usb.UsbManager
-import android.util.Log
-import com.hoho.android.usbserial.driver.UsbSerialPort
-import com.hoho.android.usbserial.driver.UsbSerialProber
+import android.net.Uri
+import android.os.Handler
+import android.os.Looper
+import androidx.core.content.ContextCompat
+import com.dronewukong.takbridge.mavlink.MspGpsParser
+import com.hoho.android.usbserial.driver.*
 import com.hoho.android.usbserial.util.SerialInputOutputManager
-import kotlinx.coroutines.*
-import java.util.concurrent.Executors
 
-/**
- * USB Serial connection to drone flight controller.
- *
- * Handles device detection, permission, connect/disconnect lifecycle.
- * Feeds raw bytes to a callback — let the MAVLink parser handle framing.
- */
+/** Android permission + CDC lifecycle, including TAC composite HID/CDC devices. */
 class UsbSerialTransport(private val context: Context) {
-
-    companion object {
-        private const val TAG = "UsbSerial"
-        private const val DEFAULT_BAUD = 115200
-        private const val READ_TIMEOUT = 1000
+    data class Candidate(val driver: UsbSerialDriver, val portIndex: Int) {
+        val device: UsbDevice get() = driver.device
+        val label: String get() = "${device.productName ?: "USB serial"} " +
+            "[%04X:%04X] port %d".format(device.vendorId, device.productId, portIndex + 1)
     }
-
+    private val manager = context.getSystemService(Context.USB_SERVICE) as UsbManager
+    private val main = Handler(Looper.getMainLooper())
+    private val permissionAction = "${context.packageName}.USB_PERMISSION"
     private var serialPort: UsbSerialPort? = null
     private var ioManager: SerialInputOutputManager? = null
-    private val executor = Executors.newSingleThreadExecutor()
-
-    var isConnected: Boolean = false; private set
-    var deviceName: String = ""; private set
+    private var pending: Candidate? = null
+    private var activeDevice: UsbDevice? = null
+    private var generation = 0
+    var isConnected = false; private set
+    val isPermissionPending: Boolean get() = pending != null
+    var deviceName = ""; private set
     var lastError: String? = null; private set
-    var baudRate: Int = DEFAULT_BAUD
-
-    // Callbacks
+    var baudRate = 115200
+    var assertDtr = true
+    var allowMspPolling = false
     var onDataReceived: ((ByteArray, Int) -> Unit)? = null
     var onConnectionChanged: ((Boolean) -> Unit)? = null
 
-    /**
-     * Scan for and connect to the first available USB serial device.
-     */
-    fun connect(): Boolean {
-        val usbManager = context.getSystemService(Context.USB_SERVICE) as UsbManager
-        val drivers = UsbSerialProber.getDefaultProber().findAllDrivers(usbManager)
-
-        if (drivers.isEmpty()) {
-            lastError = "No USB serial devices found"
-            Log.w(TAG, lastError!!)
-            return false
-        }
-
-        val driver = drivers[0]
-        val connection = usbManager.openDevice(driver.device)
-        if (connection == null) {
-            lastError = "USB permission denied — tap notification to grant"
-            Log.w(TAG, lastError!!)
-            return false
-        }
-
-        try {
-            serialPort = driver.ports[0].apply {
-                open(connection)
-                setParameters(baudRate, 8, UsbSerialPort.STOPBITS_1, UsbSerialPort.PARITY_NONE)
-            }
-
-            deviceName = "${driver.device.productName ?: "Unknown"} (${driver.device.vendorId}:${driver.device.productId})"
-
-            // Start reading
-            ioManager = SerialInputOutputManager(serialPort, object : SerialInputOutputManager.Listener {
-                override fun onNewData(data: ByteArray) {
-                    onDataReceived?.invoke(data, data.size)
+    private val receiver = object : BroadcastReceiver() {
+        override fun onReceive(context: Context, intent: Intent) {
+            if (intent.action == permissionAction) {
+                if (intent.data?.lastPathSegment != generation.toString()) return
+                val candidate = pending ?: return
+                pending = null
+                // Verify the actual permission, rather than trusting broadcast extras.
+                if (manager.hasPermission(candidate.device)) open(candidate)
+                else fail("USB permission denied — press CONNECT to try again")
+            } else if (intent.action == UsbManager.ACTION_USB_DEVICE_DETACHED) {
+                @Suppress("DEPRECATION")
+                val device = intent.getParcelableExtra<UsbDevice>(UsbManager.EXTRA_DEVICE)
+                if (device?.deviceName == activeDevice?.deviceName ||
+                    (device != null && device.deviceName == pending?.device?.deviceName)) {
+                    fail("USB disconnected")
                 }
-
-                override fun onRunError(e: Exception) {
-                    Log.e(TAG, "USB read error", e)
-                    lastError = "USB: ${e.message}"
-                    disconnect()
-                }
-            }).also {
-                executor.submit(it)
             }
-
-            isConnected = true
-            lastError = null
-            Log.i(TAG, "Connected to $deviceName at $baudRate baud")
-            onConnectionChanged?.invoke(true)
-            return true
-
-        } catch (e: Exception) {
-            lastError = "USB connect: ${e.message}"
-            Log.e(TAG, lastError!!, e)
-            disconnect()
-            return false
         }
     }
 
-    fun disconnect() {
-        try {
-            ioManager?.stop()
-            serialPort?.close()
-        } catch (e: Exception) {
-            Log.e(TAG, "USB disconnect error", e)
+    init {
+        ContextCompat.registerReceiver(context, receiver, IntentFilter(permissionAction).apply {
+            addAction(UsbManager.ACTION_USB_DEVICE_DETACHED)
+        }, ContextCompat.RECEIVER_NOT_EXPORTED)
+    }
+
+    fun listPorts(): List<Candidate> {
+        val table = UsbSerialProber.getDefaultProbeTable().apply {
+            addProduct(0x35B6, 0x0004, CdcAcmSerialDriver::class.java)
         }
-        ioManager = null
-        serialPort = null
+        return UsbSerialProber(table).findAllDrivers(manager).flatMap { driver ->
+            driver.ports.indices.map { Candidate(driver, it) }
+        }.sortedWith(compareBy({ it.device.deviceName }, { it.portIndex }))
+    }
+
+    fun connect(candidate: Candidate) {
+        if (isConnected || pending != null || serialPort != null) disconnect()
+        lastError = null
+        generation++
+        if (!manager.hasPermission(candidate.device)) {
+            pending = candidate
+            val intent = PendingIntent.getBroadcast(context, 0,
+                Intent(permissionAction).setPackage(context.packageName)
+                    .setData(Uri.parse("takbridge://usb/$generation")),
+                PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE)
+            try { manager.requestPermission(candidate.device, intent) }
+            catch (e: Exception) { fail("USB permission request: ${e.message}") }
+        } else open(candidate)
+    }
+
+    private fun open(candidate: Candidate) {
+        if (manager.deviceList.values.none { it.deviceName == candidate.device.deviceName }) {
+            fail("USB device removed — reconnect it"); return
+        }
+        val connection = manager.openDevice(candidate.device)
+        if (connection == null) { fail("Unable to open USB device"); return }
+        try {
+            val port = candidate.driver.ports[candidate.portIndex]
+            serialPort = port
+            port.open(connection)
+            port.setParameters(baudRate, 8, UsbSerialPort.STOPBITS_1, UsbSerialPort.PARITY_NONE)
+            try { port.setDTR(assertDtr) }
+            catch (e: UnsupportedOperationException) { if (assertDtr) throw e }
+            activeDevice = candidate.device
+            deviceName = candidate.label
+            val session = ++generation
+            isConnected = true
+            lastError = null
+            onConnectionChanged?.invoke(true)
+            ioManager = SerialInputOutputManager(port, object : SerialInputOutputManager.Listener {
+                override fun onNewData(data: ByteArray) {
+                    main.post {
+                        if (isConnected && generation == session) onDataReceived?.invoke(data, data.size)
+                    }
+                }
+                override fun onRunError(e: Exception) {
+                    main.post { if (generation == session) fail("USB read: ${e.message}") }
+                }
+            }).also { it.start() }
+        } catch (e: Exception) {
+            connection.close()
+            fail("USB connect: ${e.message}")
+        }
+    }
+
+    private fun fail(message: String) { lastError = message; disconnect() }
+
+    fun disconnect() {
+        generation++
+        pending = null
         isConnected = false
+        ioManager?.stop(); ioManager = null
+        try { serialPort?.setDTR(false) } catch (_: Exception) { }
+        try { serialPort?.close() } catch (_: Exception) { }
+        serialPort = null; activeDevice = null
         onConnectionChanged?.invoke(false)
     }
 
-    /**
-     * Write bytes to the serial port (for MSP request polling).
-     */
+    /** Only the explicit direct-FC profile permits this single read request. */
     fun write(data: ByteArray) {
-        serialPort?.write(data, READ_TIMEOUT)
+        if (!allowMspPolling || !data.contentEquals(MspGpsParser.MSP_REQUEST_RAW_GPS)) return
+        try { serialPort?.write(data, 1000) }
+        catch (e: Exception) { fail("MSP polling: ${e.message}") }
     }
 
-    /**
-     * List available USB serial devices (for UI picker).
-     */
-    fun listDevices(): List<UsbDevice> {
-        val usbManager = context.getSystemService(Context.USB_SERVICE) as UsbManager
-        return UsbSerialProber.getDefaultProber()
-            .findAllDrivers(usbManager)
-            .map { it.device }
-    }
-
-    fun destroy() {
-        disconnect()
-        executor.shutdown()
-    }
+    fun destroy() { disconnect(); context.unregisterReceiver(receiver) }
 }

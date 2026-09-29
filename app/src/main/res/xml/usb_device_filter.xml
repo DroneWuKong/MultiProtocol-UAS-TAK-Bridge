@@ -1,5 +1,9 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
+    <!-- TAC.CTRL v1.3.8 composite HID + CDC, captured in Operator -->
+    <usb-device vendor-id="13750" product-id="4" />
+    <!-- Other standards-compliant CDC interfaces -->
+    <usb-device class="2" subclass="2" />
     <!-- CP2102/CP2104 (common FC USB) -->
     <usb-device vendor-id="4292" product-id="60000" />
     <!-- FTDI FT232 -->

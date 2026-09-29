@@ -253,6 +253,27 @@
         android:padding="10dp"
         android:layout_gravity="bottom">
 
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:gravity="center_vertical">
+            <Spinner
+                android:id="@+id/spinnerConnectionProfile"
+                android:layout_width="0dp"
+                android:layout_weight="1"
+                android:layout_height="48dp"
+                android:contentDescription="USB connection profile"
+                android:backgroundTint="#4ECDC4" />
+            <CheckBox
+                android:id="@+id/checkDtr"
+                android:layout_width="wrap_content"
+                android:layout_height="48dp"
+                android:text="DTR"
+                android:textColor="#FFFFFF"
+                android:buttonTint="#4ECDC4"
+                android:contentDescription="Enable USB serial DTR signal" />
+        </LinearLayout>
         <!-- USB connect row -->
         <LinearLayout
             android:layout_width="match_parent"
@@ -403,8 +424,8 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:text=""
-            android:textColor="#444444"
-            android:textSize="9sp"
+            android:textColor="#B0BEC5"
+            android:textSize="11sp"
             android:fontFamily="monospace"
             android:gravity="center" />
     </LinearLayout>
