@@ -9,4 +9,8 @@
         <item name="android:navigationBarColor">#121212</item>
         <item name="android:windowBackground">#121212</item>
     </style>
+    <style name="TAKBridge.TabLabel" parent="TextAppearance.MaterialComponents.Caption">
+        <item name="android:textSize">12sp</item>
+        <item name="android:textStyle">bold</item>
+    </style>
 </resources>

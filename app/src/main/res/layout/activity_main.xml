@@ -1,31 +1,36 @@
 <?xml version="1.0" encoding="utf-8"?>
-<androidx.coordinatorlayout.widget.CoordinatorLayout
-    xmlns:android="http://schemas.android.com/apk/res/android"
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:id="@+id/appRoot"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="#121212"
-    android:fitsSystemWindows="true">
+    android:orientation="vertical"
+    android:background="#0D141B">
 
-    <!-- ═══ FRAGMENT CONTAINER — map or tools ═══ -->
     <FrameLayout
         android:id="@+id/fragmentContainer"
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:paddingBottom="56dp" />
+        android:layout_height="0dp"
+        android:layout_weight="1" />
 
-    <!-- ═══ BOTTOM NAV ═══ -->
+    <View android:layout_width="match_parent" android:layout_height="1dp"
+        android:background="#2B3B4A" />
+
     <com.google.android.material.bottomnavigation.BottomNavigationView
         android:id="@+id/bottomNav"
         android:layout_width="match_parent"
-        android:layout_height="56dp"
-        android:layout_gravity="bottom"
-        android:background="#CC121212"
-        app:itemIconTint="@drawable/bottom_nav_selector"
-        app:itemTextColor="@drawable/bottom_nav_selector"
+        android:layout_height="wrap_content"
+        android:minHeight="72dp"
+        android:background="#101B25"
+        app:itemIconTint="@color/bottom_nav_selector"
+        app:itemTextColor="@color/bottom_nav_selector"
+        app:itemTextAppearanceActive="@style/TAKBridge.TabLabel"
+        app:itemTextAppearanceInactive="@style/TAKBridge.TabLabel"
+        app:itemPaddingTop="10dp"
+        app:itemPaddingBottom="10dp"
+        app:itemHorizontalTranslationEnabled="false"
         app:labelVisibilityMode="labeled"
         app:menu="@menu/bottom_nav_menu"
-        app:elevation="8dp"
+        app:elevation="0dp"
         app:itemIconSize="24dp" />
-
-</androidx.coordinatorlayout.widget.CoordinatorLayout>
+</LinearLayout>

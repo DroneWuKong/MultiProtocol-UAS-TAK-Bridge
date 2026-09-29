@@ -1,6 +1,9 @@
 package com.dronewukong.takbridge.ui
 
 import android.annotation.SuppressLint
+import android.content.Intent
+import android.graphics.Color
+import android.net.Uri
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
@@ -10,7 +13,12 @@ import android.webkit.WebResourceRequest
 import android.webkit.WebSettings
 import android.webkit.WebView
 import android.webkit.WebViewClient
+import android.webkit.WebResourceResponse
+import android.webkit.ValueCallback
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.fragment.app.Fragment
+import androidx.webkit.WebViewAssetLoader
+import org.json.JSONObject
 import com.dronewukong.takbridge.ui.bridge.WingmanJsBridge
 
 /**
@@ -26,6 +34,15 @@ class ToolsFragment : Fragment() {
 
     private lateinit var webView: WebView
     private var pendingTool: String? = null
+    private var fileCallback: ValueCallback<Array<Uri>>? = null
+    private val filePicker = registerForActivityResult(ActivityResultContracts.StartActivityForResult()) { result ->
+        fileCallback?.onReceiveValue(WebChromeClient.FileChooserParams.parseResult(result.resultCode, result.data))
+        fileCallback = null
+    }
+
+    companion object {
+        internal const val TOOLS_URL = "https://appassets.androidplatform.net/assets/tools/tools_offline.html"
+    }
 
     @SuppressLint("SetJavaScriptEnabled")
     override fun onCreateView(
@@ -33,7 +50,11 @@ class ToolsFragment : Fragment() {
         container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View {
+        val assetLoader = WebViewAssetLoader.Builder()
+            .addPathHandler("/assets/", WebViewAssetLoader.AssetsPathHandler(requireContext()))
+            .build()
         webView = WebView(requireContext()).apply {
+            setBackgroundColor(Color.rgb(13, 20, 27))
             layoutParams = ViewGroup.LayoutParams(
                 ViewGroup.LayoutParams.MATCH_PARENT,
                 ViewGroup.LayoutParams.MATCH_PARENT
@@ -41,44 +62,65 @@ class ToolsFragment : Fragment() {
             settings.apply {
                 javaScriptEnabled = true
                 domStorageEnabled = true
-                allowFileAccess = true
-                allowContentAccess = true
-                mixedContentMode = WebSettings.MIXED_CONTENT_ALWAYS_ALLOW
+                allowFileAccess = false
+                allowContentAccess = true // User-selected elevation files only.
+                mixedContentMode = WebSettings.MIXED_CONTENT_NEVER_ALLOW
                 cacheMode = WebSettings.LOAD_DEFAULT
                 setSupportZoom(false)
                 displayZoomControls = false
                 builtInZoomControls = false
                 useWideViewPort = true
-                loadWithOverviewMode = true
+                loadWithOverviewMode = false
             }
 
             addJavascriptInterface(WingmanJsBridge(requireContext()), "Android")
 
             webViewClient = object : WebViewClient() {
+                override fun shouldInterceptRequest(view: WebView, request: WebResourceRequest): WebResourceResponse? =
+                    assetLoader.shouldInterceptRequest(request.url)
+
                 override fun onPageFinished(view: WebView, url: String) {
                     injectGpsBridge()
                     pendingTool?.let { tool ->
-                        view.loadUrl("javascript:if(window.showTool)showTool('$tool');")
+                        view.evaluateJavascript("if(window.showTool)showTool(${JSONObject.quote(tool)});", null)
                         pendingTool = null
                     }
                 }
                 override fun shouldOverrideUrlLoading(
                     view: WebView, request: WebResourceRequest
                 ): Boolean {
-                    val url = request.url.toString()
-                    return !(url.startsWith("file://") || url.contains("#"))
+                    val url = request.url
+                    if (url.scheme == "https" && url.host == "appassets.androidplatform.net" &&
+                        url.path == "/assets/tools/tools_offline.html") return false
+                    if (request.isForMainFrame && url.scheme in listOf("https", "http")) {
+                        runCatching { startActivity(Intent(Intent.ACTION_VIEW, url)) }
+                    }
+                    return true
                 }
             }
-            webChromeClient = WebChromeClient()
+            webChromeClient = object : WebChromeClient() {
+                override fun onShowFileChooser(view: WebView, callback: ValueCallback<Array<Uri>>,
+                    params: FileChooserParams): Boolean {
+                    fileCallback?.onReceiveValue(null)
+                    fileCallback = callback
+                    return try {
+                        filePicker.launch(params.createIntent().apply { type = "*/*" })
+                        true
+                    } catch (_: Exception) {
+                        fileCallback = null
+                        false
+                    }
+                }
+            }
         }
 
-        webView.loadUrl("file:///android_asset/tools/tools_offline.html")
+        webView.loadUrl(TOOLS_URL)
         return webView
     }
 
     fun navigateTo(toolId: String) {
         if (::webView.isInitialized) {
-            webView.post { webView.loadUrl("javascript:if(window.showTool)showTool('$toolId');") }
+            webView.post { webView.evaluateJavascript("if(window.showTool)showTool(${JSONObject.quote(toolId)});", null) }
         } else {
             pendingTool = toolId
         }
@@ -116,12 +158,29 @@ class ToolsFragment : Fragment() {
             tryInjectGps('terrain-rx-lat', 'terrain-rx-lon');
         })();
         """.trimIndent()
-        webView.loadUrl("javascript:$js")
+        webView.evaluateJavascript(js, null)
     }
 
     override fun onResume() { super.onResume(); webView.onResume() }
     override fun onPause()  { super.onPause();  webView.onPause() }
-    override fun onDestroyView() { super.onDestroyView(); webView.destroy() }
+    override fun onDestroyView() {
+        fileCallback?.onReceiveValue(null)
+        fileCallback = null
+        webView.destroy()
+        super.onDestroyView()
+    }
 
-    fun onBackPressed(): Boolean = if (webView.canGoBack()) { webView.goBack(); true } else false
+    fun onBackPressed(onLeaveTools: () -> Unit) {
+        webView.evaluateJavascript("""
+            (function(){
+                var chooser = document.getElementById('tool-library');
+                if (chooser && chooser.open) { chooser.close(); return true; }
+                return false;
+            })();
+        """.trimIndent()) { closedChooser ->
+            if (isAdded && closedChooser != "true") {
+                if (webView.canGoBack()) webView.goBack() else onLeaveTools()
+            }
+        }
+    }
 }

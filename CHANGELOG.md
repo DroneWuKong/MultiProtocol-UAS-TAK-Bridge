@@ -1,5 +1,19 @@
 # Changelog
 
+## 0.2.2 — Phone Tools redesign (2026-09-29)
+
+- Replace duplicate scrolling tool bars with one searchable tool library.
+- Rebuild the phone layout with readable contrast, larger inputs, responsive
+  columns, a map-first terrain screen and consistent teal styling.
+- Fix malformed report strings that broke the entire calculator script and
+  leaked report styling into the page; separate HTML, CSS and JavaScript.
+- Bundle Leaflet, GeoTIFF and icon assets, use an HTTPS asset origin, and show
+  map tile failures with a retry action. Add an Android file picker for DEMs.
+- Fix crowded native tab icons/labels and apply system/keyboard insets once.
+- Close the tool chooser before leaving Tools with Android Back.
+- Correct the range calculator's mW-to-dBm and MHz/km path-loss unit errors.
+- Add browser navigation/layout/calculator checks and native navigation checks.
+
 ## 0.2.1 — Fix immediate launch crash (2026-09-29)
 
 - Reproduce and fix the startup `NullPointerException`: activity startup tried

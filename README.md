@@ -148,3 +148,11 @@ Dark theme. Teal (`#4ECDC4`) accent. Monospace. Like the rest of the AI Wingman 
 ---
 
 *Buddy up.*
+
+### Phone Tools UI
+
+Version 0.2.2 adds one searchable tool chooser, a responsive high-contrast layout,
+map loading/error states and repaired native tabs. The map engine and calculator
+assets are bundled; map imagery and online elevation require internet.
+See [UI repair and verification](docs/UI_REPAIR_2026-09-29.md) for the browser and
+Android regression checks.

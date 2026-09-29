@@ -18,6 +18,9 @@ import android.widget.*
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.content.ContextCompat
+import androidx.core.view.ViewCompat
+import androidx.core.view.WindowCompat
+import androidx.core.view.WindowInsetsCompat
 import androidx.core.graphics.drawable.toBitmap
 import com.dronewukong.takbridge.R
 import com.dronewukong.takbridge.cot.CotFormatter
@@ -159,6 +162,15 @@ class MainActivity : AppCompatActivity() {
         Configuration.getInstance().userAgentValue = "TAKBridge/0.1"
 
         setContentView(R.layout.activity_main)
+        // Consume system/keyboard insets once, outside both the content and tabs.
+        // A fixed-height bottom bar previously squeezed its labels under icons.
+        WindowCompat.setDecorFitsSystemWindows(window, false)
+        ViewCompat.setOnApplyWindowInsetsListener(findViewById(R.id.appRoot)) { view, insets ->
+            val bars = insets.getInsets(WindowInsetsCompat.Type.systemBars())
+            val keyboard = insets.getInsets(WindowInsetsCompat.Type.ime())
+            view.setPadding(bars.left, bars.top, bars.right, maxOf(bars.bottom, keyboard.bottom))
+            WindowInsetsCompat.CONSUMED
+        }
 
         // FragmentManager restores its own instances after activity recreation.
         mapFragment = supportFragmentManager.findFragmentByTag("map") as? MapFragment
@@ -216,7 +228,10 @@ class MainActivity : AppCompatActivity() {
 
     @Deprecated("Deprecated in Java")
     override fun onBackPressed() {
-        if (activeFragment === toolsFragment && toolsFragment.onBackPressed()) return
+        if (activeFragment === toolsFragment) {
+            toolsFragment.onBackPressed { bottomNav.selectedItemId = R.id.nav_map }
+            return
+        }
         @Suppress("DEPRECATION")
         super.onBackPressed()
     }

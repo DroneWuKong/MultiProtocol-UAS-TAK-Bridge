@@ -15,6 +15,19 @@ jobs:
           distribution: temurin
           java-version: '17'
       - uses: gradle/actions/setup-gradle@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: npm
+          cache-dependency-path: tools/ui-tests/package-lock.json
+      - name: Install browser checks
+        working-directory: tools/ui-tests
+        run: |
+          npm ci
+          npx playwright install --with-deps chromium
+      - name: Check phone tools and offline navigation
+        working-directory: tools/ui-tests
+        run: npm test
       - name: Test and build
         run: ./gradlew testDebugUnitTest assembleDebug lintDebug --no-daemon
       - name: Hash APK
@@ -31,4 +44,12 @@ jobs:
         with:
           name: unit-test-results
           path: app/build/reports/tests/testDebugUnitTest/
+          if-no-files-found: ignore
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: ui-checks
+          path: |
+            tools/ui-tests/artifacts/
+            app/build/reports/ui/
           if-no-files-found: ignore

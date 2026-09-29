@@ -23,3 +23,7 @@ Thumbs.db
 *.keystore
 *.jks
 *.p12
+
+# Browser UI checks
+tools/ui-tests/node_modules/
+tools/ui-tests/artifacts/
