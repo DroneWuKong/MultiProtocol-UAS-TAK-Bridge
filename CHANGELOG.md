@@ -1,5 +1,16 @@
 # Changelog
 
+## 0.2.1 — Fix immediate launch crash (2026-09-29)
+
+- Reproduce and fix the startup `NullPointerException`: activity startup tried
+  to bind map controls before the map fragment had created its view.
+- Bind from `MapFragment.onViewCreated` using that fragment's root view.
+- Reuse Android-restored fragments after activity recreation instead of adding
+  a second map/tools pair.
+- Add three Robolectric tests using the real manifest/layout: cold launch,
+  Connect without USB, and recreation with Map/Tools navigation.
+- Version code 3, compatible with installing over the previous debug build.
+
 ## 0.2.0 — TAC.CTRL USB compatibility (2026-09-29)
 
 - TAC MAVLink/GHST profiles, configurable DTR, Android permission/retry handling,

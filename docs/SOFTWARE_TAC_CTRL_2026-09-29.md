@@ -35,3 +35,35 @@ Android USB permission/DTR behavior and aircraft GPS through TAC USB remain the
 physical acceptance steps in [TAC_CTRL_SETUP.md](TAC_CTRL_SETUP.md).
 The historical Operator capture proves TAC USB RC streaming only; synthetic
 GPS fixtures do not promote it to measured aircraft telemetry.
+
+## 0.2.1 launch-crash follow-up
+
+The user reported that 0.2.0 closed immediately after the launch animation.
+A new Robolectric test with the real manifest/resources on API 35 reproduced:
+
+```text
+java.lang.NullPointerException: findViewById(...) must not be null
+  at MainActivity.bindViews(MainActivity.kt:228)
+  at MainActivity.onCreate(MainActivity.kt:184)
+```
+
+This startup ordering came from the pre-existing Map/Tools fragment code.
+The original parser-only tests and successful APK build did not exercise it.
+`executePendingTransactions()` inside activity `onCreate` does not guarantee
+that a programmatically added fragment has created its view at that lifecycle
+stage. Binding now runs from `MapFragment.onViewCreated` and uses its root view.
+Restored fragments are reused, preserving tab navigation after recreation.
+
+Checks after the fix: all 20 tests pass (17 telemetry + 3 Android startup tests).
+The three new tests cover cold launch, Connect without hardware, and activity
+recreation while Tools is selected followed by navigation back to Map. These
+run entirely in software and are included in the existing Android CI command.
+This reproduces and fixes the observed class of launch failure; no physical
+phone or TAC controller was connected to this test environment.
+
+`assembleDebug` and `lintDebug` also pass (0 lint errors, 81 warnings).
+APK 0.2.1 (version code 3) signature verifies and its signing certificate matches
+0.2.0, so Android can install it as an update without uninstalling.
+
+0.2.1 APK SHA-256:
+`b16982db63d5ec7e702fd9841c5b4922cc4f43fd356a53c30f76ffd108fa2ff7`.

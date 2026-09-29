@@ -83,8 +83,8 @@ class MainActivity : AppCompatActivity() {
 
     // ── Navigation ─────────────────────────────────────────────
     private lateinit var bottomNav: BottomNavigationView
-    private val mapFragment  = MapFragment()
-    private val toolsFragment = ToolsFragment()
+    private lateinit var mapFragment: MapFragment
+    private lateinit var toolsFragment: ToolsFragment
     private var activeFragment: androidx.fragment.app.Fragment? = null
 
     // ── Map overlays ───────────────────────────────────────────
@@ -160,13 +160,18 @@ class MainActivity : AppCompatActivity() {
 
         setContentView(R.layout.activity_main)
 
-        // ── Fragment setup ──────────────────────────────────────
-        supportFragmentManager.beginTransaction()
-            .add(R.id.fragmentContainer, mapFragment,   "map")
-            .add(R.id.fragmentContainer, toolsFragment, "tools")
-            .hide(toolsFragment)
-            .commit()
-        activeFragment = mapFragment
+        // FragmentManager restores its own instances after activity recreation.
+        mapFragment = supportFragmentManager.findFragmentByTag("map") as? MapFragment
+            ?: MapFragment().also {
+                supportFragmentManager.beginTransaction()
+                    .add(R.id.fragmentContainer, it, "map").commit()
+            }
+        toolsFragment = supportFragmentManager.findFragmentByTag("tools") as? ToolsFragment
+            ?: ToolsFragment().also {
+                supportFragmentManager.beginTransaction()
+                    .add(R.id.fragmentContainer, it, "tools").hide(it).commit()
+            }
+        activeFragment = if (mapFragment.isHidden) toolsFragment else mapFragment
 
         bottomNav = findViewById(R.id.bottomNav)
         bottomNav.setOnItemSelectedListener { item ->
@@ -177,11 +182,11 @@ class MainActivity : AppCompatActivity() {
             true
         }
 
-        // ── Existing setup (runs after fragment transaction) ────
-        // Views are bound after the map fragment is visible
-        supportFragmentManager.executePendingTransactions()
+    }
 
-        bindViews()
+    /** Called only after the map fragment has actually inflated its controls. */
+    internal fun onMapViewCreated(view: View) {
+        bindViews(view)
         setupMap()
         setupSpinners()
         initComponents()
@@ -224,38 +229,38 @@ class MainActivity : AppCompatActivity() {
 
     // ── Setup ──────────────────────────────────────────────────
 
-    private fun bindViews() {
-        mapView = findViewById(R.id.mapView)
-        usbStatusDot = findViewById(R.id.usbStatusDot)
-        usbStatusText = findViewById(R.id.usbStatusText)
-        multicastDot = findViewById(R.id.multicastDot)
-        tcpDot = findViewById(R.id.tcpDot)
-        mgrsText = findViewById(R.id.mgrsText)
-        coordFormatLabel = findViewById(R.id.coordFormatLabel)
-        latLonText = findViewById(R.id.latLonText)
-        fixText = findViewById(R.id.fixText)
-        satsText = findViewById(R.id.satsText)
-        spdText = findViewById(R.id.spdText)
-        altText = findViewById(R.id.altText)
-        hdgText = findViewById(R.id.hdgText)
-        cotRateText = findViewById(R.id.cotRateText)
-        spinnerConnectionProfile = findViewById(R.id.spinnerConnectionProfile)
-        checkDtr = findViewById(R.id.checkDtr)
-        spinnerProtocol = findViewById(R.id.spinnerProtocol)
-        spinnerBaud = findViewById(R.id.spinnerBaud)
-        btnConnect = findViewById(R.id.btnConnect)
-        editCallsign = findViewById(R.id.editCallsign)
-        editTakHost = findViewById(R.id.editTakHost)
-        editTakPort = findViewById(R.id.editTakPort)
-        checkTls = findViewById(R.id.checkTls)
-        btnTakConnect = findViewById(R.id.btnTakConnect)
-        btnLoadCert = findViewById(R.id.btnLoadCert)
-        certStatus = findViewById(R.id.certStatus)
-        btnCenterDrone = findViewById(R.id.btnCenterDrone)
-        btnZoomIn = findViewById(R.id.btnZoomIn)
-        btnZoomOut = findViewById(R.id.btnZoomOut)
-        statusBar = findViewById(R.id.statusBar)
-        protocolStatus = findViewById(R.id.protocolStatus)
+    private fun bindViews(view: View) {
+        mapView = view.findViewById(R.id.mapView)
+        usbStatusDot = view.findViewById(R.id.usbStatusDot)
+        usbStatusText = view.findViewById(R.id.usbStatusText)
+        multicastDot = view.findViewById(R.id.multicastDot)
+        tcpDot = view.findViewById(R.id.tcpDot)
+        mgrsText = view.findViewById(R.id.mgrsText)
+        coordFormatLabel = view.findViewById(R.id.coordFormatLabel)
+        latLonText = view.findViewById(R.id.latLonText)
+        fixText = view.findViewById(R.id.fixText)
+        satsText = view.findViewById(R.id.satsText)
+        spdText = view.findViewById(R.id.spdText)
+        altText = view.findViewById(R.id.altText)
+        hdgText = view.findViewById(R.id.hdgText)
+        cotRateText = view.findViewById(R.id.cotRateText)
+        spinnerConnectionProfile = view.findViewById(R.id.spinnerConnectionProfile)
+        checkDtr = view.findViewById(R.id.checkDtr)
+        spinnerProtocol = view.findViewById(R.id.spinnerProtocol)
+        spinnerBaud = view.findViewById(R.id.spinnerBaud)
+        btnConnect = view.findViewById(R.id.btnConnect)
+        editCallsign = view.findViewById(R.id.editCallsign)
+        editTakHost = view.findViewById(R.id.editTakHost)
+        editTakPort = view.findViewById(R.id.editTakPort)
+        checkTls = view.findViewById(R.id.checkTls)
+        btnTakConnect = view.findViewById(R.id.btnTakConnect)
+        btnLoadCert = view.findViewById(R.id.btnLoadCert)
+        certStatus = view.findViewById(R.id.certStatus)
+        btnCenterDrone = view.findViewById(R.id.btnCenterDrone)
+        btnZoomIn = view.findViewById(R.id.btnZoomIn)
+        btnZoomOut = view.findViewById(R.id.btnZoomOut)
+        statusBar = view.findViewById(R.id.statusBar)
+        protocolStatus = view.findViewById(R.id.protocolStatus)
     }
 
     private fun setupMap() {
