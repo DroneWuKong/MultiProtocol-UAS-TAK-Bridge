@@ -1,0 +1,2634 @@
+{
+  "source": "DroneWuKong/droneclear_Forge forge-source/forge_database.json",
+  "source_blob": "efafdad617b549125328ee262f154d7e28f13bf2",
+  "components": {
+    "receivers": [
+      {
+        "pid": "RX-MAFIA-ANYLEAF-single-rad",
+        "name": "Anyleaf 2.4GHz single radio RX",
+        "manufacturer": "AnyLeaf",
+        "source": "BUSHA/targets@mafia-targets (vtx.in.ua)",
+        "firmware": "Unified_ESP8285_2400_RX",
+        "layout_file": "Generic 2400 Diversity PA.json"
+      },
+      {
+        "pid": "RX-MAFIA-ANYLEAF-dual-radio",
+        "name": "Anyleaf 2.4GHz dual radio RX",
+        "manufacturer": "AnyLeaf",
+        "source": "BUSHA/targets@mafia-targets (vtx.in.ua)",
+        "firmware": "Unified_ESP32_2400_RX",
+        "layout_file": "Generic 2400 True Diversity PA.json"
+      },
+      {
+        "pid": "RX-MAFIA-ANYLEAF-h7-fc",
+        "name": "Anyleaf FC integrated RX",
+        "manufacturer": "AnyLeaf",
+        "source": "BUSHA/targets@mafia-targets (vtx.in.ua)",
+        "firmware": "Unified_ESP8285_2400_RX",
+        "layout_file": "Generic 2400.json"
+      },
+      {
+        "pid": "RX-MAFIA-AERONETI-lr1121",
+        "name": "AERONETIX LR1121 RX",
+        "manufacturer": "AERONETIX",
+        "source": "BUSHA/targets@mafia-targets (vtx.in.ua)",
+        "firmware": "Unified_ESP8285_LR1121_900_RX",
+        "layout_file": "Generic 900 8285 lr1121.json"
+      },
+      {
+        "pid": "RX-MAFIA-AXIS-thor",
+        "name": "AXIS Thor 2.4GHz RX",
+        "manufacturer": "Axisflying",
+        "source": "BUSHA/targets@mafia-targets (vtx.in.ua)",
+        "firmware": "Unified_ESP8285_2400_RX",
+        "layout_file": "Generic 2400.json"
+      },
+      {
+        "pid": "RX-MAFIA-BAYCKRC-nano",
+        "name": "BAYCKRC 900MHz Nano RX",
+        "manufacturer": "BAYCKRC",
+        "source": "BUSHA/targets@mafia-targets (vtx.in.ua)",
+        "firmware": "Unified_ESP8285_900_RX",
+        "layout_file": "Generic 900.json"
+      },
+      {
+        "pid": "RX-MAFIA-BAYCKRC-dual-core",
+        "name": "BAYCKRC 900MHz Dual Core RX",
+        "manufacturer": "BAYCKRC",
+        "source": "BUSHA/targets@mafia-targets (vtx.in.ua)",
+        "firmware": "Unified_ESP32_900_RX",
+        "layout_file": "Generic 900 True Diversity.json"
+      },
+      {
+        "pid": "RX-MAFIA-BAYCKRC-dual-core-",
+        "name": "NONAME 900MHz Dual Core RX",
+        "manufacturer": "BAYCKRC",
+        "source": "BUSHA/targets@mafia-targets (vtx.in.ua)",
+        "firmware": "Unified_ESP32_LR1121_RX",
+        "layout_file": "Generic LR1121 True Diversity.json"
+      },
+      {
+        "pid": "RX-MAFIA-BAYCKRC-bc_sub",
+        "name": "B.c SubGHz Nano RX",
+        "manufacturer": "BAYCKRC",
+        "source": "BUSHA/targets@mafia-targets (vtx.in.ua)",
+        "firmware": "Unified_ESP32C3_LR1121_RX",
+        "layout_file": "B.c SubGHz RX.json"
+      },
+      {
+        "pid": "RX-MAFIA-BAYCKRC-rrd1",
+        "name": "BAYCKRC RRD1 2.4GHz RX",
+        "manufacturer": "BAYCKRC",
+        "source": "BUSHA/targets@mafia-targets (vtx.in.ua)",
+        "firmware": "Unified_ESP32C3_2400_RX",
+        "layout_file": "Generic C3 2400 True Diversity.json"
+      },
+      {
+        "pid": "RX-MAFIA-BAYCKRC-pwmc3",
+        "name": "BAYCKRC C3 2.4Ghz 6PWM 10mw RX",
+        "manufacturer": "BAYCKRC",
+        "source": "BUSHA/targets@mafia-targets (vtx.in.ua)",
+        "firmware": "Unified_ESP32C3_2400_RX",
+        "layout_file": "Generic C3 2400 PWM.json"
+      },
+      {
+        "pid": "RX-MAFIA-BAYCKRC-rrd2",
+        "name": "BAYCKRC RRD2 2.4GHz RX",
+        "manufacturer": "BAYCKRC",
+        "source": "BUSHA/targets@mafia-targets (vtx.in.ua)",
+        "firmware": "Unified_ESP32C3_LR1121_RX",
+        "layout_file": "Generic C3 LR1121 True Diversity.json"
+      },
+      {
+        "pid": "RX-MAFIA-BAYCKRC-rr2",
+        "name": "BAYCKRC RR2 2.4GHz RX",
+        "manufacturer": "BAYCKRC",
+        "source": "BUSHA/targets@mafia-targets (vtx.in.ua)",
+        "firmware": "Unified_ESP32C3_LR1121_RX",
+        "layout_file": "Generic C3 LR1121.json"
+      },
+      {
+        "pid": "RX-MAFIA-BAYCKRC-dual",
+        "name": "BAYCKRC 900/2400 Dual Band Gemini RX",
+        "manufacturer": "BAYCKRC",
+        "source": "BUSHA/targets@mafia-targets (vtx.in.ua)",
+        "firmware": "Unified_ESP32_LR1121_RX",
+        "layout_file": "Generic LR1121 True Diversity.json"
+      },
+      {
+        "pid": "RX-MAFIA-BAYCKRC-single",
+        "name": "BAYCKRC C3 900/2400 Dual Band Nano RX",
+        "manufacturer": "BAYCKRC",
+        "source": "BUSHA/targets@mafia-targets (vtx.in.ua)",
+        "firmware": "Unified_ESP32C3_LR1121_RX",
+        "layout_file": "Generic C3 LR1121.json"
+      },
+      {
+        "pid": "RX-MAFIA-BAYCKRC-ur100",
+        "name": "BAYCKRC UR100 Dual Band RX",
+        "manufacturer": "BAYCKRC",
+        "source": "BUSHA/targets@mafia-targets (vtx.in.ua)",
+        "firmware": "Unified_ESP32C3_LR1121_RX",
+        "layout_file": "Generic C3 LR1121.json"
+      },
+      {
+        "pid": "RX-MAFIA-BAYCKRC-ur500",
+        "name": "BAYCKRC UR500 Dual Band RX",
+        "manufacturer": "BAYCKRC",
+        "source": "BUSHA/targets@mafia-targets (vtx.in.ua)",
+        "firmware": "Unified_ESP32C3_LR1121_RX",
+        "layout_file": "Generic C3 LR1121.json"
+      },
+      {
+        "pid": "RX-MAFIA-BAYCKRC-pwm",
+        "name": "BAYCKRC C3 900/2400 Dual Band 100mw 6PWM RX",
+        "manufacturer": "BAYCKRC",
+        "source": "BUSHA/targets@mafia-targets (vtx.in.ua)",
+        "firmware": "Unified_ESP32C3_LR1121_RX",
+        "layout_file": "Generic C3 LR1121 PWM.json"
+      },
+      {
+        "pid": "RX-MAFIA-BAYCKRC-dualc3",
+        "name": "BAYCKRC C3 900/2400 Dual Band 100mW Gemini RX",
+        "manufacturer": "BAYCKRC",
+        "source": "BUSHA/targets@mafia-targets (vtx.in.ua)",
+        "firmware": "Unified_ESP32C3_LR1121_RX",
+        "layout_file": "Generic C3 LR1121 True Diversity.json"
+      },
+      {
+        "pid": "RX-MAFIA-BAYCKRC-ur1000",
+        "name": "BAYCKRC UR1000 Dual Band RX",
+        "manufacturer": "BAYCKRC",
+        "source": "BUSHA/targets@mafia-targets (vtx.in.ua)",
+        "firmware": "Unified_ESP32C3_LR1121_RX",
+        "layout_file": "Generic C3 LR1121.json"
+      },
+      {
+        "pid": "RX-MAFIA-BETAFPV-nano",
+        "name": "BETAFPV 900MHz Nano RX",
+        "manufacturer": "BETAFPV",
+        "source": "BUSHA/targets@mafia-targets (vtx.in.ua)",
+        "firmware": "Unified_ESP8285_900_RX",
+        "layout_file": "Generic 900.json"
+      },
+      {
+        "pid": "RX-MAFIA-BETAFPV-superd",
+        "name": "BETAFPV SuperD 900MHz RX",
+        "manufacturer": "BETAFPV",
+        "source": "BUSHA/targets@mafia-targets (vtx.in.ua)",
+        "firmware": "Unified_ESP32_900_RX",
+        "layout_file": "Generic 900 True Diversity.json"
+      },
+      {
+        "pid": "RX-MAFIA-BETAFPV-superp",
+        "name": "BETAFPV SuperP 14Ch 900MHz RX",
+        "manufacturer": "BETAFPV",
+        "source": "BUSHA/targets@mafia-targets (vtx.in.ua)",
+        "firmware": "Unified_ESP32_900_RX",
+        "layout_file": "Generic 900 True Diversity PWM 16.json"
+      },
+      {
+        "pid": "RX-MAFIA-BETAFPV-aio",
+        "name": "BETAFPV 2.4GHz AIO RX",
+        "manufacturer": "BETAFPV",
+        "source": "BUSHA/targets@mafia-targets (vtx.in.ua)",
+        "firmware": "Unified_ESP8285_2400_RX",
+        "layout_file": "Generic 2400.json"
+      },
+      {
+        "pid": "RX-MAFIA-BETAFPV-lite",
+        "name": "BETAFPV 2.4GHz Lite RX",
+        "manufacturer": "BETAFPV",
+        "source": "BUSHA/targets@mafia-targets (vtx.in.ua)",
+        "firmware": "Unified_ESP8285_2400_RX",
+        "layout_file": "Generic 2400.json"
+      },
+      {
+        "pid": "RX-MAFIA-BETAFPV-pwmp",
+        "name": "BETAFPV PWM 2.4GHz RX",
+        "manufacturer": "BETAFPV",
+        "source": "BUSHA/targets@mafia-targets (vtx.in.ua)",
+        "firmware": "Unified_ESP8285_2400_RX",
+        "layout_file": "Generic 2400 PWMP5.json"
+      },
+      {
+        "pid": "RX-MAFIA-BETAFPV-superx-nan",
+        "name": "BETAFPV SuperX Nano RX",
+        "manufacturer": "BETAFPV",
+        "source": "BUSHA/targets@mafia-targets (vtx.in.ua)",
+        "firmware": "Unified_ESP32C3_LR1121_RX",
+        "layout_file": "Generic C3 LR1121 True Diversity.json"
+      },
+      {
+        "pid": "RX-MAFIA-BETAFPV-superx-mon",
+        "name": "BETAFPV SuperX Mono RX",
+        "manufacturer": "BETAFPV",
+        "source": "BUSHA/targets@mafia-targets (vtx.in.ua)",
+        "firmware": "Unified_ESP32C3_LR1121_RX",
+        "layout_file": "Generic C3 LR1121.json"
+      },
+      {
+        "pid": "RX-MAFIA-BOTLAB-botlink1",
+        "name": "BotLabDynamics BotLink1 2.4GHz RX",
+        "manufacturer": "BotLabDynamics",
+        "source": "BUSHA/targets@mafia-targets (vtx.in.ua)",
+        "firmware": "Unified_ESP32C3_2400_RX",
+        "layout_file": "Generic C3 2400.json"
+      },
+      {
+        "pid": "RX-MAFIA-BROTHERH-plain",
+        "name": "BrotherHobby 900MHz Nano RX",
+        "manufacturer": "BrotherHobby",
+        "source": "BUSHA/targets@mafia-targets (vtx.in.ua)",
+        "firmware": "Unified_ESP8285_900_RX",
+        "layout_file": "Generic 900.json"
+      },
+      {
+        "pid": "RX-MAFIA-BROTHERH-nano",
+        "name": "BrotherHobby 2.4GHz Nano RX",
+        "manufacturer": "BrotherHobby",
+        "source": "BUSHA/targets@mafia-targets (vtx.in.ua)",
+        "firmware": "Unified_ESP8285_2400_RX",
+        "layout_file": "Generic 2400 PA.json"
+      },
+      {
+        "pid": "RX-MAFIA-BROTHERH-dualc3",
+        "name": "BrotherHobby C3 900/2400 Dual Band 100mW Gemini RX",
+        "manufacturer": "BrotherHobby",
+        "source": "BUSHA/targets@mafia-targets (vtx.in.ua)",
+        "firmware": "Unified_ESP32C3_LR1121_RX",
+        "layout_file": "Generic C3 LR1121 True Diversity.json"
+      },
+      {
+        "pid": "RX-MAFIA-DIFLY-lt433",
+        "name": "LT 433MHz RX V2",
+        "manufacturer": "DiFly",
+        "source": "BUSHA/targets@mafia-targets (vtx.in.ua)",
+        "firmware": "Unified_ESP8285_900_RX",
+        "layout_file": "Generic 900.json"
+      },
+      {
+        "pid": "RX-MAFIA-DIFLY-nano",
+        "name": "DiFly 915m Nano RX",
+        "manufacturer": "DiFly",
+        "source": "BUSHA/targets@mafia-targets (vtx.in.ua)",
+        "firmware": "Unified_ESP8285_900_RX",
+        "layout_file": "Generic 900.json"
+      },
+      {
+        "pid": "RX-MAFIA-DIFLY-trued",
+        "name": "DiFly TrueD 915 RX",
+        "manufacturer": "DiFly",
+        "source": "BUSHA/targets@mafia-targets (vtx.in.ua)",
+        "firmware": "Unified_ESP32_900_RX",
+        "layout_file": "Generic 900 True Diversity.json"
+      },
+      {
+        "pid": "RX-MAFIA-BSIP-superx-mon",
+        "name": "BlackSheep IP YB-Diversity Dual Band RX",
+        "manufacturer": "BlackSheep IP",
+        "source": "BUSHA/targets@mafia-targets (vtx.in.ua)",
+        "firmware": "Unified_ESP32S3_LR1121_RX",
+        "layout_file": "Generic S3 LR1121 True Diversity.json"
+      },
+      {
+        "pid": "RX-MAFIA-DAKEFPV-rx900",
+        "name": "DAKEFPV 900MHz RX",
+        "manufacturer": "DAKEFPV",
+        "source": "BUSHA/targets@mafia-targets (vtx.in.ua)",
+        "firmware": "Unified_ESP32C3_LR1121_RX",
+        "layout_file": "Generic C3 LR1121.json"
+      },
+      {
+        "pid": "RX-MAFIA-DAKEFPV-gemx",
+        "name": "DAKEFPV C3 900/2400 Dual Band 100mW Gemini RX",
+        "manufacturer": "DAKEFPV",
+        "source": "BUSHA/targets@mafia-targets (vtx.in.ua)",
+        "firmware": "Unified_ESP32C3_LR1121_RX",
+        "layout_file": "Generic C3 LR1121 True Diversity.json"
+      },
+      {
+        "pid": "RX-MAFIA-DAKEFPV-superd",
+        "name": "DAKEFPV SuperD 900MHz RX",
+        "manufacturer": "DAKEFPV",
+        "source": "BUSHA/targets@mafia-targets (vtx.in.ua)",
+        "firmware": "Unified_ESP32C3_LR1121_RX",
+        "layout_file": "Generic C3 LR1121 True Diversity.json"
+      },
+      {
+        "pid": "RX-MAFIA-DAKEFPV-pro",
+        "name": "DAKEFPV 500mW 900MHz RX",
+        "manufacturer": "DAKEFPV",
+        "source": "BUSHA/targets@mafia-targets (vtx.in.ua)",
+        "firmware": "Unified_ESP32C3_LR1121_RX",
+        "layout_file": "Generic C3 LR1121.json"
+      },
+      {
+        "pid": "RX-MAFIA-DAKEFPV-nano",
+        "name": "DAKEFPV Nano 2.4GHz RX",
+        "manufacturer": "DAKEFPV",
+        "source": "BUSHA/targets@mafia-targets (vtx.in.ua)",
+        "firmware": "Unified_ESP32C3_LR1121_RX",
+        "layout_file": "Generic C3 LR1121.json"
+      },
+      {
+        "pid": "RX-MAFIA-DAKEFPV-1w",
+        "name": "DAKEFPV 1W 2.4GHz RX",
+        "manufacturer": "DAKEFPV",
+        "source": "BUSHA/targets@mafia-targets (vtx.in.ua)",
+        "firmware": "Unified_ESP32C3_LR1121_RX",
+        "layout_file": "Generic C3 LR1121.json"
+      },
+      {
+        "pid": "RX-MAFIA-DIY-ttgov1",
+        "name": "DIY TTGO V1 900MHz RX",
+        "manufacturer": "DIY devices",
+        "source": "BUSHA/targets@mafia-targets (vtx.in.ua)",
+        "firmware": "Unified_ESP32_900_RX",
+        "layout_file": "DIY 900 TTGO V1.json"
+      },
+      {
+        "pid": "RX-MAFIA-DIY-ttgov2",
+        "name": "DIY TTGO V2 900MHz RX",
+        "manufacturer": "DIY devices",
+        "source": "BUSHA/targets@mafia-targets (vtx.in.ua)",
+        "firmware": "Unified_ESP32_900_RX",
+        "layout_file": "DIY 900 TTGO V2.json"
+      },
+      {
+        "pid": "RX-MAFIA-DIY-huzzah",
+        "name": "DIY Huzzah RFM95 900MHz TX",
+        "manufacturer": "DIY devices",
+        "source": "BUSHA/targets@mafia-targets (vtx.in.ua)",
+        "firmware": "Unified_ESP8285_900_RX",
+        "layout_file": "DIY Huzzah RFM95.json"
+      },
+      {
+        "pid": "RX-MAFIA-DIY-stm32-sx12",
+        "name": "DIY STM32 SX1272 RX",
+        "manufacturer": "DIY devices",
+        "source": "BUSHA/targets@mafia-targets (vtx.in.ua)",
+        "firmware": "DIY_900_RX_STM32_SX1272",
+        "layout_file": ""
+      },
+      {
+        "pid": "RX-MAFIA-DIY-true_diver",
+        "name": "DIY ESP32-S3 DevKit True Diversity 16xPWM 2.4Ghz RX ",
+        "manufacturer": "DIY devices",
+        "source": "BUSHA/targets@mafia-targets (vtx.in.ua)",
+        "firmware": "Unified_ESP32S3_2400_RX",
+        "layout_file": "DIY S3 DEVKIT 2400 True Diversity PWM 16.json"
+      },
+      {
+        "pid": "RX-MAFIA-EMAX-plain",
+        "name": "EMAX 900MHz RX",
+        "manufacturer": "EMAX",
+        "source": "BUSHA/targets@mafia-targets (vtx.in.ua)",
+        "firmware": "Unified_ESP8285_900_RX",
+        "layout_file": "Generic 900.json"
+      },
+      {
+        "pid": "RX-MAFIA-EMAX-pa",
+        "name": "EMAX 2.4GHz PA RX",
+        "manufacturer": "EMAX",
+        "source": "BUSHA/targets@mafia-targets (vtx.in.ua)",
+        "firmware": "Unified_ESP8285_2400_RX",
+        "layout_file": "Generic 2400 PA.json"
+      },
+      {
+        "pid": "RX-MAFIA-FLYCOLOR-c3",
+        "name": "Flycolor 2.4GHz Nano RX",
+        "manufacturer": "Flycolor",
+        "source": "BUSHA/targets@mafia-targets (vtx.in.ua)",
+        "firmware": "Unified_ESP32C3_2400_RX",
+        "layout_file": "Generic C3 2400.json"
+      },
+      {
+        "pid": "RX-MAFIA-FLYWOO-el24e",
+        "name": "Flywoo EL24E TCXO 2.4GHz RX",
+        "manufacturer": "Flywoo",
+        "source": "BUSHA/targets@mafia-targets (vtx.in.ua)",
+        "firmware": "Unified_ESP8285_2400_RX",
+        "layout_file": "Generic 2400.json"
+      },
+      {
+        "pid": "RX-MAFIA-FLYWOO-el24p",
+        "name": "Flywoo EL24P TCXO 2.4GHz RX",
+        "manufacturer": "Flywoo",
+        "source": "BUSHA/targets@mafia-targets (vtx.in.ua)",
+        "firmware": "Unified_ESP8285_2400_RX",
+        "layout_file": "Generic 2400.json"
+      },
+      {
+        "pid": "RX-MAFIA-FOXEER-pa-rgb",
+        "name": "Foxeer 2.4Ghz RX",
+        "manufacturer": "Foxeer",
+        "source": "BUSHA/targets@mafia-targets (vtx.in.ua)",
+        "firmware": "Unified_ESP8285_2400_RX",
+        "layout_file": "Generic 2400 PA RGB.json"
+      },
+      {
+        "pid": "RX-MAFIA-FOXEER-lite",
+        "name": "Foxeer Lite 2.4GHz RX",
+        "manufacturer": "Foxeer",
+        "source": "BUSHA/targets@mafia-targets (vtx.in.ua)",
+        "firmware": "Unified_ESP8285_2400_RX",
+        "layout_file": "Generic 2400.json"
+      },
+      {
+        "pid": "RX-MAFIA-FOXEER-plain",
+        "name": "Foxeer 900MHz RX",
+        "manufacturer": "Foxeer",
+        "source": "BUSHA/targets@mafia-targets (vtx.in.ua)",
+        "firmware": "Unified_ESP8285_900_RX",
+        "layout_file": "Generic 900.json"
+      },
+      {
+        "pid": "RX-MAFIA-FOXEER-td",
+        "name": "Foxeer 900MHz True Diversity RX",
+        "manufacturer": "Foxeer",
+        "source": "BUSHA/targets@mafia-targets (vtx.in.ua)",
+        "firmware": "Unified_ESP32_900_RX",
+        "layout_file": "Generic 900 True Diversity.json"
+      },
+      {
+        "pid": "RX-MAFIA-FLASHTEC-se4",
+        "name": "SE4 900/2400 Dual Band Xross Gemini RX",
+        "manufacturer": "Flash Tech",
+        "source": "BUSHA/targets@mafia-targets (vtx.in.ua)",
+        "firmware": "Unified_ESP32C3_LR1121_RX",
+        "layout_file": "SE4 C3 Dual Band Xross Gemini RX.json"
+      },
+      {
+        "pid": "RX-MAFIA-FLASHTEC-ft_se4",
+        "name": "FT SE4 900/2400 Dual Band Xross Gemini RX",
+        "manufacturer": "Flash Tech",
+        "source": "BUSHA/targets@mafia-targets (vtx.in.ua)",
+        "firmware": "Unified_ESP32C3_LR1121_RX",
+        "layout_file": "SE4 C3 Dual Band Xross Gemini RX.json"
+      },
+      {
+        "pid": "RX-MAFIA-FRSKY-r9mm",
+        "name": "FrSky R9MM/Mini 900MHz RX",
+        "manufacturer": "Frsky",
+        "source": "BUSHA/targets@mafia-targets (vtx.in.ua)",
+        "firmware": "Frsky_RX_R9MM_R9MINI",
+        "layout_file": ""
+      },
+      {
+        "pid": "RX-MAFIA-FRSKY-r9slim",
+        "name": "FrSky R9 Slim 900MHz RX",
+        "manufacturer": "Frsky",
+        "source": "BUSHA/targets@mafia-targets (vtx.in.ua)",
+        "firmware": "Frsky_RX_R9SLIM",
+        "layout_file": ""
+      },
+      {
+        "pid": "RX-MAFIA-FRSKY-r9slim-plu",
+        "name": "FrSky R9 Slim Plus 900MHz RX",
+        "manufacturer": "Frsky",
+        "source": "BUSHA/targets@mafia-targets (vtx.in.ua)",
+        "firmware": "Frsky_RX_R9SLIMPLUS",
+        "layout_file": ""
+      },
+      {
+        "pid": "RX-MAFIA-FRSKY-r9mx",
+        "name": "FrSky R9MX 900MHz RX",
+        "manufacturer": "Frsky",
+        "source": "BUSHA/targets@mafia-targets (vtx.in.ua)",
+        "firmware": "Frsky_RX_R9MX",
+        "layout_file": ""
+      },
+      {
+        "pid": "RX-MAFIA-GENERIC-plain",
+        "name": "Generic ESP8285 SX127x 900MHz RX",
+        "manufacturer": "Generic targets used as a base",
+        "source": "BUSHA/targets@mafia-targets (vtx.in.ua)",
+        "firmware": "Unified_ESP8285_900_RX",
+        "layout_file": "Generic 900.json"
+      },
+      {
+        "pid": "RX-MAFIA-GENERIC-pwmp",
+        "name": "Generic ESP8285 SX127x with PWM 900MHz RX",
+        "manufacturer": "Generic targets used as a base",
+        "source": "BUSHA/targets@mafia-targets (vtx.in.ua)",
+        "firmware": "Unified_ESP8285_900_RX",
+        "layout_file": "Generic 900 PWMP.json"
+      },
+      {
+        "pid": "RX-MAFIA-GENERIC-true_diver",
+        "name": "Generic ESP32 True Diversity 900MHz RX",
+        "manufacturer": "Generic targets used as a base",
+        "source": "BUSHA/targets@mafia-targets (vtx.in.ua)",
+        "firmware": "Unified_ESP32_900_RX",
+        "layout_file": "Generic 900 True Diversity.json"
+      },
+      {
+        "pid": "RX-MAFIA-GENERIC-c3-plain",
+        "name": "Generic ESP32C3 2.4Ghz RX",
+        "manufacturer": "Generic targets used as a base",
+        "source": "BUSHA/targets@mafia-targets (vtx.in.ua)",
+        "firmware": "Unified_ESP32C3_2400_RX",
+        "layout_file": "Generic C3 2400.json"
+      },
+      {
+        "pid": "RX-MAFIA-GENERIC-c3-plain-p",
+        "name": "Generic ESP32C3 2.4Ghz PA RX",
+        "manufacturer": "Generic targets used as a base",
+        "source": "BUSHA/targets@mafia-targets (vtx.in.ua)",
+        "firmware": "Unified_ESP32C3_2400_RX",
+        "layout_file": "Generic C3 2400 PA.json"
+      },
+      {
+        "pid": "RX-MAFIA-GENERIC-c3-td",
+        "name": "Generic ESP32C3 True Diversity 2.4Ghz RX",
+        "manufacturer": "Generic targets used as a base",
+        "source": "BUSHA/targets@mafia-targets (vtx.in.ua)",
+        "firmware": "Unified_ESP32C3_2400_RX",
+        "layout_file": "Generic C3 2400 True Diversity.json"
+      },
+      {
+        "pid": "RX-MAFIA-GENERIC-c3-pwm",
+        "name": "Generic ESP32C3 PWM 2.4Ghz RX",
+        "manufacturer": "Generic targets used as a base",
+        "source": "BUSHA/targets@mafia-targets (vtx.in.ua)",
+        "firmware": "Unified_ESP32C3_2400_RX",
+        "layout_file": "Generic C3 2400 PWM.json"
+      },
+      {
+        "pid": "RX-MAFIA-GENERIC-pp",
+        "name": "Generic STM32 PP 2.4Ghz RX",
+        "manufacturer": "Generic targets used as a base",
+        "source": "BUSHA/targets@mafia-targets (vtx.in.ua)",
+        "firmware": "DIY_2400_RX_STM32_CCG_Nano_v0_5",
+        "layout_file": ""
+      },
+      {
+        "pid": "RX-MAFIA-GENERIC-pwm5",
+        "name": "Generic ESP8285 5xPWM 2.4Ghz RX",
+        "manufacturer": "Generic targets used as a base",
+        "source": "BUSHA/targets@mafia-targets (vtx.in.ua)",
+        "firmware": "Unified_ESP8285_2400_RX",
+        "layout_file": "Generic 2400 PWMP5.json"
+      },
+      {
+        "pid": "RX-MAFIA-GENERIC-pwm6",
+        "name": "Generic ESP8285 6xPWM 2.4Ghz RX",
+        "manufacturer": "Generic targets used as a base",
+        "source": "BUSHA/targets@mafia-targets (vtx.in.ua)",
+        "firmware": "Unified_ESP8285_2400_RX",
+        "layout_file": "Generic 2400 PWMP6.json"
+      },
+      {
+        "pid": "RX-MAFIA-GENERIC-pwm-vario",
+        "name": "Generic ESP32 PWM Vario 2.4Ghz RX",
+        "manufacturer": "Generic targets used as a base",
+        "source": "BUSHA/targets@mafia-targets (vtx.in.ua)",
+        "firmware": "Unified_ESP32_2400_RX",
+        "layout_file": "Vario 2400.json"
+      },
+      {
+        "pid": "RX-MAFIA-GENERIC-pwm7",
+        "name": "Generic ESP8285 7xPWM 2.4Ghz RX",
+        "manufacturer": "Generic targets used as a base",
+        "source": "BUSHA/targets@mafia-targets (vtx.in.ua)",
+        "firmware": "Unified_ESP8285_2400_RX",
+        "layout_file": "Generic 2400 PWMP7.json"
+      },
+      {
+        "pid": "RX-MAFIA-GENERIC-pa",
+        "name": "Generic ESP8285 PA 2.4Ghz RX",
+        "manufacturer": "Generic targets used as a base",
+        "source": "BUSHA/targets@mafia-targets (vtx.in.ua)",
+        "firmware": "Unified_ESP8285_2400_RX",
+        "layout_file": "Generic 2400 PA.json"
+      },
+      {
+        "pid": "RX-MAFIA-GENERIC-pa-rgb",
+        "name": "Generic ESP8285 RGB + PA 2.4Ghz RX",
+        "manufacturer": "Generic targets used as a base",
+        "source": "BUSHA/targets@mafia-targets (vtx.in.ua)",
+        "firmware": "Unified_ESP8285_2400_RX",
+        "layout_file": "Generic 2400 PA RGB.json"
+      },
+      {
+        "pid": "RX-MAFIA-GENERIC-diversity",
+        "name": "Generic ESP8285 Diversity PA 2.4Ghz RX",
+        "manufacturer": "Generic targets used as a base",
+        "source": "BUSHA/targets@mafia-targets (vtx.in.ua)",
+        "firmware": "Unified_ESP8285_2400_RX",
+        "layout_file": "Generic 2400 Diversity PA.json"
+      },
+      {
+        "pid": "RX-MAFIA-GENERIC-frank",
+        "name": "Generic ESP32 2.4Ghz Franken RX",
+        "manufacturer": "Generic targets used as a base",
+        "source": "BUSHA/targets@mafia-targets (vtx.in.ua)",
+        "firmware": "Unified_ESP32_2400_RX",
+        "layout_file": "Frank 2400.json"
+      },
+      {
+        "pid": "RX-MAFIA-GENERIC-rx_vtx",
+        "name": "Generic ESP32 2.4Ghz Rx and VTx",
+        "manufacturer": "Generic targets used as a base",
+        "source": "BUSHA/targets@mafia-targets (vtx.in.ua)",
+        "firmware": "Unified_ESP32_2400_RX",
+        "layout_file": "Generic 2400 Whoop Rx and VTx.json"
+      },
+      {
+        "pid": "RX-MAFIA-GENERIC-diversity_",
+        "name": "Generic ESP32 True Diversity PA 2.4Ghz RX and VTx",
+        "manufacturer": "Generic targets used as a base",
+        "source": "BUSHA/targets@mafia-targets (vtx.in.ua)",
+        "firmware": "Unified_ESP32_2400_RX",
+        "layout_file": "Generic 2400 True Diversity PA and VTx.json"
+      },
+      {
+        "pid": "RX-MAFIA-GENERIC-c3-true_di",
+        "name": "Gemini C3 XrossBand PA 2.4/900 RX",
+        "manufacturer": "Generic targets used as a base",
+        "source": "BUSHA/targets@mafia-targets (vtx.in.ua)",
+        "firmware": "Unified_ESP32C3_LR1121_RX",
+        "layout_file": "Generic C3 LR1121 True Diversity.json"
+      },
+      {
+        "pid": "RX-MAFIA-GEPRC-nano",
+        "name": "GEPRC Nano 900MHz RX",
+        "manufacturer": "GEPRC",
+        "source": "BUSHA/targets@mafia-targets (vtx.in.ua)",
+        "firmware": "Unified_ESP8285_900_RX",
+        "layout_file": "Generic 900.json"
+      },
+      {
+        "pid": "RX-MAFIA-GEPRC-dual",
+        "name": "GEPRC True Diversity 900MHz RX",
+        "manufacturer": "GEPRC",
+        "source": "BUSHA/targets@mafia-targets (vtx.in.ua)",
+        "firmware": "Unified_ESP32_900_RX",
+        "layout_file": "Generic 900 True Diversity.json"
+      },
+      {
+        "pid": "RX-MAFIA-GEPRC-dual500",
+        "name": "GEPRC True Diversity 900MHz PA500 RX",
+        "manufacturer": "GEPRC",
+        "source": "BUSHA/targets@mafia-targets (vtx.in.ua)",
+        "firmware": "Unified_ESP32_900_RX",
+        "layout_file": "Generic 900 True Diversity PA.json"
+      },
+      {
+        "pid": "RX-MAFIA-GEPRC-pa",
+        "name": "GEPRC Nano 900MHz PA500 RX",
+        "manufacturer": "GEPRC",
+        "source": "BUSHA/targets@mafia-targets (vtx.in.ua)",
+        "firmware": "Unified_ESP8285_900_RX",
+        "layout_file": "Generic 900 PA.json"
+      },
+      {
+        "pid": "RX-MAFIA-GEPRC-geprc-dual",
+        "name": "GEPRC True Diversity 2.4GHz RX",
+        "manufacturer": "GEPRC",
+        "source": "BUSHA/targets@mafia-targets (vtx.in.ua)",
+        "firmware": "Unified_ESP32_2400_RX",
+        "layout_file": "Generic 2400 True Diversity PA.json"
+      },
+      {
+        "pid": "RX-MAFIA-GEPRC-nano-td",
+        "name": "GEPRC Nano True Diversity 2.4GHz RX",
+        "manufacturer": "GEPRC",
+        "source": "BUSHA/targets@mafia-targets (vtx.in.ua)",
+        "firmware": "Unified_ESP32C3_2400_RX",
+        "layout_file": "Generic C3 2400 True Diversity.json"
+      },
+      {
+        "pid": "RX-MAFIA-GEPRC-single",
+        "name": "GEPRC 900/2400 Single Dual-Band RX",
+        "manufacturer": "GEPRC",
+        "source": "BUSHA/targets@mafia-targets (vtx.in.ua)",
+        "firmware": "Unified_ESP32C3_LR1121_RX",
+        "layout_file": "Generic C3 LR1121.json"
+      },
+      {
+        "pid": "RX-MAFIA-GEPRC-c3-dual",
+        "name": "GEPRC C3 900/2400 Gemini Xrossband RX",
+        "manufacturer": "GEPRC",
+        "source": "BUSHA/targets@mafia-targets (vtx.in.ua)",
+        "firmware": "Unified_ESP32C3_LR1121_RX",
+        "layout_file": "Generic C3 LR1121 True Diversity.json"
+      },
+      {
+        "pid": "RX-MAFIA-SUB250-nano",
+        "name": "Sub250 2400 RX",
+        "manufacturer": "Sub250",
+        "source": "BUSHA/targets@mafia-targets (vtx.in.ua)",
+        "firmware": "Unified_ESP8285_2400_RX",
+        "layout_file": "Generic 2400.json"
+      },
+      {
+        "pid": "RX-MAFIA-SUB250-pro",
+        "name": "Sub250 Nano PRO 2.4G RX",
+        "manufacturer": "Sub250",
+        "source": "BUSHA/targets@mafia-targets (vtx.in.ua)",
+        "firmware": "Unified_ESP8285_2400_RX",
+        "layout_file": "Generic 2400 PA.json"
+      },
+      {
+        "pid": "RX-MAFIA-SUB250-single",
+        "name": "Sub250 900/2400 Single Dual-Band RX",
+        "manufacturer": "Sub250",
+        "source": "BUSHA/targets@mafia-targets (vtx.in.ua)",
+        "firmware": "Unified_ESP32C3_LR1121_RX",
+        "layout_file": "Generic C3 LR1121.json"
+      },
+      {
+        "pid": "RX-MAFIA-HAOYERC-nano",
+        "name": "HAOYERC 900MHz Nano RX",
+        "manufacturer": "HAOYERC",
+        "source": "BUSHA/targets@mafia-targets (vtx.in.ua)",
+        "firmware": "Unified_ESP8285_900_RX",
+        "layout_file": "Generic 900.json"
+      },
+      {
+        "pid": "RX-MAFIA-HAPPYMOD-es915",
+        "name": "HappyModel ES915 RX",
+        "manufacturer": "Happymodel",
+        "source": "BUSHA/targets@mafia-targets (vtx.in.ua)",
+        "firmware": "HappyModel_RX_ES915RX",
+        "layout_file": ""
+      },
+      {
+        "pid": "RX-MAFIA-HAPPYMOD-es900",
+        "name": "HappyModel ES900 RX",
+        "manufacturer": "Happymodel",
+        "source": "BUSHA/targets@mafia-targets (vtx.in.ua)",
+        "firmware": "Unified_ESP8285_900_RX",
+        "layout_file": "Generic 900.json"
+      },
+      {
+        "pid": "RX-MAFIA-HAPPYMOD-es900_dual",
+        "name": "HappyModel ES900 Dual RX",
+        "manufacturer": "Happymodel",
+        "source": "BUSHA/targets@mafia-targets (vtx.in.ua)",
+        "firmware": "Unified_ESP32_900_RX",
+        "layout_file": "Generic 900 True Diversity.json"
+      },
+      {
+        "pid": "RX-MAFIA-HAPPYMOD-epw6",
+        "name": "HappyModel EPW6 PWM RX",
+        "manufacturer": "Happymodel",
+        "source": "BUSHA/targets@mafia-targets (vtx.in.ua)",
+        "firmware": "Unified_ESP8285_900_RX",
+        "layout_file": "Generic 900 PWMP.json"
+      },
+      {
+        "pid": "RX-MAFIA-HAPPYMOD-pp",
+        "name": "HappyModel PP 2.4GHz RX",
+        "manufacturer": "Happymodel",
+        "source": "BUSHA/targets@mafia-targets (vtx.in.ua)",
+        "firmware": "HappyModel_PP_2400_RX",
+        "layout_file": ""
+      },
+      {
+        "pid": "RX-MAFIA-HAPPYMOD-ep",
+        "name": "HappyModel EP1/EP2 2.4GHz RX",
+        "manufacturer": "Happymodel",
+        "source": "BUSHA/targets@mafia-targets (vtx.in.ua)",
+        "firmware": "Unified_ESP8285_2400_RX",
+        "layout_file": "Generic 2400.json"
+      },
+      {
+        "pid": "RX-MAFIA-HAPPYMOD-ep-dual",
+        "name": "HappyModel EP Dual 2.4GHz RX",
+        "manufacturer": "Happymodel",
+        "source": "BUSHA/targets@mafia-targets (vtx.in.ua)",
+        "firmware": "Unified_ESP32_2400_RX",
+        "layout_file": "Generic 2400 True Diversity PA.json"
+      },
+      {
+        "pid": "RX-MAFIA-HAPPYMOD-epw5",
+        "name": "HappyModel EPW5 2.4GHz PWM RX",
+        "manufacturer": "Happymodel",
+        "source": "BUSHA/targets@mafia-targets (vtx.in.ua)",
+        "firmware": "Unified_ESP8285_2400_RX",
+        "layout_file": "Generic 2400 PWMP5.json"
+      },
+      {
+        "pid": "RX-MAFIA-HAPPYMOD-aio",
+        "name": "HappyModel AIO 2.4GHz RX+VTX",
+        "manufacturer": "Happymodel",
+        "source": "BUSHA/targets@mafia-targets (vtx.in.ua)",
+        "firmware": "Unified_ESP32_2400_RX",
+        "layout_file": "Generic 2400 Whoop Rx and VTx.json"
+      },
+      {
+        "pid": "RX-MAFIA-HDZERO-halo",
+        "name": "HDZero Halo FC 2.4GHz Gemini RX",
+        "manufacturer": "HDZero",
+        "source": "BUSHA/targets@mafia-targets (vtx.in.ua)",
+        "firmware": "Unified_ESP32C3_2400_RX",
+        "layout_file": "Generic C3 2400 True Diversity.json"
+      },
+      {
+        "pid": "RX-MAFIA-HDZERO-aio15",
+        "name": "HDZero 2.4GHz AIO RX",
+        "manufacturer": "HDZero",
+        "source": "BUSHA/targets@mafia-targets (vtx.in.ua)",
+        "firmware": "Unified_ESP32C3_2400_RX",
+        "layout_file": "Generic C3 2400.json"
+      },
+      {
+        "pid": "RX-MAFIA-HELLORAD-hr8e",
+        "name": "HelloRadio HR8E 2.4GHz Diversity+8xPWM RX",
+        "manufacturer": "HelloRadio",
+        "source": "BUSHA/targets@mafia-targets (vtx.in.ua)",
+        "firmware": "Unified_ESP32_2400_RX",
+        "layout_file": "HelloRadio HR8E.json"
+      },
+      {
+        "pid": "RX-MAFIA-HELLORAD-hr7e",
+        "name": "HelloRadio HR7E 2.4GHz Diversity+7xPWM RX",
+        "manufacturer": "HelloRadio",
+        "source": "BUSHA/targets@mafia-targets (vtx.in.ua)",
+        "firmware": "Unified_ESP32_2400_RX",
+        "layout_file": "HelloRadio HR7E.json"
+      },
+      {
+        "pid": "RX-MAFIA-HGLRC-hermes",
+        "name": "HGLRC Hermes 900MHz RX",
+        "manufacturer": "HGLRC",
+        "source": "BUSHA/targets@mafia-targets (vtx.in.ua)",
+        "firmware": "Unified_ESP8285_900_RX",
+        "layout_file": "Generic 900.json"
+      },
+      {
+        "pid": "RX-MAFIA-HGLRC-dual",
+        "name": "HGLRC Gemini 900M RX",
+        "manufacturer": "HGLRC",
+        "source": "BUSHA/targets@mafia-targets (vtx.in.ua)",
+        "firmware": "Unified_ESP32_900_RX",
+        "layout_file": "Generic 900 True Diversity.json"
+      },
+      {
+        "pid": "RX-MAFIA-HGLRC-nano",
+        "name": "HGLRC C3 900/2400 Dual Band Nano RX",
+        "manufacturer": "HGLRC",
+        "source": "BUSHA/targets@mafia-targets (vtx.in.ua)",
+        "firmware": "Unified_ESP32C3_LR1121_RX",
+        "layout_file": "Generic C3 LR1121.json"
+      },
+      {
+        "pid": "RX-MAFIA-HGLRC-pro",
+        "name": "HGLRC C3 900/2400 Dual Band PRO RX",
+        "manufacturer": "HGLRC",
+        "source": "BUSHA/targets@mafia-targets (vtx.in.ua)",
+        "firmware": "Unified_ESP32C3_LR1121_RX",
+        "layout_file": "Generic C3 LR1121 True Diversity.json"
+      },
+      {
+        "pid": "RX-MAFIA-IFLIGHT-plain",
+        "name": "iFlight 900MHz RX",
+        "manufacturer": "iFlight",
+        "source": "BUSHA/targets@mafia-targets (vtx.in.ua)",
+        "firmware": "Unified_ESP8285_900_RX",
+        "layout_file": "Generic 900.json"
+      },
+      {
+        "pid": "RX-MAFIA-IFLIGHT-nano",
+        "name": "iFlight 900MHz Nano RX",
+        "manufacturer": "iFlight",
+        "source": "BUSHA/targets@mafia-targets (vtx.in.ua)",
+        "firmware": "Unified_ESP8285_900_RX",
+        "layout_file": "Generic 900.json"
+      },
+      {
+        "pid": "RX-MAFIA-IFLIGHT-500",
+        "name": "iFlight 900MHz 500mW RX",
+        "manufacturer": "iFlight",
+        "source": "BUSHA/targets@mafia-targets (vtx.in.ua)",
+        "firmware": "Unified_ESP8285_900_RX",
+        "layout_file": "Generic 900 PA.json"
+      },
+      {
+        "pid": "RX-MAFIA-IFLIGHT-dual500",
+        "name": "iFlight 900MHz 500mW Diversity RX",
+        "manufacturer": "iFlight",
+        "source": "BUSHA/targets@mafia-targets (vtx.in.ua)",
+        "firmware": "Unified_ESP32_900_RX",
+        "layout_file": "Generic 900 True Diversity PA.json"
+      },
+      {
+        "pid": "RX-MAFIA-IFLIGHT-dual250",
+        "name": "iFlight 2.4GHz 250mW Diversity RX",
+        "manufacturer": "iFlight",
+        "source": "BUSHA/targets@mafia-targets (vtx.in.ua)",
+        "firmware": "Unified_ESP32_2400_RX",
+        "layout_file": "Generic 2400 True Diversity PA.json"
+      },
+      {
+        "pid": "RX-MAFIA-IMRC-atto",
+        "name": "Ghost Atto 2.4GHz RX",
+        "manufacturer": "ImmersionRC",
+        "source": "BUSHA/targets@mafia-targets (vtx.in.ua)",
+        "firmware": "GHOST_ATTO_2400_RX",
+        "layout_file": ""
+      },
+      {
+        "pid": "RX-MAFIA-JUMPER-ep24s",
+        "name": "Jumper AION Mini 2.4GHz RX",
+        "manufacturer": "Jumper",
+        "source": "BUSHA/targets@mafia-targets (vtx.in.ua)",
+        "firmware": "Unified_ESP8285_2400_RX",
+        "layout_file": "Generic 2400.json"
+      },
+      {
+        "pid": "RX-MAFIA-JUMPER-nano",
+        "name": "Jumper AION Nano 2.4GHz RX",
+        "manufacturer": "Jumper",
+        "source": "BUSHA/targets@mafia-targets (vtx.in.ua)",
+        "firmware": "Unified_ESP8285_2400_RX",
+        "layout_file": "Generic 2400 PA.json"
+      },
+      {
+        "pid": "RX-MAFIA-JUMPER-c3-pwm6",
+        "name": "Jumper AION P6 2.4GHz RX",
+        "manufacturer": "Jumper",
+        "source": "BUSHA/targets@mafia-targets (vtx.in.ua)",
+        "firmware": "Unified_ESP32C3_2400_RX",
+        "layout_file": "Generic C3 2400 PWM.json"
+      },
+      {
+        "pid": "RX-MAFIA-JUMPER-mini",
+        "name": "Jumper 900 Mini RX",
+        "manufacturer": "Jumper",
+        "source": "BUSHA/targets@mafia-targets (vtx.in.ua)",
+        "firmware": "Jumper_RX_R900MINI",
+        "layout_file": ""
+      },
+      {
+        "pid": "RX-MAFIA-JUMPER-aion",
+        "name": "Jumper AION Mini 900MHz RX",
+        "manufacturer": "Jumper",
+        "source": "BUSHA/targets@mafia-targets (vtx.in.ua)",
+        "firmware": "Unified_ESP8285_900_RX",
+        "layout_file": "Generic 900.json"
+      },
+      {
+        "pid": "RX-MAFIA-MATEK-r24d",
+        "name": "MATEK R24-D 2.4GHz RX",
+        "manufacturer": "Matek Systems",
+        "source": "BUSHA/targets@mafia-targets (vtx.in.ua)",
+        "firmware": "Unified_ESP8285_2400_RX",
+        "layout_file": "Generic 2400 Diversity PA.json"
+      },
+      {
+        "pid": "RX-MAFIA-MATEK-r24s",
+        "name": "MATEK R24-S 2.4GHz RX",
+        "manufacturer": "Matek Systems",
+        "source": "BUSHA/targets@mafia-targets (vtx.in.ua)",
+        "firmware": "Unified_ESP8285_2400_RX",
+        "layout_file": "Generic 2400 PA.json"
+      },
+      {
+        "pid": "RX-MAFIA-MATEK-r24p",
+        "name": "MATEK R24-P PWM 2.4GHz RX",
+        "manufacturer": "Matek Systems",
+        "source": "BUSHA/targets@mafia-targets (vtx.in.ua)",
+        "firmware": "Unified_ESP8285_2400_RX",
+        "layout_file": "Generic 2400 PWMP5.json"
+      },
+      {
+        "pid": "RX-MAFIA-NAMIMNOR-voyager_st",
+        "name": "NamimnoRC Voyager STM 900MHz RX",
+        "manufacturer": "NamimnoRC",
+        "source": "BUSHA/targets@mafia-targets (vtx.in.ua)",
+        "firmware": "NamimnoRC_VOYAGER_900_RX",
+        "layout_file": ""
+      },
+      {
+        "pid": "RX-MAFIA-NAMIMNOR-voyager",
+        "name": "NamimnoRC Voyager ESP 900MHz RX",
+        "manufacturer": "NamimnoRC",
+        "source": "BUSHA/targets@mafia-targets (vtx.in.ua)",
+        "firmware": "Unified_ESP8285_900_RX",
+        "layout_file": "Namimno VOYAGER 900.json"
+      },
+      {
+        "pid": "RX-MAFIA-NAMIMNOR-flash_stm",
+        "name": "NamimnoRC Flash STM 2.4GHz RX",
+        "manufacturer": "NamimnoRC",
+        "source": "BUSHA/targets@mafia-targets (vtx.in.ua)",
+        "firmware": "NamimnoRC_FLASH_2400_RX",
+        "layout_file": ""
+      },
+      {
+        "pid": "RX-MAFIA-NAMIMNOR-flash",
+        "name": "NamimnoRC Flash ESP 2.4GHz RX",
+        "manufacturer": "NamimnoRC",
+        "source": "BUSHA/targets@mafia-targets (vtx.in.ua)",
+        "firmware": "Unified_ESP8285_2400_RX",
+        "layout_file": "Generic 2400.json"
+      },
+      {
+        "pid": "RX-MAFIA-NAMIMNOR-flash-pa",
+        "name": "NamimnoRC Flash 100mW Diversity 2.4GHz RX",
+        "manufacturer": "NamimnoRC",
+        "source": "BUSHA/targets@mafia-targets (vtx.in.ua)",
+        "firmware": "Unified_ESP8285_2400_RX",
+        "layout_file": "Namimno FLASH 2400 PA.json"
+      },
+      {
+        "pid": "RX-MAFIA-NEUTRONR-plain",
+        "name": "NeutronRC 900MHz RX",
+        "manufacturer": "NeutronRC",
+        "source": "BUSHA/targets@mafia-targets (vtx.in.ua)",
+        "firmware": "Unified_ESP8285_900_RX",
+        "layout_file": "Generic 900.json"
+      },
+      {
+        "pid": "RX-MAFIA-NEWBEEDR-microg",
+        "name": "NewBeeDrone 2.4Ghz RaceSpec RX",
+        "manufacturer": "NewBeeDrone",
+        "source": "BUSHA/targets@mafia-targets (vtx.in.ua)",
+        "firmware": "Unified_ESP32C3_2400_RX",
+        "layout_file": "Generic C3 2400.json"
+      },
+      {
+        "pid": "RX-MAFIA-NEWBEEDR-rx24d",
+        "name": "NewBeeDrone Diversity 2.4Ghz RX",
+        "manufacturer": "NewBeeDrone",
+        "source": "BUSHA/targets@mafia-targets (vtx.in.ua)",
+        "firmware": "Unified_ESP8285_2400_RX",
+        "layout_file": "Generic 2400 Diversity PA.json"
+      },
+      {
+        "pid": "RX-MAFIA-NEWBEEDR-c324d",
+        "name": "NewBeeDrone Diversity 2.4Ghz RX V2",
+        "manufacturer": "NewBeeDrone",
+        "source": "BUSHA/targets@mafia-targets (vtx.in.ua)",
+        "firmware": "Unified_ESP32C3_2400_RX",
+        "layout_file": "Generic C3 2400 PA.json"
+      },
+      {
+        "pid": "RX-MAFIA-QUADKOPT-nano",
+        "name": "QuadKopters Nano 2.4GHz RX",
+        "manufacturer": "QuadKopters",
+        "source": "BUSHA/targets@mafia-targets (vtx.in.ua)",
+        "firmware": "Unified_ESP8285_2400_RX",
+        "layout_file": "Generic 2400.json"
+      },
+      {
+        "pid": "RX-MAFIA-RADIOMAS-br1",
+        "name": "RadioMaster BR1 900Mz RX",
+        "manufacturer": "RadioMaster",
+        "source": "BUSHA/targets@mafia-targets (vtx.in.ua)",
+        "firmware": "Unified_ESP8285_900_RX",
+        "layout_file": "Generic 900.json"
+      },
+      {
+        "pid": "RX-MAFIA-RADIOMAS-br3",
+        "name": "RadioMaster BR3 Diversity 900Mz RX",
+        "manufacturer": "RadioMaster",
+        "source": "BUSHA/targets@mafia-targets (vtx.in.ua)",
+        "firmware": "Unified_ESP8285_900_RX",
+        "layout_file": "Radiomaster BR3.json"
+      },
+      {
+        "pid": "RX-MAFIA-RADIOMAS-bandit-nan",
+        "name": "RadioMaster Bandit Nano/Micro 900MHz RX",
+        "manufacturer": "RadioMaster",
+        "source": "BUSHA/targets@mafia-targets (vtx.in.ua)",
+        "firmware": "Unified_ESP32_900_RX",
+        "layout_file": "Radiomaster Bandit Nano.json"
+      },
+      {
+        "pid": "RX-MAFIA-RADIOMAS-br4td",
+        "name": "RadioMaster BR4TD 900MHz RX",
+        "manufacturer": "RadioMaster",
+        "source": "BUSHA/targets@mafia-targets (vtx.in.ua)",
+        "firmware": "Unified_ESP32_900_RX",
+        "layout_file": "Generic 900 True Diversity PA.json"
+      },
+      {
+        "pid": "RX-MAFIA-RADIOMAS-er3",
+        "name": "RadioMaster ER3C-i 2.4GHz PWM RX",
+        "manufacturer": "RadioMaster",
+        "source": "BUSHA/targets@mafia-targets (vtx.in.ua)",
+        "firmware": "Unified_ESP8285_2400_RX",
+        "layout_file": "Generic 2400 PWMP5.json"
+      },
+      {
+        "pid": "RX-MAFIA-RADIOMAS-er4",
+        "name": "RadioMaster ER4 2.4GHz PWM RX",
+        "manufacturer": "RadioMaster",
+        "source": "BUSHA/targets@mafia-targets (vtx.in.ua)",
+        "firmware": "Unified_ESP8285_2400_RX",
+        "layout_file": "Generic 2400 PWMP5.json"
+      },
+      {
+        "pid": "RX-MAFIA-RADIOMAS-er5",
+        "name": "RadioMaster ER5A/C 2.4GHz PWM RX",
+        "manufacturer": "RadioMaster",
+        "source": "BUSHA/targets@mafia-targets (vtx.in.ua)",
+        "firmware": "Unified_ESP8285_2400_RX",
+        "layout_file": "Generic 2400 PWMP5.json"
+      },
+      {
+        "pid": "RX-MAFIA-RADIOMAS-er5c-i",
+        "name": "RadioMaster ER5C-i 2.4GHz PWM RX",
+        "manufacturer": "RadioMaster",
+        "source": "BUSHA/targets@mafia-targets (vtx.in.ua)",
+        "firmware": "Unified_ESP8285_2400_RX",
+        "layout_file": "Generic 2400 PWMP5.json"
+      },
+      {
+        "pid": "RX-MAFIA-RADIOMAS-er5-v2",
+        "name": "RadioMaster ER5A/C V2 2.4GHz PWM RX",
+        "manufacturer": "RadioMaster",
+        "source": "BUSHA/targets@mafia-targets (vtx.in.ua)",
+        "firmware": "Unified_ESP8285_2400_RX",
+        "layout_file": "Generic 2400 PWMP5.json"
+      },
+      {
+        "pid": "RX-MAFIA-RADIOMAS-er6",
+        "name": "RadioMaster ER6 2.4GHz Diversity+6xPWM RX",
+        "manufacturer": "RadioMaster",
+        "source": "BUSHA/targets@mafia-targets (vtx.in.ua)",
+        "firmware": "Unified_ESP32_2400_RX",
+        "layout_file": "Radiomaster 2400 ER8G.json"
+      },
+      {
+        "pid": "RX-MAFIA-RADIOMAS-er6g",
+        "name": "RadioMaster ER6-G 2.4GHz Diversity+6xPWM RX",
+        "manufacturer": "RadioMaster",
+        "source": "BUSHA/targets@mafia-targets (vtx.in.ua)",
+        "firmware": "Unified_ESP32_2400_RX",
+        "layout_file": "Vario 2400.json"
+      },
+      {
+        "pid": "RX-MAFIA-RADIOMAS-er6gv",
+        "name": "RadioMaster ER6-GV 2.4GHz Diversity+6xPWM+Vario RX",
+        "manufacturer": "RadioMaster",
+        "source": "BUSHA/targets@mafia-targets (vtx.in.ua)",
+        "firmware": "Unified_ESP32_2400_RX",
+        "layout_file": "Vario 2400.json"
+      },
+      {
+        "pid": "RX-MAFIA-RADIOMAS-er8",
+        "name": "RadioMaster ER8 2.4GHz Diversity+8xPWM RX",
+        "manufacturer": "RadioMaster",
+        "source": "BUSHA/targets@mafia-targets (vtx.in.ua)",
+        "firmware": "Unified_ESP32_2400_RX",
+        "layout_file": "Radiomaster 2400 ER8G.json"
+      },
+      {
+        "pid": "RX-MAFIA-RADIOMAS-er8g",
+        "name": "RadioMaster ER8-G 2.4GHz Diversity+8xPWM RX",
+        "manufacturer": "RadioMaster",
+        "source": "BUSHA/targets@mafia-targets (vtx.in.ua)",
+        "firmware": "Unified_ESP32_2400_RX",
+        "layout_file": "Radiomaster 2400 ER8G.json"
+      },
+      {
+        "pid": "RX-MAFIA-RADIOMAS-er8gv",
+        "name": "RadioMaster ER8-GV 2.4GHz Diversity+8xPWM+Vario RX",
+        "manufacturer": "RadioMaster",
+        "source": "BUSHA/targets@mafia-targets (vtx.in.ua)",
+        "firmware": "Unified_ESP32_2400_RX",
+        "layout_file": "Radiomaster 2400 ER8G.json"
+      },
+      {
+        "pid": "RX-MAFIA-RADIOMAS-rp1",
+        "name": "RadioMaster RP1 2.4GHz RX",
+        "manufacturer": "RadioMaster",
+        "source": "BUSHA/targets@mafia-targets (vtx.in.ua)",
+        "firmware": "Unified_ESP8285_2400_RX",
+        "layout_file": "Generic 2400.json"
+      },
+      {
+        "pid": "RX-MAFIA-RADIOMAS-rp2",
+        "name": "RadioMaster RP2 2.4GHz RX",
+        "manufacturer": "RadioMaster",
+        "source": "BUSHA/targets@mafia-targets (vtx.in.ua)",
+        "firmware": "Unified_ESP8285_2400_RX",
+        "layout_file": "Generic 2400.json"
+      },
+      {
+        "pid": "RX-MAFIA-RADIOMAS-rp3",
+        "name": "RadioMaster RP3 Diversity 2.4GHz RX",
+        "manufacturer": "RadioMaster",
+        "source": "BUSHA/targets@mafia-targets (vtx.in.ua)",
+        "firmware": "Unified_ESP8285_2400_RX",
+        "layout_file": "Generic 2400 Diversity PA.json"
+      },
+      {
+        "pid": "RX-MAFIA-RADIOMAS-rp3-h",
+        "name": "Radiomaster RP3-H Diversity 2.4GHz RX",
+        "manufacturer": "RadioMaster",
+        "source": "BUSHA/targets@mafia-targets (vtx.in.ua)",
+        "firmware": "Unified_ESP8285_2400_RX",
+        "layout_file": "Generic 2400 Diversity PA.json"
+      },
+      {
+        "pid": "RX-MAFIA-RADIOMAS-rp4",
+        "name": "RadioMaster RP4TD True Diversity 2.4GHz RX",
+        "manufacturer": "RadioMaster",
+        "source": "BUSHA/targets@mafia-targets (vtx.in.ua)",
+        "firmware": "Unified_ESP32_2400_RX",
+        "layout_file": "Generic 2400 True Diversity PA.json"
+      },
+      {
+        "pid": "RX-MAFIA-RADIOMAS-rp4m",
+        "name": "RadioMaster RP4TD-M True Diversity 2.4GHz RX",
+        "manufacturer": "RadioMaster",
+        "source": "BUSHA/targets@mafia-targets (vtx.in.ua)",
+        "firmware": "Unified_ESP32_2400_RX",
+        "layout_file": "Generic 2400 True Diversity PA.json"
+      },
+      {
+        "pid": "RX-MAFIA-RADIOMAS-xr2",
+        "name": "RadioMaster XR2 2.4GHz RX",
+        "manufacturer": "RadioMaster",
+        "source": "BUSHA/targets@mafia-targets (vtx.in.ua)",
+        "firmware": "Unified_ESP32C3_LR1121_RX",
+        "layout_file": "Generic C3 LR1121.json"
+      },
+      {
+        "pid": "RX-MAFIA-RADIOMAS-nexus-xr",
+        "name": "Radiomaster Nexus-XR True Diversity 2.4GHz RX",
+        "manufacturer": "RadioMaster",
+        "source": "BUSHA/targets@mafia-targets (vtx.in.ua)",
+        "firmware": "Unified_ESP32_2400_RX",
+        "layout_file": "Generic 2400 True Diversity.json"
+      },
+      {
+        "pid": "RX-MAFIA-RADIOMAS-dbr4",
+        "name": "RadioMaster DBR4-TD True Diversity Dual Band RX",
+        "manufacturer": "RadioMaster",
+        "source": "BUSHA/targets@mafia-targets (vtx.in.ua)",
+        "firmware": "Unified_ESP32_LR1121_RX",
+        "layout_file": "Generic LR1121 True Diversity.json"
+      },
+      {
+        "pid": "RX-MAFIA-RADIOMAS-xr1",
+        "name": "RadioMaster XR1 Dual Band RX",
+        "manufacturer": "RadioMaster",
+        "source": "BUSHA/targets@mafia-targets (vtx.in.ua)",
+        "firmware": "Unified_ESP32C3_LR1121_RX",
+        "layout_file": "Generic C3 LR1121.json"
+      },
+      {
+        "pid": "RX-MAFIA-RADIOMAS-xr3",
+        "name": "RadioMaster XR3 Dual Band Diversity RX",
+        "manufacturer": "RadioMaster",
+        "source": "BUSHA/targets@mafia-targets (vtx.in.ua)",
+        "firmware": "Unified_ESP32C3_LR1121_RX",
+        "layout_file": "Generic C3 LR1121.json"
+      },
+      {
+        "pid": "RX-MAFIA-RADIOMAS-xr4",
+        "name": "RadioMaster XR4 Dual Band True Diversity RX",
+        "manufacturer": "RadioMaster",
+        "source": "BUSHA/targets@mafia-targets (vtx.in.ua)",
+        "firmware": "Unified_ESP32_LR1121_RX",
+        "layout_file": "Generic LR1121 True Diversity.json"
+      },
+      {
+        "pid": "RX-MAFIA-SEQURE-single",
+        "name": "SEQURE 2.4GHz Single RX",
+        "manufacturer": "SEQURE",
+        "source": "BUSHA/targets@mafia-targets (vtx.in.ua)",
+        "firmware": "Unified_ESP8285_2400_RX",
+        "layout_file": "Generic 2400 PA.json"
+      },
+      {
+        "pid": "RX-MAFIA-SEQURE-dual",
+        "name": "SEQURE 2.4GHz Dual RX",
+        "manufacturer": "SEQURE",
+        "source": "BUSHA/targets@mafia-targets (vtx.in.ua)",
+        "firmware": "Unified_ESP32_2400_RX",
+        "layout_file": "Generic 2400 True Diversity PA.json"
+      },
+      {
+        "pid": "RX-MAFIA-SIYI-mini",
+        "name": "SIYI FM30 Mini 2.4GHz RX",
+        "manufacturer": "SIYI",
+        "source": "BUSHA/targets@mafia-targets (vtx.in.ua)",
+        "firmware": "FM30_RX_MINI",
+        "layout_file": ""
+      },
+      {
+        "pid": "RX-MAFIA-SKYSTARS-ss24d",
+        "name": "Skystars SS24D 2.4GHz RX",
+        "manufacturer": "Skystars",
+        "source": "BUSHA/targets@mafia-targets (vtx.in.ua)",
+        "firmware": "Unified_ESP8285_2400_RX",
+        "layout_file": "Generic 2400 Diversity PA.json"
+      },
+      {
+        "pid": "RX-MAFIA-SPEEDYBE-nano",
+        "name": "SpeedyBee Nano 915MHz RX",
+        "manufacturer": "SpeedyBee",
+        "source": "BUSHA/targets@mafia-targets (vtx.in.ua)",
+        "firmware": "Unified_ESP8285_900_RX",
+        "layout_file": "Generic 900.json"
+      },
+      {
+        "pid": "RX-MAFIA-SPEEDYBE-ss24d",
+        "name": "SpeedyBee Nano 2.4GHz RX",
+        "manufacturer": "SpeedyBee",
+        "source": "BUSHA/targets@mafia-targets (vtx.in.ua)",
+        "firmware": "Unified_ESP8285_2400_RX",
+        "layout_file": "Generic 2400 PA.json"
+      },
+      {
+        "pid": "RX-MAFIA-SPEEDYBE-aio",
+        "name": "Speedybee AIO 2.4Ghz RX",
+        "manufacturer": "SpeedyBee",
+        "source": "BUSHA/targets@mafia-targets (vtx.in.ua)",
+        "firmware": "Unified_ESP32C3_2400_RX",
+        "layout_file": "Generic C3 2400 PA.json"
+      },
+      {
+        "pid": "RX-MAFIA-STELLAR-stellar",
+        "name": "STELLAR 900MHz RX",
+        "manufacturer": "STELLAR",
+        "source": "BUSHA/targets@mafia-targets (vtx.in.ua)",
+        "firmware": "Unified_ESP8285_900_RX",
+        "layout_file": "Generic 900.json"
+      },
+      {
+        "pid": "RX-MAFIA-STELLAR-c3-trued-g",
+        "name": "StingBee TrueD 900/2400 GemX RX",
+        "manufacturer": "STELLAR",
+        "source": "BUSHA/targets@mafia-targets (vtx.in.ua)",
+        "firmware": "Unified_ESP32C3_LR1121_RX",
+        "layout_file": "Generic C3 LR1121 True Diversity.json"
+      },
+      {
+        "pid": "RX-MAFIA-STELLAR-c3-dual",
+        "name": "StingBee Dual 900/2400 RX",
+        "manufacturer": "STELLAR",
+        "source": "BUSHA/targets@mafia-targets (vtx.in.ua)",
+        "firmware": "Unified_ESP32C3_LR1121_RX",
+        "layout_file": "Generic C3 LR1121.json"
+      },
+      {
+        "pid": "RX-MAFIA-SPRACING-rxg1",
+        "name": "SPRacing RXG1 Gyro 2.4GHz RX/GYRO (S3)",
+        "manufacturer": "SPRacing",
+        "source": "BUSHA/targets@mafia-targets (vtx.in.ua)",
+        "firmware": "Unified_ESP32S3_2400_RX",
+        "layout_file": "SPRacing RXG1 Gyro 2400 RX GYRO.json"
+      },
+      {
+        "pid": "RX-MAFIA-SPRACING-rxn1",
+        "name": "SPRacing RXN1 Gyro 2.4GHz RX/GYRO/IR (D4)",
+        "manufacturer": "SPRacing",
+        "source": "BUSHA/targets@mafia-targets (vtx.in.ua)",
+        "firmware": "Unified_ESP32_2400_RX",
+        "layout_file": "SPRacing RXN1 Gyro 2400 RX GYRO IR D4.json"
+      },
+      {
+        "pid": "RX-MAFIA-TBS-tbs_crossf",
+        "name": "TBS Crossfire XF Nano 50 RX",
+        "manufacturer": "TBS",
+        "source": "BUSHA/targets@mafia-targets (vtx.in.ua)",
+        "firmware": "Unified_ESP32_900_RX",
+        "layout_file": "TBS Crossfire XF Nano 50.json"
+      },
+      {
+        "pid": "RX-MAFIA-TUNERC-tunerc_240",
+        "name": "TuneRC 2.4G nano PA RX",
+        "manufacturer": "TuneRC",
+        "source": "BUSHA/targets@mafia-targets (vtx.in.ua)",
+        "firmware": "Unified_ESP32C3_2400_RX",
+        "layout_file": "Generic C3 2400 PA.json"
+      },
+      {
+        "pid": "RX-MAFIA-ATOMRC-atomrc",
+        "name": "atomrc 2.4G RX",
+        "manufacturer": "atomrc",
+        "source": "BUSHA/targets@mafia-targets (vtx.in.ua)",
+        "firmware": "Unified_ESP8285_2400_RX",
+        "layout_file": "Generic 2400 PA.json"
+      },
+      {
+        "pid": "RX-MAFIA-VANTAC-plain",
+        "name": "Vantac 2.4GHz RX",
+        "manufacturer": "Vantac",
+        "source": "BUSHA/targets@mafia-targets (vtx.in.ua)",
+        "firmware": "Unified_ESP8285_2400_RX",
+        "layout_file": "Generic 2400 PA.json"
+      },
+      {
+        "pid": "RX-MAFIA-ZERODRAG-nexus1",
+        "name": "ZeroDrag NexusONE 2.4GHz RX",
+        "manufacturer": "ZeroDrag",
+        "source": "BUSHA/targets@mafia-targets (vtx.in.ua)",
+        "firmware": "Unified_ESP8285_2400_RX",
+        "layout_file": "Generic 2400.json"
+      },
+      {
+        "pid": "RX-MAFIA-FLYDRAGO-r24d",
+        "name": "FD R24D 2.4GHz RX",
+        "manufacturer": "FlyDragonRC",
+        "source": "BUSHA/targets@mafia-targets (vtx.in.ua)",
+        "firmware": "Unified_ESP8285_2400_RX",
+        "layout_file": "Generic 2400 Diversity PA.json"
+      },
+      {
+        "pid": "RX-MAFIA-FLYFISH-2g4rx",
+        "name": "FlyFish 2400MHz RX",
+        "manufacturer": "FlyFish",
+        "source": "BUSHA/targets@mafia-targets (vtx.in.ua)",
+        "firmware": "Unified_ESP8285_2400_RX",
+        "layout_file": "FlyFish 2G4 RX.json"
+      },
+      {
+        "pid": "RX-MAFIA-THXMRSQU-squidstick",
+        "name": "Squid Stick dongle V2",
+        "manufacturer": "ThxMrSquid",
+        "source": "BUSHA/targets@mafia-targets (vtx.in.ua)",
+        "firmware": "Unified_ESP8285_2400_RX",
+        "layout_file": "Generic 2400.json"
+      },
+      {
+        "pid": "RX-MAFIA-HOBBYPOR-dbr1",
+        "name": "Hobbyporter DBR1 RX",
+        "manufacturer": "Hobbyporter",
+        "source": "BUSHA/targets@mafia-targets (vtx.in.ua)",
+        "firmware": "Unified_ESP8285_LR1121_900_RX",
+        "layout_file": "Generic 900 8285 lr1121.json"
+      },
+      {
+        "pid": "RX-MAFIA-HOBBYPOR-dbr1v2",
+        "name": "Hobbyporter DBR1 V2 RX",
+        "manufacturer": "Hobbyporter",
+        "source": "BUSHA/targets@mafia-targets (vtx.in.ua)",
+        "firmware": "Unified_ESP8285_LR1121_900_RX",
+        "layout_file": "Generic 900 8285 lr1121 v2.json"
+      },
+      {
+        "pid": "RX-MAFIA-HOBBYPOR-dbr3",
+        "name": "Hobbyporter DBR3 RX",
+        "manufacturer": "Hobbyporter",
+        "source": "BUSHA/targets@mafia-targets (vtx.in.ua)",
+        "firmware": "Unified_ESP8285_LR1121_900_RX",
+        "layout_file": "Dbr3.json"
+      },
+      {
+        "pid": "RX-MAFIA-MAFIA-pidor433",
+        "name": "Pidor ESP8285 SX1276 433Mhz RX",
+        "manufacturer": "FPV Mafia targets",
+        "source": "BUSHA/targets@mafia-targets (vtx.in.ua)",
+        "firmware": "Unified_ESP8285_900_RX",
+        "layout_file": "Pidor 433.json"
+      },
+      {
+        "pid": "RX-MAFIA-MAFIA-pidor_beas",
+        "name": "Beastfpv 735MHz RX",
+        "manufacturer": "FPV Mafia targets",
+        "source": "BUSHA/targets@mafia-targets (vtx.in.ua)",
+        "firmware": "Unified_ESP8285_900_RX",
+        "layout_file": "Beastfpv 735.json"
+      },
+      {
+        "pid": "RX-MAFIA-MAFIA-pidor520c3",
+        "name": "Pidor ESP32C3 Ra-02 520Mhz RX",
+        "manufacturer": "FPV Mafia targets",
+        "source": "BUSHA/targets@mafia-targets (vtx.in.ua)",
+        "firmware": "Unified_ESP32C3_900_RX",
+        "layout_file": "Pidor 520 C3 RA02.json"
+      },
+      {
+        "pid": "RX-MAFIA-MAFIA-N24R_TD_D4",
+        "name": "N24R_TD_D4 RX",
+        "manufacturer": "FPV Mafia targets",
+        "source": "BUSHA/targets@mafia-targets (vtx.in.ua)",
+        "firmware": "Unified_ESP32_2400_RX",
+        "layout_file": "Generic 2400 True Diversity PA.json"
+      },
+      {
+        "pid": "RX-MAFIA-MAFIA-94e_v1",
+        "name": "Generic ESP32 LR1121 TD 900Mhz RX",
+        "manufacturer": "FPV Mafia targets",
+        "source": "BUSHA/targets@mafia-targets (vtx.in.ua)",
+        "firmware": "Unified_ESP32_LR1121_RX",
+        "layout_file": "Generic LR1121 True Diversity.json"
+      },
+      {
+        "pid": "RX-MAFIA-MAFIA-brx24",
+        "name": "Barvinok crossband BRX-24 RX",
+        "manufacturer": "FPV Mafia targets",
+        "source": "BUSHA/targets@mafia-targets (vtx.in.ua)",
+        "firmware": "Unified_ESP32C3_LR1121_RX",
+        "layout_file": "BRX-24.json"
+      },
+      {
+        "pid": "RX-MAFIA-MAFIA-lr1824",
+        "name": "LR1824 Gemini XrossBand PA 2.4/900 RX",
+        "manufacturer": "FPV Mafia targets",
+        "source": "BUSHA/targets@mafia-targets (vtx.in.ua)",
+        "firmware": "Unified_ESP32_LR1121_RX",
+        "layout_file": "LR1824 Gemini XrossBand.json"
+      },
+      {
+        "pid": "RX-MAFIA-EDIFIER-rx433",
+        "name": "EdifierD Diversity DUAL 433 RX",
+        "manufacturer": "Edifier",
+        "source": "BUSHA/targets@mafia-targets (vtx.in.ua)",
+        "firmware": "Unified_ESP32_900_RX",
+        "layout_file": "EdifierD TD 433RX.json"
+      },
+      {
+        "pid": "RX-MAFIA-EDIFIER-gemx250",
+        "name": "GemX RX 250",
+        "manufacturer": "Edifier",
+        "source": "BUSHA/targets@mafia-targets (vtx.in.ua)",
+        "firmware": "Unified_ESP32_LR1121_RX",
+        "layout_file": "GemX RX 250.json"
+      },
+      {
+        "pid": "RX-MAFIA-BELINRC-rx900",
+        "name": "BelinRC 915MHZ RX",
+        "manufacturer": "BelinRC",
+        "source": "BUSHA/targets@mafia-targets (vtx.in.ua)",
+        "firmware": "Unified_ESP8285_900_RX",
+        "layout_file": "Generic 900.json"
+      },
+      {
+        "pid": "RX-MAFIA-BELINRC-433rx",
+        "name": "BelinRC 433MHZ RX",
+        "manufacturer": "BelinRC",
+        "source": "BUSHA/targets@mafia-targets (vtx.in.ua)",
+        "firmware": "Unified_ESP8285_900_RX",
+        "layout_file": "Generic 900.json"
+      },
+      {
+        "pid": "RX-MAFIA-MAXLINK-rx360",
+        "name": "MaxLink 360-560 RX",
+        "manufacturer": "MaxLink",
+        "source": "BUSHA/targets@mafia-targets (vtx.in.ua)",
+        "firmware": "Unified_ESP8285_900_RX",
+        "layout_file": "Generic 900.json"
+      },
+      {
+        "pid": "RX-MAFIA-AYZ-RD2R4",
+        "name": "AYZ RD2R4 2400Mhz RX",
+        "manufacturer": "AYZ",
+        "source": "BUSHA/targets@mafia-targets (vtx.in.ua)",
+        "firmware": "Unified_ESP8285_2400_RX",
+        "layout_file": "AYZ RD2R4.json"
+      },
+      {
+        "pid": "RX-MAFIA-AYZ-MC2R4",
+        "name": "AYZ MC2R4 2.4GHz RX",
+        "manufacturer": "AYZ",
+        "source": "BUSHA/targets@mafia-targets (vtx.in.ua)",
+        "firmware": "Unified_ESP8285_2400_RX",
+        "layout_file": "AYZ RD2R4.json"
+      },
+      {
+        "pid": "RX-MAFIA-AYZ-9624R",
+        "name": "AYZ 9624R 500MHz RX",
+        "manufacturer": "AYZ",
+        "source": "BUSHA/targets@mafia-targets (vtx.in.ua)",
+        "firmware": "Unified_ESP32C3_LR1121_RX",
+        "layout_file": "B.c SubGHz RX.json"
+      },
+      {
+        "pid": "RX-MAFIA-AYZ-433m_v1",
+        "name": "AYZ 433M V1 RX",
+        "manufacturer": "AYZ",
+        "source": "BUSHA/targets@mafia-targets (vtx.in.ua)",
+        "firmware": "Unified_ESP8285_900_RX",
+        "layout_file": "Radiomaster BR3.json"
+      },
+      {
+        "pid": "RX-MAFIA-AYZ-ff14",
+        "name": "AYZ 500M FF V1.4 RX",
+        "manufacturer": "AYZ",
+        "source": "BUSHA/targets@mafia-targets (vtx.in.ua)",
+        "firmware": "Unified_ESP8285_900_RX",
+        "layout_file": "Pidor 500 AYZ.json"
+      },
+      {
+        "pid": "RX-MAFIA-AYZ-px1011",
+        "name": "PX1011 ELRS_400 V1.1 RX",
+        "manufacturer": "AYZ",
+        "source": "BUSHA/targets@mafia-targets (vtx.in.ua)",
+        "firmware": "Unified_ESP32_900_RX",
+        "layout_file": "Generic 900 True Diversity.json"
+      },
+      {
+        "pid": "RX-MAFIA-AYZ-9624R24",
+        "name": "AYZ 9624R Dual RX",
+        "manufacturer": "AYZ",
+        "source": "BUSHA/targets@mafia-targets (vtx.in.ua)",
+        "firmware": "Unified_ESP32C3_LR1121_RX",
+        "layout_file": "AYZ 9624R RX.json"
+      },
+      {
+        "pid": "RX-MAFIA-CYCLONE-cyclone433",
+        "name": "Cyclone ESP8285 LR1121 RX",
+        "manufacturer": "Cyclone",
+        "source": "BUSHA/targets@mafia-targets (vtx.in.ua)",
+        "firmware": "Unified_ESP8285_LR1121_900_RX",
+        "layout_file": "Cyclone 8285 lr1121.json"
+      },
+      {
+        "pid": "RX-MAFIA-CYCLONE-c3_lr1121",
+        "name": "CYCL C3 Dual Band 900 RX",
+        "manufacturer": "Cyclone",
+        "source": "BUSHA/targets@mafia-targets (vtx.in.ua)",
+        "firmware": "Unified_ESP32C3_LR1121_RX",
+        "layout_file": "CYCL C3 Dual Band 900 RX.json"
+      },
+      {
+        "pid": "RX-MAFIA-FLYTEX-rx433",
+        "name": "Flytex Fuzia 433MHz",
+        "manufacturer": "Flytex",
+        "source": "BUSHA/targets@mafia-targets (vtx.in.ua)",
+        "firmware": "Unified_ESP8285_900_RX",
+        "layout_file": "Generic 900.json"
+      },
+      {
+        "pid": "RX-MAFIA-FLYTEX-db2",
+        "name": "Flytex DB2 Dual Band True Diversity RX",
+        "manufacturer": "Flytex",
+        "source": "BUSHA/targets@mafia-targets (vtx.in.ua)",
+        "firmware": "Unified_ESP32_LR1121_RX",
+        "layout_file": "Flytex DB2 LR1121.json"
+      },
+      {
+        "pid": "RX-MAFIA-FLYSKY-pr01",
+        "name": "Flysky PR01 2.4GHz RX",
+        "manufacturer": "FlySky",
+        "source": "BUSHA/targets@mafia-targets (vtx.in.ua)",
+        "firmware": "Unified_ESP32C3_2400_RX",
+        "layout_file": "FLYSKY PR01.json"
+      },
+      {
+        "pid": "RX-MAFIA-FLYSKY-pr02",
+        "name": "Flysky PR02 2.4GHz RX",
+        "manufacturer": "FlySky",
+        "source": "BUSHA/targets@mafia-targets (vtx.in.ua)",
+        "firmware": "Unified_ESP32S3_2400_RX",
+        "layout_file": "FLYSKY PR02.json"
+      },
+      {
+        "pid": "RX-MAFIA-HOLYBRO-zephyr",
+        "name": "Holybro Zephyr Dual Band RX",
+        "manufacturer": "Holybro",
+        "source": "BUSHA/targets@mafia-targets (vtx.in.ua)",
+        "firmware": "Unified_ESP32_LR1121_RX",
+        "layout_file": "Generic LR1121 True Diversity.json"
+      },
+      {
+        "pid": "RX-MAFIA-JHEMCU-lite",
+        "name": "JHEMCU 2.4GHz Lite RX",
+        "manufacturer": "JHEMCU",
+        "source": "BUSHA/targets@mafia-targets (vtx.in.ua)",
+        "firmware": "Unified_ESP8285_2400_RX",
+        "layout_file": "Generic 2400.json"
+      },
+      {
+        "pid": "RX-MAFIA-JHEMCU-dual",
+        "name": "JHEMCU 2.4GHz Dual RX",
+        "manufacturer": "JHEMCU",
+        "source": "BUSHA/targets@mafia-targets (vtx.in.ua)",
+        "firmware": "Unified_ESP32_2400_RX",
+        "layout_file": "Generic 2400 True Diversity PA.json"
+      },
+      {
+        "pid": "RX-MAFIA-HPXGRC-superx_nan",
+        "name": "XGBETAFPV SuperX Nano RX",
+        "manufacturer": "HPXGRC",
+        "source": "BUSHA/targets@mafia-targets (vtx.in.ua)",
+        "firmware": "Unified_ESP32C3_LR1121_RX",
+        "layout_file": "HPXGRC SuperX Db.json"
+      },
+      {
+        "pid": "RX-MAFIA-OXBOT-aio",
+        "name": "Oxbot AIO 2.4GHz RX",
+        "manufacturer": "Oxbot",
+        "source": "BUSHA/targets@mafia-targets (vtx.in.ua)",
+        "firmware": "Unified_ESP32C3_2400_RX",
+        "layout_file": "Generic C3 2400 PA.json"
+      },
+      {
+        "pid": "RX-MAFIA-SKYGUY-nano",
+        "name": "SkyGuy Nano 2.4GHz RX",
+        "manufacturer": "SkyGuy",
+        "source": "BUSHA/targets@mafia-targets (vtx.in.ua)",
+        "firmware": "Unified_ESP32C3_2400_RX",
+        "layout_file": "Generic C3 2400 PA.json"
+      },
+      {
+        "pid": "RX-MAFIA-SKYGUY-max",
+        "name": "SkyGuy Max 2.4GHz RX",
+        "manufacturer": "SkyGuy",
+        "source": "BUSHA/targets@mafia-targets (vtx.in.ua)",
+        "firmware": "Unified_ESP32C3_2400_RX",
+        "layout_file": "Generic C3 2400 PA.json"
+      },
+      {
+        "pid": "RX-MAFIA-SPEDIX-spx24",
+        "name": "Spedix 2.4GHz RX",
+        "manufacturer": "Spedix",
+        "source": "BUSHA/targets@mafia-targets (vtx.in.ua)",
+        "firmware": "Unified_ESP32C3_2400_RX",
+        "layout_file": "Generic C3 2400.json"
+      },
+      {
+        "pid": "RX-MAFIA-SPEDIX-spx900",
+        "name": "Spedix 900MHz RX",
+        "manufacturer": "Spedix",
+        "source": "BUSHA/targets@mafia-targets (vtx.in.ua)",
+        "firmware": "Unified_ESP32C3_LR1121_RX",
+        "layout_file": "Generic C3 LR1121.json"
+      },
+      {
+        "pid": "RX-MAFIA-SPEDIX-spxdb",
+        "name": "Spedix Dual Band RX",
+        "manufacturer": "Spedix",
+        "source": "BUSHA/targets@mafia-targets (vtx.in.ua)",
+        "firmware": "Unified_ESP32C3_LR1121_RX",
+        "layout_file": "Generic C3 LR1121.json"
+      },
+      {
+        "pid": "RX-MAFIA-THOBBY-thobby24",
+        "name": "THOBBY 2.4GHz RX",
+        "manufacturer": "THOBBY",
+        "source": "BUSHA/targets@mafia-targets (vtx.in.ua)",
+        "firmware": "Unified_ESP32C3_2400_RX",
+        "layout_file": "Generic C3 2400.json"
+      },
+      {
+        "pid": "RX-MAFIA-THOBBY-thobby900",
+        "name": "THOBBY 900MHz RX",
+        "manufacturer": "THOBBY",
+        "source": "BUSHA/targets@mafia-targets (vtx.in.ua)",
+        "firmware": "Unified_ESP32C3_LR1121_RX",
+        "layout_file": "Generic C3 LR1121.json"
+      },
+      {
+        "pid": "RX-MAFIA-THOBBY-thobbydb",
+        "name": "THOBBY Dual Band RX",
+        "manufacturer": "THOBBY",
+        "source": "BUSHA/targets@mafia-targets (vtx.in.ua)",
+        "firmware": "Unified_ESP32C3_LR1121_RX",
+        "layout_file": "Generic C3 LR1121.json"
+      }
+    ],
+    "control_link_tx": [
+      {
+        "pid": "TX-MAFIA-AERONETI-v1",
+        "name": "AERONETIX 433MHz V1 TX",
+        "manufacturer": "AERONETIX",
+        "source": "BUSHA/targets@mafia-targets (vtx.in.ua)",
+        "firmware": "Unified_ESP32_900_TX",
+        "layout_file": "AERONETIX 433 V1.json"
+      },
+      {
+        "pid": "TX-MAFIA-AERONETI-v2",
+        "name": "AERONETIX 433MHz V2 TX",
+        "manufacturer": "AERONETIX",
+        "source": "BUSHA/targets@mafia-targets (vtx.in.ua)",
+        "firmware": "Unified_ESP32_900_TX",
+        "layout_file": "AERONETIX 433 V2.json"
+      },
+      {
+        "pid": "TX-MAFIA-AERONETI-v2_1",
+        "name": "AERONETIX 490-560MHz V1 TX",
+        "manufacturer": "AERONETIX",
+        "source": "BUSHA/targets@mafia-targets (vtx.in.ua)",
+        "firmware": "Unified_ESP32_900_TX",
+        "layout_file": "AERONETIX 490_550 V1.json"
+      },
+      {
+        "pid": "TX-MAFIA-AERONETI-lr1121_v1",
+        "name": "AERONETIX LR1121 V1 TX",
+        "manufacturer": "AERONETIX",
+        "source": "BUSHA/targets@mafia-targets (vtx.in.ua)",
+        "firmware": "Unified_ESP32_LR1121_TX",
+        "layout_file": "Aeronetix LR1121 V1.json"
+      },
+      {
+        "pid": "TX-MAFIA-AERONETI-lr1121_150",
+        "name": "AERONETIX LR1121 150-450 V2 TX",
+        "manufacturer": "AERONETIX",
+        "source": "BUSHA/targets@mafia-targets (vtx.in.ua)",
+        "firmware": "Unified_ESP32_LR1121_TX",
+        "layout_file": "Aeronetix LR1121 150-450 V2.json"
+      },
+      {
+        "pid": "TX-MAFIA-AERONETI-lr1121_450",
+        "name": "AERONETIX LR1121 450-700 V2 TX",
+        "manufacturer": "AERONETIX",
+        "source": "BUSHA/targets@mafia-targets (vtx.in.ua)",
+        "firmware": "Unified_ESP32_LR1121_TX",
+        "layout_file": "Aeronetix LR1121 450-700 V2.json"
+      },
+      {
+        "pid": "TX-MAFIA-AERONETI-lr1121_5w_",
+        "name": "AERONETIX LR1121 5W 150-450 V1 TX",
+        "manufacturer": "AERONETIX",
+        "source": "BUSHA/targets@mafia-targets (vtx.in.ua)",
+        "firmware": "Unified_ESP32_LR1121_TX",
+        "layout_file": "Aeronetix LR1121 5W 150-450 V1.json"
+      },
+      {
+        "pid": "TX-MAFIA-AERONETI-lr1121_1w_",
+        "name": "AERONETIX LR1121 1W V3 TX",
+        "manufacturer": "AERONETIX",
+        "source": "BUSHA/targets@mafia-targets (vtx.in.ua)",
+        "firmware": "Unified_ESP32_LR1121_TX",
+        "layout_file": "Aeronetix LR1121 1W V3.json"
+      },
+      {
+        "pid": "TX-MAFIA-AXIS-thor",
+        "name": "AXIS Thor 2.4GHz TX",
+        "manufacturer": "Axisflying",
+        "source": "BUSHA/targets@mafia-targets (vtx.in.ua)",
+        "firmware": "Unified_ESP32_2400_TX",
+        "layout_file": "AXIS Thor 2400.json"
+      },
+      {
+        "pid": "TX-MAFIA-BAYCKRC-nano",
+        "name": "BAYCKRC 900/2400 Dual Band 1W Nano TX",
+        "manufacturer": "BAYCKRC",
+        "source": "BUSHA/targets@mafia-targets (vtx.in.ua)",
+        "firmware": "Unified_ESP32_LR1121_TX",
+        "layout_file": "BAYCKRC Dual Band.json"
+      },
+      {
+        "pid": "TX-MAFIA-BAYCKRC-nano_gemin",
+        "name": "BAYCKRC 900/2400 Dual Band 1W Nano Gemini TX",
+        "manufacturer": "BAYCKRC",
+        "source": "BUSHA/targets@mafia-targets (vtx.in.ua)",
+        "firmware": "Unified_ESP32_LR1121_TX",
+        "layout_file": "BAYCKRC Dual Band.json"
+      },
+      {
+        "pid": "TX-MAFIA-BAYCKRC-micro_gemi",
+        "name": "BAYCKRC 900/2400 Dual Band 1W Micro Gemini TX",
+        "manufacturer": "BAYCKRC",
+        "source": "BUSHA/targets@mafia-targets (vtx.in.ua)",
+        "firmware": "Unified_ESP32_LR1121_TX",
+        "layout_file": "BAYCKRC Dual Band.json"
+      },
+      {
+        "pid": "TX-MAFIA-BAYCKRC-dual_as_tx",
+        "name": "BAYCKRC 900/2400 Dual Band Gemini RX as TX",
+        "manufacturer": "BAYCKRC",
+        "source": "BUSHA/targets@mafia-targets (vtx.in.ua)",
+        "firmware": "Unified_ESP32_LR1121_TX",
+        "layout_file": "BAYCKRC Dual Band Gemini RX as TX.json"
+      },
+      {
+        "pid": "TX-MAFIA-BETAFPV-nano900",
+        "name": "BETAFPV 900MHz Nano TX",
+        "manufacturer": "BETAFPV",
+        "source": "BUSHA/targets@mafia-targets (vtx.in.ua)",
+        "firmware": "Unified_ESP32_900_TX",
+        "layout_file": "BETAFPV 900 Nano.json"
+      },
+      {
+        "pid": "TX-MAFIA-BETAFPV-nanov2",
+        "name": "BETAFPV 900MHz Nano TX V2",
+        "manufacturer": "BETAFPV",
+        "source": "BUSHA/targets@mafia-targets (vtx.in.ua)",
+        "firmware": "Unified_ESP32_900_TX",
+        "layout_file": "BETAFPV 900 Nano V2.json"
+      },
+      {
+        "pid": "TX-MAFIA-BETAFPV-micro900",
+        "name": "BETAFPV 900MHz Micro TX",
+        "manufacturer": "BETAFPV",
+        "source": "BUSHA/targets@mafia-targets (vtx.in.ua)",
+        "firmware": "Unified_ESP32_900_TX",
+        "layout_file": "BETAFPV 900 Micro.json"
+      },
+      {
+        "pid": "TX-MAFIA-BETAFPV-micro900v2",
+        "name": "BETAFPV 900MHz Micro TX V2",
+        "manufacturer": "BETAFPV",
+        "source": "BUSHA/targets@mafia-targets (vtx.in.ua)",
+        "firmware": "Unified_ESP32_900_TX",
+        "layout_file": "BETAFPV 900 Micro V2.json"
+      },
+      {
+        "pid": "TX-MAFIA-BETAFPV-micro400v1",
+        "name": "BETAFPV 400MHz Micro TX V1.0",
+        "manufacturer": "BETAFPV",
+        "source": "BUSHA/targets@mafia-targets (vtx.in.ua)",
+        "firmware": "Unified_ESP32_900_TX",
+        "layout_file": "BETAFPV 400 Micro V1.json"
+      },
+      {
+        "pid": "TX-MAFIA-BETAFPV-nano2g4",
+        "name": "BETAFPV 2.4GHz Nano TX",
+        "manufacturer": "BETAFPV",
+        "source": "BUSHA/targets@mafia-targets (vtx.in.ua)",
+        "firmware": "Unified_ESP32_2400_TX",
+        "layout_file": "BETAFPV 2400 Nano.json"
+      },
+      {
+        "pid": "TX-MAFIA-BETAFPV-micro2g4",
+        "name": "BETAFPV 2.4GHz Micro TX",
+        "manufacturer": "BETAFPV",
+        "source": "BUSHA/targets@mafia-targets (vtx.in.ua)",
+        "firmware": "Unified_ESP32_2400_TX",
+        "layout_file": "BETAFPV 2400 Micro.json"
+      },
+      {
+        "pid": "TX-MAFIA-BETAFPV-micro1w",
+        "name": "BETAFPV 2.4GHz 1W Micro TX",
+        "manufacturer": "BETAFPV",
+        "source": "BUSHA/targets@mafia-targets (vtx.in.ua)",
+        "firmware": "Unified_ESP32_2400_TX",
+        "layout_file": "BETAFPV 2400 Micro 1W.json"
+      },
+      {
+        "pid": "TX-MAFIA-BETAFPV-literadio3",
+        "name": "BETAFPV 2.4GHz LiteRadio 3 Pro",
+        "manufacturer": "BETAFPV",
+        "source": "BUSHA/targets@mafia-targets (vtx.in.ua)",
+        "firmware": "Unified_ESP32_2400_TX",
+        "layout_file": "BETAFPV 2400 LiteRadio 3.json"
+      },
+      {
+        "pid": "TX-MAFIA-BETAFPV-superg",
+        "name": "BETAFPV SuperG 2.4GHz Gemini TX",
+        "manufacturer": "BETAFPV",
+        "source": "BUSHA/targets@mafia-targets (vtx.in.ua)",
+        "firmware": "Unified_ESP32_2400_TX",
+        "layout_file": "Generic 2400 Gemini.json"
+      },
+      {
+        "pid": "TX-MAFIA-COREWING-sirius",
+        "name": "CoreWing Sirius 2.4GHz TX",
+        "manufacturer": "CoreWing",
+        "source": "BUSHA/targets@mafia-targets (vtx.in.ua)",
+        "firmware": "Unified_ESP32S3_2400_TX",
+        "layout_file": "CoreWing 2400.json"
+      },
+      {
+        "pid": "TX-MAFIA-DIY-ttgov1",
+        "name": "DIY TTGO V1 900MHz TX",
+        "manufacturer": "DIY devices",
+        "source": "BUSHA/targets@mafia-targets (vtx.in.ua)",
+        "firmware": "Unified_ESP32_900_TX",
+        "layout_file": "DIY 900 TTGO V1.json"
+      },
+      {
+        "pid": "TX-MAFIA-DIY-ttgov2",
+        "name": "DIY TTGO V2 900MHz TX",
+        "manufacturer": "DIY devices",
+        "source": "BUSHA/targets@mafia-targets (vtx.in.ua)",
+        "firmware": "Unified_ESP32_900_TX",
+        "layout_file": "DIY 900 TTGO V2.json"
+      },
+      {
+        "pid": "TX-MAFIA-DIY-e19",
+        "name": "DIY ESP32 E19 900MHz TX",
+        "manufacturer": "DIY devices",
+        "source": "BUSHA/targets@mafia-targets (vtx.in.ua)",
+        "firmware": "Unified_ESP32_900_TX",
+        "layout_file": "DIY 900 E19.json"
+      },
+      {
+        "pid": "TX-MAFIA-DIY-rfm95",
+        "name": "DIY ESP32 RFM95 900MHz TX",
+        "manufacturer": "DIY devices",
+        "source": "BUSHA/targets@mafia-targets (vtx.in.ua)",
+        "firmware": "Unified_ESP32_900_TX",
+        "layout_file": "DIY 900 RFM95.json"
+      },
+      {
+        "pid": "TX-MAFIA-DIY-stm32-sx12",
+        "name": "DIY STM32 SX1272 TX",
+        "manufacturer": "DIY devices",
+        "source": "BUSHA/targets@mafia-targets (vtx.in.ua)",
+        "firmware": "DIY_900_TX_STM32_SX1272",
+        "layout_file": ""
+      },
+      {
+        "pid": "TX-MAFIA-DIY-mini",
+        "name": "DIY Mini ESP32 SX1280 2.4GHz TX",
+        "manufacturer": "DIY devices",
+        "source": "BUSHA/targets@mafia-targets (vtx.in.ua)",
+        "firmware": "Unified_ESP32_2400_TX",
+        "layout_file": "DIY 2400 Mini.json"
+      },
+      {
+        "pid": "TX-MAFIA-DIY-e28",
+        "name": "DIY ESP32 E28 2.4GHz TX",
+        "manufacturer": "DIY devices",
+        "source": "BUSHA/targets@mafia-targets (vtx.in.ua)",
+        "firmware": "Unified_ESP32_2400_TX",
+        "layout_file": "DIY 2400 E28.json"
+      },
+      {
+        "pid": "TX-MAFIA-DIY-f27",
+        "name": "DIY ESP32 F27 2.4GHz TX",
+        "manufacturer": "DIY devices",
+        "source": "BUSHA/targets@mafia-targets (vtx.in.ua)",
+        "firmware": "Unified_ESP32_2400_TX",
+        "layout_file": "DIY 2400 F27.json"
+      },
+      {
+        "pid": "TX-MAFIA-DIY-ble",
+        "name": "DIY ESP32 BLE Joystick TX",
+        "manufacturer": "DIY devices",
+        "source": "BUSHA/targets@mafia-targets (vtx.in.ua)",
+        "firmware": "Unified_ESP32_2400_TX",
+        "layout_file": "DIY 2400 BLE Joystick.json"
+      },
+      {
+        "pid": "TX-MAFIA-DIY-true_diver",
+        "name": "DIY ESP32-S3 DevKit Gemini 2.4Ghz TX ",
+        "manufacturer": "DIY devices",
+        "source": "BUSHA/targets@mafia-targets (vtx.in.ua)",
+        "firmware": "Unified_ESP32S3_2400_TX",
+        "layout_file": "DIY S3 DEVKIT 2400 Gemini.json"
+      },
+      {
+        "pid": "TX-MAFIA-EMAX-plain",
+        "name": "EMAX OLED 900MHz TX",
+        "manufacturer": "EMAX",
+        "source": "BUSHA/targets@mafia-targets (vtx.in.ua)",
+        "firmware": "Unified_ESP32_900_TX",
+        "layout_file": "EMAX 900 OLED.json"
+      },
+      {
+        "pid": "TX-MAFIA-EMAX-nano",
+        "name": "EMAX Nano 900MHz TX",
+        "manufacturer": "EMAX",
+        "source": "BUSHA/targets@mafia-targets (vtx.in.ua)",
+        "firmware": "Unified_ESP32_900_TX",
+        "layout_file": "EMAX 900 Nano.json"
+      },
+      {
+        "pid": "TX-MAFIA-FOXEER-tx790",
+        "name": "FOXEER OLED 790MHz TX",
+        "manufacturer": "Foxeer",
+        "source": "BUSHA/targets@mafia-targets (vtx.in.ua)",
+        "firmware": "Unified_ESP32_900_TX",
+        "layout_file": "Foxeer OLED.json"
+      },
+      {
+        "pid": "TX-MAFIA-FRSKY-r9m",
+        "name": "FrSky R9M 900MHz TX",
+        "manufacturer": "Frsky",
+        "source": "BUSHA/targets@mafia-targets (vtx.in.ua)",
+        "firmware": "Frsky_TX_R9M",
+        "layout_file": ""
+      },
+      {
+        "pid": "TX-MAFIA-FRSKY-r9m-lite",
+        "name": "FrSky R9M Lite 900MHz TX",
+        "manufacturer": "Frsky",
+        "source": "BUSHA/targets@mafia-targets (vtx.in.ua)",
+        "firmware": "Frsky_TX_R9M_LITE",
+        "layout_file": ""
+      },
+      {
+        "pid": "TX-MAFIA-FRSKY-r9m-lite-p",
+        "name": "FrSky R9M Lite Pro 900MHz TX",
+        "manufacturer": "Frsky",
+        "source": "BUSHA/targets@mafia-targets (vtx.in.ua)",
+        "firmware": "Frsky_TX_R9M_LITE_PRO",
+        "layout_file": ""
+      },
+      {
+        "pid": "TX-MAFIA-GENERIC-gemini",
+        "name": "Generic ESP32 900MHz Gemini TX",
+        "manufacturer": "Generic targets used as a base",
+        "source": "BUSHA/targets@mafia-targets (vtx.in.ua)",
+        "firmware": "Unified_ESP32_900_TX",
+        "layout_file": "Generic 900 Gemini.json"
+      },
+      {
+        "pid": "TX-MAFIA-GENERIC-dupletx",
+        "name": "Generic Full-duplex 2.4GHz TX",
+        "manufacturer": "Generic targets used as a base",
+        "source": "BUSHA/targets@mafia-targets (vtx.in.ua)",
+        "firmware": "Unified_ESP32_2400_TX",
+        "layout_file": "DIY 2400 DupleTX.json"
+      },
+      {
+        "pid": "TX-MAFIA-GEPRC-linkflow",
+        "name": "GEPRC LINKFLOW 900M TX",
+        "manufacturer": "GEPRC",
+        "source": "BUSHA/targets@mafia-targets (vtx.in.ua)",
+        "firmware": "Unified_ESP32_900_TX",
+        "layout_file": "GEPRC 900 Linkflow.json"
+      },
+      {
+        "pid": "TX-MAFIA-GEPRC-dual500_as",
+        "name": "GEPRC True Diversity 900MHz PA500 RX as TX",
+        "manufacturer": "GEPRC",
+        "source": "BUSHA/targets@mafia-targets (vtx.in.ua)",
+        "firmware": "Unified_ESP32_900_TX",
+        "layout_file": "Generic 900 True Diversity PA as tx.json"
+      },
+      {
+        "pid": "TX-MAFIA-GEPRC-dual",
+        "name": "GEPRC 900/2400 Gemini Xrossband RX as TX",
+        "manufacturer": "GEPRC",
+        "source": "BUSHA/targets@mafia-targets (vtx.in.ua)",
+        "firmware": "Unified_ESP32_LR1121_TX",
+        "layout_file": "GEPRC 900_2400 Gemini Xrossband RX as TX.json"
+      },
+      {
+        "pid": "TX-MAFIA-HAPPYMOD-es915",
+        "name": "HappyModel ES915 TX",
+        "manufacturer": "Happymodel",
+        "source": "BUSHA/targets@mafia-targets (vtx.in.ua)",
+        "firmware": "HappyModel_TX_ES915TX",
+        "layout_file": ""
+      },
+      {
+        "pid": "TX-MAFIA-HAPPYMOD-es900",
+        "name": "HappyModel ES900 TX",
+        "manufacturer": "Happymodel",
+        "source": "BUSHA/targets@mafia-targets (vtx.in.ua)",
+        "firmware": "Unified_ESP32_900_TX",
+        "layout_file": "HappyModel ES900.json"
+      },
+      {
+        "pid": "TX-MAFIA-HAPPYMOD-es900max",
+        "name": "HappyModel ES900 MAX ORANGE TX",
+        "manufacturer": "Happymodel",
+        "source": "BUSHA/targets@mafia-targets (vtx.in.ua)",
+        "firmware": "Unified_ESP32_900_TX",
+        "layout_file": "HappyModel ES900 MAX.json"
+      },
+      {
+        "pid": "TX-MAFIA-HAPPYMOD-es24",
+        "name": "HappyModel ES24 2.4GHz TX",
+        "manufacturer": "Happymodel",
+        "source": "BUSHA/targets@mafia-targets (vtx.in.ua)",
+        "firmware": "Unified_ESP32_2400_TX",
+        "layout_file": "HappyModel ES24.json"
+      },
+      {
+        "pid": "TX-MAFIA-HAPPYMOD-es24pro",
+        "name": "HappyModel ES24 Pro 2.4GHz TX",
+        "manufacturer": "Happymodel",
+        "source": "BUSHA/targets@mafia-targets (vtx.in.ua)",
+        "firmware": "Unified_ESP32_2400_TX",
+        "layout_file": "HappyModel ES24 Pro.json"
+      },
+      {
+        "pid": "TX-MAFIA-HAPPYMOD-es24slimpr",
+        "name": "HappyModel ES24 Slim Pro 2.4GHz TX",
+        "manufacturer": "Happymodel",
+        "source": "BUSHA/targets@mafia-targets (vtx.in.ua)",
+        "firmware": "Unified_ESP32_2400_TX",
+        "layout_file": "HappyModel ES24 Pro.json"
+      },
+      {
+        "pid": "TX-MAFIA-HDZERO-radio",
+        "name": "HDZero Radio 2.4GHz TX",
+        "manufacturer": "HDZero",
+        "source": "BUSHA/targets@mafia-targets (vtx.in.ua)",
+        "firmware": "Unified_ESP32_2400_TX",
+        "layout_file": "HDZero Radio 2400.json"
+      },
+      {
+        "pid": "TX-MAFIA-HELLORAD-v16",
+        "name": "HELLORADIO V16 Internal 2.4GHz TX",
+        "manufacturer": "HelloRadio",
+        "source": "BUSHA/targets@mafia-targets (vtx.in.ua)",
+        "firmware": "Unified_ESP32_2400_TX",
+        "layout_file": "Radiomaster TX16S 2400.json"
+      },
+      {
+        "pid": "TX-MAFIA-HELLORAD-v14",
+        "name": "HELLORADIO V14 Internal 2.4GHz TX",
+        "manufacturer": "HelloRadio",
+        "source": "BUSHA/targets@mafia-targets (vtx.in.ua)",
+        "firmware": "Unified_ESP32_2400_TX",
+        "layout_file": "Radiomaster Boxer.json"
+      },
+      {
+        "pid": "TX-MAFIA-HELLORAD-v16r",
+        "name": "HELLORADIO V16R Internal 2.4GHz TX",
+        "manufacturer": "HelloRadio",
+        "source": "BUSHA/targets@mafia-targets (vtx.in.ua)",
+        "firmware": "Unified_ESP32_2400_TX",
+        "layout_file": "Radiomaster Boxer.json"
+      },
+      {
+        "pid": "TX-MAFIA-HGLRC-oled",
+        "name": "HGLRC OLED 900MHz TX",
+        "manufacturer": "HGLRC",
+        "source": "BUSHA/targets@mafia-targets (vtx.in.ua)",
+        "firmware": "Unified_ESP32_900_TX",
+        "layout_file": "HGLRC OLED 900.json"
+      },
+      {
+        "pid": "TX-MAFIA-HGLRC-hermes",
+        "name": "HGLRC Hermes 2.4GHz TX",
+        "manufacturer": "HGLRC",
+        "source": "BUSHA/targets@mafia-targets (vtx.in.ua)",
+        "firmware": "Unified_ESP32_2400_TX",
+        "layout_file": "HGLRC Hermes 2400.json"
+      },
+      {
+        "pid": "TX-MAFIA-IFLIGHT-plain",
+        "name": "iFlight 900MHz TX",
+        "manufacturer": "iFlight",
+        "source": "BUSHA/targets@mafia-targets (vtx.in.ua)",
+        "firmware": "Unified_ESP32_900_TX",
+        "layout_file": "iFlight 900.json"
+      },
+      {
+        "pid": "TX-MAFIA-IFLIGHT-v2",
+        "name": "iFlight 900MHz TX V2",
+        "manufacturer": "iFlight",
+        "source": "BUSHA/targets@mafia-targets (vtx.in.ua)",
+        "firmware": "Unified_ESP32_900_TX",
+        "layout_file": "iFlight 900 V2.json"
+      },
+      {
+        "pid": "TX-MAFIA-IMRC-ghost",
+        "name": "Ghost 2.4GHz TX",
+        "manufacturer": "ImmersionRC",
+        "source": "BUSHA/targets@mafia-targets (vtx.in.ua)",
+        "firmware": "GHOST_2400_TX",
+        "layout_file": ""
+      },
+      {
+        "pid": "TX-MAFIA-IMRC-ghost_lite",
+        "name": "Ghost Lite 2.4GHz TX",
+        "manufacturer": "ImmersionRC",
+        "source": "BUSHA/targets@mafia-targets (vtx.in.ua)",
+        "firmware": "GHOST_2400_TX_LITE",
+        "layout_file": ""
+      },
+      {
+        "pid": "TX-MAFIA-JUMPER-t-20",
+        "name": "Jumper AION T-20 2.4GHz TX",
+        "manufacturer": "Jumper",
+        "source": "BUSHA/targets@mafia-targets (vtx.in.ua)",
+        "firmware": "Unified_ESP32_2400_TX",
+        "layout_file": "Jumper T-20 2400.json"
+      },
+      {
+        "pid": "TX-MAFIA-JUMPER-t-20-v2",
+        "name": "Jumper AION T-20 2.4GHz V2 TX",
+        "manufacturer": "Jumper",
+        "source": "BUSHA/targets@mafia-targets (vtx.in.ua)",
+        "firmware": "Unified_ESP32_2400_TX",
+        "layout_file": "Jumper T-20 2400.json"
+      },
+      {
+        "pid": "TX-MAFIA-JUMPER-t-pros",
+        "name": "Jumper AION T-ProS 2.4GHz TX",
+        "manufacturer": "Jumper",
+        "source": "BUSHA/targets@mafia-targets (vtx.in.ua)",
+        "firmware": "Unified_ESP32_2400_TX",
+        "layout_file": "Jumper T-20 2400.json"
+      },
+      {
+        "pid": "TX-MAFIA-JUMPER-t-15",
+        "name": "Jumper AION T-15 2.4GHz TX",
+        "manufacturer": "Jumper",
+        "source": "BUSHA/targets@mafia-targets (vtx.in.ua)",
+        "firmware": "Unified_ESP32_2400_TX",
+        "layout_file": "Jumper T-20 2400.json"
+      },
+      {
+        "pid": "TX-MAFIA-JUMPER-t-14",
+        "name": "Jumper AION T-14 2.4GHz TX",
+        "manufacturer": "Jumper",
+        "source": "BUSHA/targets@mafia-targets (vtx.in.ua)",
+        "firmware": "Unified_ESP32_2400_TX",
+        "layout_file": "Jumper T-20 2400.json"
+      },
+      {
+        "pid": "TX-MAFIA-JUMPER-t-20-gemin",
+        "name": "Jumper Gemini T-20 2.4GHz TX",
+        "manufacturer": "Jumper",
+        "source": "BUSHA/targets@mafia-targets (vtx.in.ua)",
+        "firmware": "Unified_ESP32_2400_TX",
+        "layout_file": "Generic 2400 Gemini.json"
+      },
+      {
+        "pid": "TX-MAFIA-JUMPER-t-pro",
+        "name": "Jumper AION T-Pro 2.4GHz TX",
+        "manufacturer": "Jumper",
+        "source": "BUSHA/targets@mafia-targets (vtx.in.ua)",
+        "firmware": "Unified_ESP32_2400_TX",
+        "layout_file": "Jumper T-Pro.json"
+      },
+      {
+        "pid": "TX-MAFIA-JUMPER-t-lite",
+        "name": "Jumper AION T-Lite 2.4GHz TX",
+        "manufacturer": "Jumper",
+        "source": "BUSHA/targets@mafia-targets (vtx.in.ua)",
+        "firmware": "Unified_ESP32_2400_TX",
+        "layout_file": "Jumper T-Lite.json"
+      },
+      {
+        "pid": "TX-MAFIA-JUMPER-nano",
+        "name": "Jumper AION Nano 2.4GHz TX",
+        "manufacturer": "Jumper",
+        "source": "BUSHA/targets@mafia-targets (vtx.in.ua)",
+        "firmware": "Unified_ESP32_2400_TX",
+        "layout_file": "Jumper AION Nano.json"
+      },
+      {
+        "pid": "TX-MAFIA-JUMPER-t12",
+        "name": "Jumper AION T-12 MAX 2.4GHz TX",
+        "manufacturer": "Jumper",
+        "source": "BUSHA/targets@mafia-targets (vtx.in.ua)",
+        "firmware": "Unified_ESP32S3_2400_TX",
+        "layout_file": "Jumper T-12 2400.json"
+      },
+      {
+        "pid": "TX-MAFIA-JUMPER-t12-1w",
+        "name": "Jumper AION Bumblebee 2.4GHz TX",
+        "manufacturer": "Jumper",
+        "source": "BUSHA/targets@mafia-targets (vtx.in.ua)",
+        "firmware": "Unified_ESP32S3_2400_TX",
+        "layout_file": "Jumper T-12 1W 2400.json"
+      },
+      {
+        "pid": "TX-MAFIA-NAMIMNOR-voyager_st",
+        "name": "NamimnoRC Voyager 900MHz TX",
+        "manufacturer": "NamimnoRC",
+        "source": "BUSHA/targets@mafia-targets (vtx.in.ua)",
+        "firmware": "NamimnoRC_VOYAGER_900_TX",
+        "layout_file": ""
+      },
+      {
+        "pid": "TX-MAFIA-NAMIMNOR-voyager",
+        "name": "NamimnoRC Voyager OLED 900MHz TX",
+        "manufacturer": "NamimnoRC",
+        "source": "BUSHA/targets@mafia-targets (vtx.in.ua)",
+        "firmware": "Unified_ESP32_900_TX",
+        "layout_file": "Namimno Voyager OLED.json"
+      },
+      {
+        "pid": "TX-MAFIA-NAMIMNOR-flash_stm",
+        "name": "NamimnoRC Flash 2.4GHz TX",
+        "manufacturer": "NamimnoRC",
+        "source": "BUSHA/targets@mafia-targets (vtx.in.ua)",
+        "firmware": "NamimnoRC_FLASH_2400_TX",
+        "layout_file": ""
+      },
+      {
+        "pid": "TX-MAFIA-NAMIMNOR-flash",
+        "name": "NamimnoRC Flash OLED 2.4GHz TX",
+        "manufacturer": "NamimnoRC",
+        "source": "BUSHA/targets@mafia-targets (vtx.in.ua)",
+        "firmware": "Unified_ESP32_2400_TX",
+        "layout_file": "Namimno Flash OLED.json"
+      },
+      {
+        "pid": "TX-MAFIA-QUADKOPT-jr",
+        "name": "QuadKopters JR 2.4GHz TX",
+        "manufacturer": "QuadKopters",
+        "source": "BUSHA/targets@mafia-targets (vtx.in.ua)",
+        "firmware": "Unified_ESP32_2400_TX",
+        "layout_file": "QuadKopters JR 2400.json"
+      },
+      {
+        "pid": "TX-MAFIA-QUADKOPT-slim",
+        "name": "QuadKopters Slim 2.4GHz TX",
+        "manufacturer": "QuadKopters",
+        "source": "BUSHA/targets@mafia-targets (vtx.in.ua)",
+        "firmware": "Unified_ESP32_2400_TX",
+        "layout_file": "QuadKopters JR 2400.json"
+      },
+      {
+        "pid": "TX-MAFIA-RADIOMAS-bandit",
+        "name": "RadioMaster Bandit 900MHz TX",
+        "manufacturer": "RadioMaster",
+        "source": "BUSHA/targets@mafia-targets (vtx.in.ua)",
+        "firmware": "Unified_ESP32_900_TX",
+        "layout_file": "Radiomaster Bandit.json"
+      },
+      {
+        "pid": "TX-MAFIA-RADIOMAS-bandit-mic",
+        "name": "RadioMaster Bandit Micro 900MHz TX",
+        "manufacturer": "RadioMaster",
+        "source": "BUSHA/targets@mafia-targets (vtx.in.ua)",
+        "firmware": "Unified_ESP32_900_TX",
+        "layout_file": "Radiomaster Bandit Micro.json"
+      },
+      {
+        "pid": "TX-MAFIA-RADIOMAS-bandit-nan",
+        "name": "RadioMaster Bandit Nano 900MHz TX",
+        "manufacturer": "RadioMaster",
+        "source": "BUSHA/targets@mafia-targets (vtx.in.ua)",
+        "firmware": "Unified_ESP32_900_TX",
+        "layout_file": "Radiomaster Bandit Micro.json"
+      },
+      {
+        "pid": "TX-MAFIA-RADIOMAS-zorro",
+        "name": "RadioMaster Zorro Internal 2.4GHz TX",
+        "manufacturer": "RadioMaster",
+        "source": "BUSHA/targets@mafia-targets (vtx.in.ua)",
+        "firmware": "Unified_ESP32_2400_TX",
+        "layout_file": "Radiomaster Zorro.json"
+      },
+      {
+        "pid": "TX-MAFIA-RADIOMAS-pocket",
+        "name": "RadioMaster Pocket Internal 2.4GHz TX",
+        "manufacturer": "RadioMaster",
+        "source": "BUSHA/targets@mafia-targets (vtx.in.ua)",
+        "firmware": "Unified_ESP32_2400_TX",
+        "layout_file": "Radiomaster Zorro.json"
+      },
+      {
+        "pid": "TX-MAFIA-RADIOMAS-mt12",
+        "name": "RadioMaster MT12 Internal 2.4GHz TX",
+        "manufacturer": "RadioMaster",
+        "source": "BUSHA/targets@mafia-targets (vtx.in.ua)",
+        "firmware": "Unified_ESP32_2400_TX",
+        "layout_file": "Radiomaster Zorro.json"
+      },
+      {
+        "pid": "TX-MAFIA-RADIOMAS-tx16s",
+        "name": "RadioMaster TX16S Internal 2.4GHz TX",
+        "manufacturer": "RadioMaster",
+        "source": "BUSHA/targets@mafia-targets (vtx.in.ua)",
+        "firmware": "Unified_ESP32_2400_TX",
+        "layout_file": "Radiomaster TX16S 2400.json"
+      },
+      {
+        "pid": "TX-MAFIA-RADIOMAS-tx12",
+        "name": "RadioMaster TX12 Internal 2.4GHz TX",
+        "manufacturer": "RadioMaster",
+        "source": "BUSHA/targets@mafia-targets (vtx.in.ua)",
+        "firmware": "Unified_ESP32_2400_TX",
+        "layout_file": "Radiomaster Zorro.json"
+      },
+      {
+        "pid": "TX-MAFIA-RADIOMAS-ranger",
+        "name": "RadioMaster Ranger 2.4GHz TX",
+        "manufacturer": "RadioMaster",
+        "source": "BUSHA/targets@mafia-targets (vtx.in.ua)",
+        "firmware": "Unified_ESP32_2400_TX",
+        "layout_file": "Radiomaster Ranger.json"
+      },
+      {
+        "pid": "TX-MAFIA-RADIOMAS-ranger-mic",
+        "name": "RadioMaster Ranger Micro 2.4GHz TX",
+        "manufacturer": "RadioMaster",
+        "source": "BUSHA/targets@mafia-targets (vtx.in.ua)",
+        "firmware": "Unified_ESP32_2400_TX",
+        "layout_file": "Radiomaster Ranger Micro.json"
+      },
+      {
+        "pid": "TX-MAFIA-RADIOMAS-ranger-nan",
+        "name": "RadioMaster Ranger Nano 2.4GHz TX",
+        "manufacturer": "RadioMaster",
+        "source": "BUSHA/targets@mafia-targets (vtx.in.ua)",
+        "firmware": "Unified_ESP32_2400_TX",
+        "layout_file": "Radiomaster Ranger Micro.json"
+      },
+      {
+        "pid": "TX-MAFIA-RADIOMAS-boxer",
+        "name": "RadioMaster Boxer Internal 2.4GHz TX",
+        "manufacturer": "RadioMaster",
+        "source": "BUSHA/targets@mafia-targets (vtx.in.ua)",
+        "firmware": "Unified_ESP32_2400_TX",
+        "layout_file": "Radiomaster Boxer.json"
+      },
+      {
+        "pid": "TX-MAFIA-RADIOMAS-t8l",
+        "name": "RadioMaster T8L Internal 2.4GHz TX",
+        "manufacturer": "RadioMaster",
+        "source": "BUSHA/targets@mafia-targets (vtx.in.ua)",
+        "firmware": "Unified_ESP8285_2400_TX",
+        "layout_file": "Radiomaster T8L.json"
+      },
+      {
+        "pid": "TX-MAFIA-RADIOMAS-nomad",
+        "name": "RadioMaster Nomad 2.4/900 TX",
+        "manufacturer": "RadioMaster",
+        "source": "BUSHA/targets@mafia-targets (vtx.in.ua)",
+        "firmware": "Unified_ESP32_LR1121_TX",
+        "layout_file": "Radiomaster Nomad.json"
+      },
+      {
+        "pid": "TX-MAFIA-RADIOMAS-gx12",
+        "name": "RadioMaster GX12 2.4/900 TX",
+        "manufacturer": "RadioMaster",
+        "source": "BUSHA/targets@mafia-targets (vtx.in.ua)",
+        "firmware": "Unified_ESP32_LR1121_TX",
+        "layout_file": "Radiomaster GX12.json"
+      },
+      {
+        "pid": "TX-MAFIA-RADIOMAS-tx15",
+        "name": "RadioMaster TX15 2.4/900 TX",
+        "manufacturer": "RadioMaster",
+        "source": "BUSHA/targets@mafia-targets (vtx.in.ua)",
+        "firmware": "Unified_ESP32_LR1121_TX",
+        "layout_file": "Radiomaster TX15.json"
+      },
+      {
+        "pid": "TX-MAFIA-RADIOMAS-xr4_as_tx",
+        "name": "RadioMaster XR4 Dual Band True Diversity RX as TX",
+        "manufacturer": "RadioMaster",
+        "source": "BUSHA/targets@mafia-targets (vtx.in.ua)",
+        "firmware": "Unified_ESP32_LR1121_TX",
+        "layout_file": "RadioMaster XR4 as TX.json"
+      },
+      {
+        "pid": "TX-MAFIA-SIYI-fm30",
+        "name": "SIYI FM30 2.4GHz TX",
+        "manufacturer": "SIYI",
+        "source": "BUSHA/targets@mafia-targets (vtx.in.ua)",
+        "firmware": "FM30_TX",
+        "layout_file": ""
+      },
+      {
+        "pid": "TX-MAFIA-SIYI-rx_as_tx",
+        "name": "SIYI FM30 Mini 2.4GHz RX as TX",
+        "manufacturer": "SIYI",
+        "source": "BUSHA/targets@mafia-targets (vtx.in.ua)",
+        "firmware": "FM30_RX_MINI_AS_TX",
+        "layout_file": ""
+      },
+      {
+        "pid": "TX-MAFIA-VANTAC-lite",
+        "name": "Vantac Lite 2.4GHz TX",
+        "manufacturer": "Vantac",
+        "source": "BUSHA/targets@mafia-targets (vtx.in.ua)",
+        "firmware": "Unified_ESP32_2400_TX",
+        "layout_file": "Vantac Lite.json"
+      },
+      {
+        "pid": "TX-MAFIA-MAFIA-tx433",
+        "name": "Fan OLED 433MHz TX",
+        "manufacturer": "FPV Mafia targets",
+        "source": "BUSHA/targets@mafia-targets (vtx.in.ua)",
+        "firmware": "Unified_ESP32_900_TX",
+        "layout_file": "Fan 433 OLED.json"
+      },
+      {
+        "pid": "TX-MAFIA-MAFIA-bl627",
+        "name": "B SubGHz TX 2W",
+        "manufacturer": "FPV Mafia targets",
+        "source": "BUSHA/targets@mafia-targets (vtx.in.ua)",
+        "firmware": "Unified_ESP32_LR1121_TX",
+        "layout_file": "B SubGHz.json"
+      },
+      {
+        "pid": "TX-MAFIA-EDIFIER-tx433",
+        "name": "Edifier OLED 433MHz TX",
+        "manufacturer": "Edifier",
+        "source": "BUSHA/targets@mafia-targets (vtx.in.ua)",
+        "firmware": "Unified_ESP32_900_TX",
+        "layout_file": "EDIFIER 433 OLED.json"
+      },
+      {
+        "pid": "TX-MAFIA-BELINRC-tx433",
+        "name": "BelinRC OLED 433 TX",
+        "manufacturer": "BelinRC",
+        "source": "BUSHA/targets@mafia-targets (vtx.in.ua)",
+        "firmware": "Unified_ESP32_900_TX",
+        "layout_file": "BelinRC 433 OLED Micro.json"
+      },
+      {
+        "pid": "TX-MAFIA-CYCLONE-cyclone_mi",
+        "name": "CYCLONE 900MHz Micro TX",
+        "manufacturer": "Cyclone",
+        "source": "BUSHA/targets@mafia-targets (vtx.in.ua)",
+        "firmware": "Unified_ESP32_900_TX",
+        "layout_file": "CYCLONE 900 Micro.json"
+      },
+      {
+        "pid": "TX-MAFIA-CYCLONE-cyclone_40",
+        "name": "CYCL SX1276_TX400 V2 TX",
+        "manufacturer": "Cyclone",
+        "source": "BUSHA/targets@mafia-targets (vtx.in.ua)",
+        "firmware": "Unified_ESP32_900_TX",
+        "layout_file": "CYCLONE 400 V2.json"
+      },
+      {
+        "pid": "TX-MAFIA-CYCLONE-cyclone_1w",
+        "name": "CYCLONE LR1211 TX 1W",
+        "manufacturer": "Cyclone",
+        "source": "BUSHA/targets@mafia-targets (vtx.in.ua)",
+        "firmware": "Unified_ESP32_LR1121_TX",
+        "layout_file": "CYCLONE LR1121 TX 1W.json"
+      },
+      {
+        "pid": "TX-MAFIA-FLYSKY-pa01",
+        "name": "Flysky PA01 2.4GHz TX",
+        "manufacturer": "FlySky",
+        "source": "BUSHA/targets@mafia-targets (vtx.in.ua)",
+        "firmware": "Unified_ESP32S3_2400_TX",
+        "layout_file": "FLYSKY PA01.json"
+      }
+    ]
+  }
+}

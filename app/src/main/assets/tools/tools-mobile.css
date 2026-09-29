@@ -108,3 +108,10 @@ dialog::backdrop{background:#02070dbb;backdrop-filter:blur(4px)}
 #mafia-mfr{min-width:0;max-width:45%!important;min-height:44px}
 #mafia-target-list{padding:12px;font-size:13px;color:var(--text-muted)}
 @media(min-width:700px){#tool-unlock-vtx>div[style*="display:grid"],#tool-elrs-info>div[style*="display:grid"]{grid-template-columns:minmax(0,1fr) minmax(0,1fr)!important}}
+
+.mafia-target-row { flex-wrap: wrap; gap: 6px; }
+.mafia-target-row > div { flex: 1 1 100%; min-width: 0; overflow-wrap: anywhere; }
+.mafia-target-row > span { overflow-wrap: anywhere; max-width: 100%; }
+#mafia-sel-detail, #vtx-preset-source { overflow-wrap: anywhere; }
+
+#vtx-copy-btn { position: static !important; margin: 0 0 10px; }

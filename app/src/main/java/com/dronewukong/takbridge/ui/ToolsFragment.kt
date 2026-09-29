@@ -15,6 +15,11 @@ import android.webkit.WebView
 import android.webkit.WebViewClient
 import android.webkit.WebResourceResponse
 import android.webkit.ValueCallback
+import android.widget.Toast
+import androidx.lifecycle.lifecycleScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.fragment.app.Fragment
 import androidx.webkit.WebViewAssetLoader
@@ -35,6 +40,22 @@ class ToolsFragment : Fragment() {
     private lateinit var webView: WebView
     private var pendingTool: String? = null
     private var fileCallback: ValueCallback<Array<Uri>>? = null
+    private var pendingReport: String? = null
+    private val reportPicker = registerForActivityResult(ActivityResultContracts.CreateDocument("text/html")) { uri ->
+        val report = pendingReport
+        pendingReport = null
+        if (uri != null && report != null) {
+            val appContext = requireContext().applicationContext
+            lifecycleScope.launch {
+                val saved = withContext(Dispatchers.IO) {
+                    runCatching {
+                        requireNotNull(appContext.contentResolver.openOutputStream(uri)).bufferedWriter().use { it.write(report) }
+                    }.isSuccess
+                }
+                Toast.makeText(appContext, if (saved) "Report saved" else "Could not save report", Toast.LENGTH_LONG).show()
+            }
+        }
+    }
     private val filePicker = registerForActivityResult(ActivityResultContracts.StartActivityForResult()) { result ->
         fileCallback?.onReceiveValue(WebChromeClient.FileChooserParams.parseResult(result.resultCode, result.data))
         fileCallback = null
@@ -73,7 +94,17 @@ class ToolsFragment : Fragment() {
                 loadWithOverviewMode = false
             }
 
-            addJavascriptInterface(WingmanJsBridge(requireContext()), "Android")
+            addJavascriptInterface(WingmanJsBridge(requireContext()) { name, html ->
+                post {
+                    if (isAdded && url?.substringBefore('#') == TOOLS_URL && pendingReport == null) {
+                        pendingReport = html
+                        runCatching { reportPicker.launch(name) }.onFailure {
+                            pendingReport = null
+                            Toast.makeText(context, "No document picker available", Toast.LENGTH_LONG).show()
+                        }
+                    }
+                }
+            }, "Android")
 
             webViewClient = object : WebViewClient() {
                 override fun shouldInterceptRequest(view: WebView, request: WebResourceRequest): WebResourceResponse? =
@@ -104,11 +135,15 @@ class ToolsFragment : Fragment() {
                     fileCallback?.onReceiveValue(null)
                     fileCallback = callback
                     return try {
-                        filePicker.launch(params.createIntent().apply { type = "*/*" })
+                        filePicker.launch(params.createIntent().apply {
+                            type = "*/*"
+                            addCategory(Intent.CATEGORY_OPENABLE)
+                        })
                         true
                     } catch (_: Exception) {
+                        callback.onReceiveValue(null)
                         fileCallback = null
-                        false
+                        true
                     }
                 }
             }

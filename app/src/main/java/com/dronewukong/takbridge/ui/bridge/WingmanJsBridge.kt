@@ -2,6 +2,8 @@ package com.dronewukong.takbridge.ui.bridge
 
 import android.Manifest
 import android.content.Context
+import android.content.ClipData
+import android.content.ClipboardManager
 import android.content.pm.PackageManager
 import androidx.core.content.ContextCompat
 import android.location.Location
@@ -18,7 +20,25 @@ import android.webkit.JavascriptInterface
  *   Android.log(msg)          → logcat tag WingmanTools
  *   Android.getAppVersion()   → "wingman-buddy/android"
  */
-class WingmanJsBridge(private val context: Context) {
+class WingmanJsBridge(
+    private val context: Context,
+    private val onSaveReport: (String, String) -> Unit = { _, _ -> }
+) {
+
+    @JavascriptInterface
+    fun copyText(text: String): Boolean = runCatching {
+        require(text.length <= 200_000)
+        (context.getSystemService(Context.CLIPBOARD_SERVICE) as ClipboardManager)
+            .setPrimaryClip(ClipData.newPlainText("TAK Bridge tools", text))
+        true
+    }.getOrDefault(false)
+
+    @JavascriptInterface
+    fun saveReport(filename: String, html: String) {
+        if (html.length <= 1_000_000 && filename.matches(Regex("[A-Za-z0-9_-]+\\.html"))) {
+            onSaveReport(filename, html)
+        }
+    }
 
     @JavascriptInterface
     fun getGpsLocation(): String {

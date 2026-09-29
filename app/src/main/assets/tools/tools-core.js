@@ -138,15 +138,17 @@ const GNSS_BANDS=[
 ];
 
 function calcHarmonics() {
+    try { ["harm-freq", "harm-txpower", "harm-vband-start", "harm-vband-end"].forEach(toolNumber); } catch(e) { ["harm-results", "harm-gps-warnings"].forEach(id => document.getElementById(id).textContent = e.message); return; }
+
     const f = +document.getElementById('harm-freq').value;
     const txP = +document.getElementById('harm-txpower').value;
     const vStart = +document.getElementById('harm-vband-start').value;
     const vEnd = +document.getElementById('harm-vband-end').value;
-    if (!f) return;
+    if (vStart >= vEnd) { document.getElementById('harm-results').textContent='Video band end must exceed its start.'; document.getElementById('harm-gps-warnings').textContent=''; return; }
 
     // ── GPS/GNSS warnings ──
     let gpsHtml='';
-    const maxN=Math.ceil(6000/f)+1;
+    const maxN=Math.min(1000, Math.ceil(Math.max(6000,vEnd+200)/f)+1);
     let gpsRisks=[];
     for(let n=2;n<=maxN&&n<=20;n++){
         const hf=n*f;
@@ -183,10 +185,10 @@ function calcHarmonics() {
             </div>`;
         });
         const hasCrit=gpsRisks.some(r=>r.risk==='critical'||r.risk==='high');
-        if(hasCrit) gpsHtml+='<div style="padding:8px 10px; margin-top:4px; font-size:11px; color:#f87171; background:rgba(248,113,113,0.08); border-radius:var(--radius-sm);">⚠ Add output LPF above fundamental frequency. At '+txP+' dBm TX, GPS receiver desensing is likely.</div>';
+        if(hasCrit) gpsHtml+='<div style="padding:8px 10px; margin-top:4px; font-size:11px; color:#f87171; background:rgba(248,113,113,0.08); border-radius:var(--radius-sm);">⚠ Add output LPF above fundamental frequency. At '+txP+' dBm TX, harmonic power is an assumption; actual interference depends on filtering, isolation and receiver response.</div>';
         gpsHtml+='</div>';
     } else {
-        gpsHtml='<div style="padding:8px 10px; margin-bottom:12px; font-size:12px; color:#4ade80; background:rgba(74,222,128,0.08); border-radius:var(--radius-sm);">✓ No GPS/GNSS harmonic risks detected at '+f+' MHz</div>';
+        gpsHtml='<div style="padding:8px 10px; margin-bottom:12px; font-size:12px; color:#4ade80; background:rgba(74,222,128,0.08); border-radius:var(--radius-sm);">✓ No nearby GNSS harmonics found in this frequency check at '+f+' MHz</div>';
     }
     document.getElementById('harm-gps-warnings').innerHTML=gpsHtml;
 
@@ -226,6 +228,8 @@ calcHarmonics();
 
 // ── TOOL 3: Range estimator ───────────────────────────────────────────────
 function calcRange() {
+    try { ["range-power", "range-tx-gain", "range-rx-gain", "range-freq", "range-sensitivity", "range-margin"].forEach(toolNumber); } catch(e) { ["range-results"].forEach(id => document.getElementById(id).textContent = e.message); return; }
+
     const pw_mw = +document.getElementById('range-power').value;
     const txGain = +document.getElementById('range-tx-gain').value;
     const rxGain = +document.getElementById('range-rx-gain').value;
@@ -276,6 +280,8 @@ calcRange();
 
 // ── TOOL 4: Fresnel zone ──────────────────────────────────────────────────
 function calcFresnel() {
+    try { ["fres-dist", "fres-freq", "fres-point"].forEach(toolNumber); } catch(e) { ["fresnel-results", "fresnel-svg"].forEach(id => document.getElementById(id).textContent = e.message); return; }
+
     const d = +document.getElementById('fres-dist').value;
     const f_mhz = +document.getElementById('fres-freq').value;
     const pct = +document.getElementById('fres-point').value / 100;
@@ -321,6 +327,8 @@ calcFresnel();
 
 // ── TOOL 5: Dipole length ─────────────────────────────────────────────────
 function calcDipole() {
+    try { ["dip-freq", "dip-vf"].forEach(toolNumber); } catch(e) { ["dipole-results"].forEach(id => document.getElementById(id).textContent = e.message); return; }
+
     const f = +document.getElementById('dip-freq').value;
     const vf = +document.getElementById('dip-vf').value;
     const unit = document.getElementById('dip-unit').value;
@@ -348,6 +356,8 @@ calcDipole();
 
 // ── TOOL 6: Closest channel ───────────────────────────────────────────────
 function calcClosestChannel() {
+    try { ["cc-freq"].forEach(toolNumber); } catch(e) { ["cc-results", "cc-table"].forEach(id => document.getElementById(id).textContent = e.message); return; }
+
     const target = +document.getElementById('cc-freq').value;
     const band = document.getElementById('cc-band').value;
     if (!target) return;
@@ -382,40 +392,6 @@ const VTX_BANDS_FULL = [
     { name:'RACEBAND', letter:'R', flag:'FACTORY', freqs:[5658,5695,5732,5769,5806,5843,5880,5917] },
 ];
 
-// VTX database from vtx.in.ua catalog (subset with known power configs)
-const VTX_DB = [
-    { mfr:'Rush', name:'Rush Tank Solo 1.6W', proto:2048, pw:[1,3,4], port:0, bands:5, channels:8 },
-    { mfr:'Rush', name:'Rush Max Solo 2.5W', proto:2048, pw:[1,3,4], port:0, bands:5, channels:8 },
-    { mfr:'Rush', name:'Rush Max Solo 2.5W (+ X-band)', proto:2048, pw:[1,3,4], port:0, bands:6, channels:8 },
-    { mfr:'Rush', name:'Rush 3.3G 2W VTX', proto:8192, pw:[1,3,4], port:0, bands:2, channels:8 },
-    { mfr:'Rush', name:'Rush 3.3G 4W VTX', proto:8192, pw:[1,3,4], port:0, bands:2, channels:8 },
-    { mfr:'Rush', name:'Rush 1.2/1.3GHz 4W', proto:8192, pw:[1,2,4], port:0, bands:1, channels:9 },
-    { mfr:'Foxeer', name:'Foxeer Reaper Extreme 1.8W 72Ch', proto:8192, pw:[1,3,5], port:0, bands:5, channels:8 },
-    { mfr:'Foxeer', name:'Foxeer Reaper Extreme 2.5W v2 72Ch', proto:8192, pw:[1,3,5], port:0, bands:5, channels:8 },
-    { mfr:'Foxeer', name:'Foxeer Reaper Extreme 3W 72Ch', proto:8192, pw:[1,3,5], port:0, bands:5, channels:8 },
-    { mfr:'Foxeer', name:'Foxeer Reaper 5G 4W 80Ch (X-band)', proto:8192, pw:[1,3,5], port:0, bands:6, channels:8 },
-    { mfr:'AKK', name:'AKK FX3-ultimate 3W', proto:8192, pw:[1,2,3,4,5], port:0, bands:5, channels:8 },
-    { mfr:'AKK', name:'AKK FX5 4W 96Ch', proto:8192, pw:[1,2,3,4,5], port:0, bands:5, channels:8 },
-    { mfr:'GEPRC', name:'GEPRC TX800 VTX 800mW', proto:8192, pw:[1,2,3,4,5], port:0, bands:5, channels:8 },
-    { mfr:'GEPRC', name:'GEPRC TX1000 VTX 1W', proto:8192, pw:[1,2,3,4,5], port:0, bands:5, channels:8 },
-    { mfr:'TBS', name:'TBS Unify Pro32 HV', proto:2048, pw:[1,2,3,4,5], port:0, bands:5, channels:8 },
-    { mfr:'TBS', name:'TBS Unify Pro HV', proto:2048, pw:[1,2,3,4,5], port:0, bands:5, channels:8 },
-    { mfr:'SpeedyBee', name:'SpeedyBee TX800 5.8G', proto:8192, pw:[1,2,3,4], port:0, bands:5, channels:8 },
-    { mfr:'ImmersionRC', name:'ImmersionRC Tramp HV', proto:8192, pw:[1,2,3,4,5], port:0, bands:5, channels:8 },
-    { mfr:'Stingbee', name:'StingBee Stellar VTX 2.5W 64Ch', proto:8192, pw:[1,2,4], port:0, bands:4, channels:8 },
-    { mfr:'DEC1', name:'DEC1 Spot VTX 2.5W', proto:8192, pw:[2,3,5], port:0, bands:5, channels:8 },
-    { mfr:'FT', name:'FT VTX 5.8GHz 4W 96CH', proto:8192, pw:[1,2,3,4,5], port:0, bands:5, channels:8 },
-    { mfr:'FT', name:'FT VTX 3.3GHz 4W 16CH', proto:8192, pw:[1,2,4], port:0, bands:2, channels:8 },
-    { mfr:'FT', name:'FT VTX 1.2GHz 4W 9CH', proto:8192, pw:[1,2,4], port:0, bands:1, channels:9 },
-    { mfr:'KaraFPV', name:'KaraFPV Teleport67 4W 6.1-7.2G', proto:8192, pw:[1,3,5], port:0, bands:2, channels:8 },
-    { mfr:'Pilotix', name:'Pilotix VTX 2.5W 64Ch', proto:8192, pw:[1,2,4], port:0, bands:4, channels:8 },
-    { mfr:'Scream Industries', name:'Scream Industries SI-MOD v1.0', proto:8192, pw:[1,3,5], port:0, bands:5, channels:8 },
-    { mfr:'Axisflying', name:'Axisflying Thor VTX 2.5W', proto:8192, pw:[1,2,3,4,5], port:0, bands:5, channels:8 },
-    { mfr:'SKYZONE', name:'SKYZONE VTX 2.5W 56Ch', proto:8192, pw:[1,2,4], port:0, bands:4, channels:8 },
-    { mfr:'HGLRC', name:'HGLRC Zeus VTX 3W', proto:8192, pw:[1,2,3,4,5], port:0, bands:5, channels:8 },
-    { mfr:'iFlight', name:'iFlight BLITZ WHOOP VTX 400mW', proto:8192, pw:[1,2,3,4], port:0, bands:5, channels:8 },
-];
-
 function populateVtxMfr() {
     const sel = document.getElementById('vtx-mfr');
     const mfrs = [...new Set(VTX_DB.map(v => v.mfr))].sort();
@@ -429,43 +405,25 @@ function updateVtxModels() {
     updateVtxConfig();
 }
 function updateVtxConfig() {
-    const name = document.getElementById('vtx-model').value;
-    const uart = document.getElementById('vtx-uart').value;
-    const vtx = VTX_DB.find(v => v.name === name);
+    const vtx = VTX_DB.find(v => v.name === document.getElementById('vtx-model').value);
     if (!vtx) return;
-    const protoName = vtx.proto === 8192 ? 'IRC Tramp' : 'SmartAudio';
-    const numBands = Math.min(vtx.bands, 5);
-    const bands = VTX_BANDS_FULL.slice(0, numBands);
-    const pwCount = vtx.pw.length;
-    const pwLabels = vtx.pw.map(p => p === 1?'25':p===2?'100':p===3?'200':p===4?'400':'600');
-    let cli = `# VTX: ${vtx.name} (${protoName})\n`;
-    cli += `# Generated by Forge Tools\n\n`;
-    cli += `set vtx_softserial_alt = OFF\n`;
-    cli += `feature -SOFTSERIAL\n`;
-    cli += `resource UART${uart}_TX 1 NONE\n`;
-    cli += `resource UART${uart}_RX 1 NONE\n\n`;
-    cli += `set vtxtable_bands = ${numBands}\n`;
-    cli += `set vtxtable_channels = 8\n`;
-    bands.forEach((b, i) => {
-        cli += `vtxtable band ${i+1} ${b.name} ${b.letter} ${b.flag} ${b.freqs.join(' ')}\n`;
-    });
-    cli += `vtxtable powerlevels ${pwCount}\n`;
-    cli += `vtxtable powervalues ${vtx.pw.join(' ')}\n`;
-    cli += `vtxtable powerlabels ${pwLabels.join(' ')}\n\n`;
-    cli += `set vtx_band = 5\nset vtx_channel = 1\nset vtx_power = 1\n`;
-    cli += `set vtx_low_power_disarm = ON\n\nsave`;
-    document.getElementById('vtx-cli-output').textContent = cli;
+    const uart = Number(document.getElementById('vtx-uart').value);
+    const protocol = vtx.proto === 8192 ? 'IRC Tramp' : 'SmartAudio';
+    const lines = [
+        '# '+vtx.mfr+' '+vtx.name+' — '+protocol,
+        '# Use a free UART '+uart+' TX pad wired to the VTX control input.',
+        '# This assigns only the selected serial port. Existing pin resources are preserved.',
+        'serial '+(uart-1)+' '+vtx.proto+' 115200 57600 0 115200',
+        vtx.table,
+        'set vtx_band = 1', 'set vtx_channel = '+vtx.channel,
+        'set vtx_power = 1', 'set vtx_low_power_disarm = ON', 'save'
+    ];
+    document.getElementById('vtx-cli-output').textContent = lines.join('\n');
+    const source = document.getElementById('vtx-preset-source');
+    source.href = vtx.source; source.textContent = 'Preset source · '+vtx.mfr+' '+vtx.name;
 }
-function copyVtxConfig() {
-    const text = document.getElementById('vtx-cli-output').textContent;
-    navigator.clipboard.writeText(text).then(() => {
-        const btn = document.getElementById('vtx-copy-btn');
-        btn.innerHTML = '<i class="ph ph-check"></i> Copied!';
-        btn.style.color = '#4ade80';
-        setTimeout(() => { btn.innerHTML = '<i class="ph ph-copy"></i> Copy'; btn.style.color = ''; }, 2000);
-    });
-}
-['vtx-uart','vtx-aux'].forEach(id => document.getElementById(id).addEventListener('change', updateVtxConfig));
+function copyVtxConfig() { return copyToolText(document.getElementById('vtx-cli-output').textContent, document.getElementById('vtx-copy-btn')); }
+['vtx-uart'].forEach(id => document.getElementById(id).addEventListener('change', updateVtxConfig));
 populateVtxMfr();
 
 // ── FC Target Matcher ─────────────────────────────────────────────────────
@@ -520,21 +478,18 @@ function runFcMatcher() {
     if (!raw) { out.innerHTML = '<div style="color:var(--text-faint); font-size:13px; padding:16px;">No input detected.</div>'; return; }
 
     // Parse key fields from status output
-    const mcuMatch = raw.match(/MCU\s+([A-Z0-9]+\s*[A-Z0-9]+)/i) || raw.match(/STM32\w+/i) || raw.match(/AT32\w+/i) || raw.match(/GD32\w+/i);
-    const gyroMatch = raw.match(/Gyro\s*[:#]?\s*([A-Za-z0-9]+)/i) || raw.match(/(MPU6000|MPU6500|ICM20602|ICM20689|ICM42688|ICM42688P|BMI270|BMI088|LSM6DSO)/i);
-    const targetMatch = raw.match(/target:\s*([A-Z0-9_]+)/i);
-    const boardMatch = raw.match(/board:\s*([A-Z0-9_]+)/i);
-    const cpuMatch = raw.match(/cpu:\s*([A-Za-z0-9]+)/i);
-
-    const detectedMcu = (mcuMatch?.[0] || cpuMatch?.[1] || '').toUpperCase().replace(/\s+/g,'');
-    const detectedGyro = (gyroMatch?.[1] || '').toUpperCase();
-    const detectedTarget = targetMatch?.[1] || boardMatch?.[1] || '';
+    const mcuMatch = raw.match(/(?:STM32|AT32|GD32)?(H743|H750|H723|H7A3|F405|F411|F722|F745|F765|F435|F446|F303|F4|F7|H7)\b/i);
+    const gyroMatch = raw.match(/(?:GYRO(?:[12])?\s*[=:]\s*)?(ICM42688P|ICM42688|ICM20689|ICM20602|MPU6000|MPU6500|BMI270|BMI088|LSM6DSO)/i);
+    const targetMatch = raw.match(/(?:target\s*:|board_name\s*(?:=)?|board\s*:)\s*([A-Z0-9_]+)/i);
+    const detectedMcu = mcuMatch ? mcuMatch[1].toUpperCase() : '';
+    const detectedGyro = gyroMatch ? gyroMatch[1].toUpperCase() : '';
+    const detectedTarget = targetMatch ? targetMatch[1].toUpperCase() : '';
 
     // Score matches
     let matches = FC_DB.map(fc => {
         let score = 0;
         const mcuNorm = detectedMcu.replace('STM32','').replace('AT32','');
-        if (detectedTarget && fc.target.toUpperCase().includes(detectedTarget.toUpperCase())) score += 10;
+        if (detectedTarget && fc.target.toUpperCase() === detectedTarget.toUpperCase()) score += 10;
         if (detectedMcu && fc.mcu.replace('STM32','').replace('AT32','') === mcuNorm) score += 5;
         if (detectedGyro && fc.gyros.some(g => g.toUpperCase() === detectedGyro)) score += 4;
         if (detectedMcu && fc.mcu.toUpperCase() === detectedMcu) score += 3;
@@ -598,25 +553,28 @@ function renderVtxTable() {
     const activeBands = Object.keys(VTX_UNLOCK_BANDS).filter(k => document.getElementById('vtx-band-' + k)?.checked);
 
     const powers = VTX_POWER_LEVELS.slice(0, maxPwr);
-    const protoNum = proto === 'smartaudio' ? 3 : 4; // SA 2.1 = 3, Tramp = 4
+    const values = proto === 'smartaudio' ? powers.map(p=>Math.round(10*Math.log10(p.mw))) : proto === 'sa20' ? powers.map((p,i)=>i) : powers.map(p=>p.mw);
+    if(!activeBands.length){document.getElementById('vtx-output').value='# Select at least one band.';document.getElementById('vtx-line-count').textContent='No table';return;}
 
     let lines = [];
-    lines.push('# Unlocked VTX table — generated by Forge RF Tools');
-    lines.push(`# Protocol: ${proto === 'smartaudio' ? 'SmartAudio 2.1' : 'IRC Tramp'}`);
+    lines.push('# Generic 5.8 GHz table — verify power levels against your VTX manual');
+    lines.push(`# Protocol: ${proto === 'smartaudio' ? 'SmartAudio 2.1 (dBm)' : proto === 'sa20' ? 'SmartAudio 2.0 (indices)' : 'IRC Tramp (mW)'}`);
     lines.push('vtxtable bands ' + activeBands.length);
     lines.push('vtxtable channels 8');
     lines.push('vtxtable powerlevels ' + powers.length);
-    lines.push('vtxtable powervalues ' + powers.map(p => p.mw).join(' '));
+    lines.push('vtxtable powervalues ' + values.join(' '));
     lines.push('vtxtable powerlabels ' + powers.map(p => p.label).join(' '));
     lines.push('');
 
     activeBands.forEach((k, i) => {
         const b = VTX_UNLOCK_BANDS[k];
-        lines.push(`vtxtable band ${i+1} ${b.name} ${k} ${b.freqs.join(' ')}`);
+        lines.push(`vtxtable band ${i+1} ${b.name} ${k} CUSTOM ${b.freqs.join(' ')}`);
     });
 
     lines.push('');
-    lines.push('saveVtxTable');
+    lines.push('set vtx_band = 1');
+    lines.push('set vtx_channel = 1');
+    lines.push('set vtx_power = 1');
     lines.push('save');
 
     const output = lines.join('\n');
@@ -624,16 +582,7 @@ function renderVtxTable() {
     document.getElementById('vtx-line-count').textContent = lines.length + ' lines';
 }
 
-function copyVtxTable() {
-    const text = document.getElementById('vtx-output').value;
-    navigator.clipboard.writeText(text).then(() => {
-        const btn = event.target;
-        const orig = btn.textContent;
-        btn.textContent = '✓ Copied!';
-        btn.style.background = '#15803d';
-        setTimeout(() => { btn.textContent = orig; btn.style.background = ''; }, 2000);
-    });
-}
+function copyVtxTable() { return copyToolText(document.getElementById('vtx-output').value, document.getElementById('vtx-table-copy')); }
 renderVtxTable();
 
 // ═══ MafiaLRS Self-Hosted Generator ═══
@@ -686,7 +635,7 @@ renderVtxTable();
         if(!filtered.length){list.innerHTML='<div style="padding:20px;text-align:center;color:var(--text-muted);font-size:13px;">No targets found</div>';return}
 
         list.innerHTML=filtered.map(p=>{
-            const esc=s=>{const d=document.createElement('div');d.textContent=s;return d.innerHTML};
+            const esc=s=>{const d=document.createElement('div');d.textContent=s;return d.innerHTML.replace(/"/g,'&quot;')};
             return `<div class="mafia-target-row" data-pid="${esc(p.pid)}" data-name="${esc(p.name)}" data-mfr="${esc(p.manufacturer||'')}" style="padding:8px 12px;border-bottom:1px solid var(--border-color);cursor:pointer;display:flex;justify-content:space-between;align-items:center;font-size:13px;transition:background .1s;" onmouseover="this.style.background='rgba(34,211,238,.04)'" onmouseout="this.style.background=''">
                 <div><span style="color:var(--text-main);font-weight:500;">${esc(p.name)}</span><span style="color:var(--text-faint);font-size:11px;margin-left:8px;">${esc(p.manufacturer||'')}</span></div>
                 <span style="font-size:10px;color:var(--text-faint);font-family:var(--font-family);">${esc(p.pid)}</span>
@@ -698,7 +647,8 @@ renderVtxTable();
                 const sel=document.getElementById('mafia-selected');
                 sel.style.display='block';
                 document.getElementById('mafia-sel-name').textContent=row.dataset.name;
-                document.getElementById('mafia-sel-detail').textContent='PID: '+row.dataset.pid+' — Manufacturer: '+row.dataset.mfr;
+                const target=targets.find(t=>t.pid===row.dataset.pid);
+                document.getElementById('mafia-sel-detail').textContent='Catalog ID: '+row.dataset.pid+' · Firmware: '+target.firmware+' · Layout: '+target.layout_file;
                 sel.dataset.pid=row.dataset.pid;
             });
         });
@@ -724,7 +674,7 @@ renderVtxTable();
     // Copy PID
     document.getElementById('mafia-copy-pid').addEventListener('click',function(){
         const pid=document.getElementById('mafia-selected').dataset.pid;
-        if(pid){navigator.clipboard.writeText(pid).then(()=>{this.innerHTML='<i class="ph ph-check"></i> Copied!';setTimeout(()=>{this.innerHTML='<i class="ph ph-copy"></i> Copy target ID'},2000)})}
+        if(pid) copyToolText(pid,this);
     });
 })();
 
@@ -758,15 +708,14 @@ renderVtxTable();
         return D<=0?0:Math.sqrt(n*lam*d1*d2/D);
     }
     function knifeEdgeLoss(v){
-        if(v<=-0.78)return 0;
-        if(v<0)return 6.02+9.11*v+1.27*v*v;
-        return 6.02+9.0*v+1.65*v*v;
+        return v<=-0.78?0:6.9+20*Math.log10(Math.sqrt((v-0.1)**2+1)+v-0.1);
     }
     function fresnelV(h,d1,d2,fMHz){
         const lam=300/fMHz,D=d1+d2;
         return D<=0?0:h*Math.sqrt(2*D/(lam*d1*d2));
     }
     function interpolatePoints(lat1,lon1,lat2,lon2,n){
+        if(!Number.isInteger(n)||n<2||n>100)throw new Error('Use 2–100 path samples.');
         const pts=[];
         for(let i=0;i<=n;i++){const t=i/n;pts.push({lat:lat1+t*(lat2-lat1),lon:lon1+t*(lon2-lon1)});}
         return pts;
@@ -800,15 +749,18 @@ renderVtxTable();
         try{
             var tiff=await GeoTIFF.fromArrayBuffer(arrayBuffer);
             var image=await tiff.getImage();
+            var keys=image.getGeoKeys();
+            if(keys.GeographicTypeGeoKey!==4326 || keys.ProjectedCSTypeGeoKey)throw new Error('Use a WGS84 geographic GeoTIFF (EPSG:4326).');
             var bbox=image.getBoundingBox(); // [minX,minY,maxX,maxY] = [west,south,east,north]
             var w=image.getWidth(),h=image.getHeight();
+            if(w*h>20_000_000)throw new Error('DEM too large; crop to your area first.');
             var rasters=await image.readRasters();
             var data=rasters[0]; // First band = elevation
             // Convert to Float32 for uniform handling
             var f32=new Float32Array(data.length);
             for(var i=0;i<data.length;i++){f32[i]=data[i];}
             return{
-                name:filename,type:'geotiff',
+                name:filename,type:'geotiff',noData:image.getGDALNoData(),
                 west:bbox[0],south:bbox[1],east:bbox[2],north:bbox[3],
                 data:f32,rows:h,cols:w,
                 // For sampleDEM compatibility
@@ -822,12 +774,12 @@ renderVtxTable();
     // Sample elevation from a GeoTIFF DEM
     function sampleGeoTIFF(dem,lat,lon){
         if(lat<dem.south||lat>dem.north||lon<dem.west||lon>dem.east)return null;
-        var col=Math.round((lon-dem.west)/dem.pixelW);
-        var row=Math.round((dem.north-lat)/dem.pixelH);
+        var col=Math.floor((lon-dem.west)/dem.pixelW);
+        var row=Math.floor((dem.north-lat)/dem.pixelH);
         col=Math.max(0,Math.min(dem.cols-1,col));
         row=Math.max(0,Math.min(dem.rows-1,row));
         var val=dem.data[row*dem.cols+col];
-        if(val<-500||val>9000)return null; // nodata
+        if(!Number.isFinite(val)||val===dem.noData||val<-500||val>9000)return null; // nodata
         return val;
     }
 
@@ -861,25 +813,24 @@ renderVtxTable();
         return null; // Not all points covered
     }
 
+    function validElevations(values, count){
+        return Array.isArray(values) && values.length===count && values.every(v=>Number.isFinite(v)&&v>=-500&&v<=9000);
+    }
     async function fetchSRTM(pts){
-        var locs=pts.map(function(p){return p.lat+','+p.lon;}).join('|');
-        try{
-            var r=await fetch('https://api.open-elevation.com/api/v1/lookup?locations='+locs);
-            if(!r.ok)throw new Error(r.status);
-            var d=await r.json();
-            return d.results.map(function(x){return x.elevation;});
-        }catch(e){return null;}
+        try {
+            const d=await toolFetch('https://api.open-elevation.com/api/v1/lookup?locations='+pts.map(p=>p.lat+','+p.lon).join('|'));
+            const values=d.results?.map(x=>x.elevation);
+            return validElevations(values,pts.length)?values:null;
+        } catch(e) { return null; }
     }
     async function fetch3DEP(pts){
-        try{
-            var results=await Promise.all(pts.map(async function(p){
-                var r=await fetch('https://epqs.nationalmap.gov/v1/json?x='+p.lon+'&y='+p.lat+'&wkid=4326&units=Meters&includeDate=false');
-                if(!r.ok)return null;
-                var d=await r.json();
-                return d.value!==undefined?parseFloat(d.value):null;
+        try {
+            const values=await Promise.all(pts.map(async p=>{
+                const d=await toolFetch('https://epqs.nationalmap.gov/v1/json?x='+p.lon+'&y='+p.lat+'&wkid=4326&units=Meters&includeDate=false');
+                return d.value == null || d.value === '' ? NaN : Number(d.value);
             }));
-            return results.some(function(r){return r===null||r===-1000000;})?null:results;
-        }catch(e){return null;}
+            return validElevations(values,pts.length)?values:null;
+        } catch(e) { return null; }
     }
     async function getElevations(pts){
         var key=pts.map(function(p){return p.lat.toFixed(5)+','+p.lon.toFixed(5);}).join('|');
@@ -896,7 +847,7 @@ renderVtxTable();
         // Priority 3: Open-Elevation SRTM API
         if(!result){result=await fetchSRTM(pts);if(result)source='SRTM API';}
         // Fallback: flat
-        if(!result){result=pts.map(function(){return 0;});source='Flat (no data)';}
+        if(!result)throw new Error('Elevation unavailable. Load a local DEM or retry online.');
         var out={elevations:result,source:source};
         elevCache.set(key,out);
         return out;
@@ -908,15 +859,16 @@ renderVtxTable();
         var loaded=0,failed=0,total=files.length;
         function updateStatus(){
             if(loaded+failed<total)return;
-            elevCache.clear();
+            elevCache.clear();rfInvalidate();document.dispatchEvent(new Event('demchange'));
             var msg='<span style="color:#4ade80;">'+loaded+' file'+(loaded>1?'s':'')+' loaded</span>'+(failed?' <span style="color:#f87171;">'+failed+' failed</span>':'')+' — '+loadedDEMs.map(function(d){
-                if(d.type==='geotiff')return d.name.replace(/\.[^.]+$/,'');
+                if(d.type==='geotiff')return d.name.replace(/\.[^.]+$/,'').replace(/[<>&"]/g,'');
                 var ns=d.lat>=0?'N':'S',ew=d.lon>=0?'E':'W';
                 return ns+Math.abs(d.lat)+ew+Math.abs(d.lon);
             }).join(', ');
             ['rf-dem-status','mesh-dem-status'].forEach(function(id){var el=document.getElementById(id);if(el)el.innerHTML=msg;});
         }
         Array.from(files).forEach(function(file){
+            if(file.size>64*1024*1024){failed++;updateStatus();return;}
             var reader=new FileReader();
             reader.onload=async function(e){
                 var ext=file.name.toLowerCase().split('.').pop();
@@ -934,11 +886,14 @@ renderVtxTable();
                     updateStatus();
                 }
             };
+            reader.onerror=function(){failed++;updateStatus();};
             reader.readAsArrayBuffer(file);
         });
     };
 
     window.rfClearDEM=function(){
+        rfInvalidate();document.dispatchEvent(new Event('demchange'));
+        document.querySelectorAll('input[type=file]').forEach(el=>el.value='');
         loadedDEMs=[];
         elevCache.clear();
         ['rf-dem-status','mesh-dem-status'].forEach(function(id){var el=document.getElementById(id);if(el)el.textContent='Cleared — using API';});
@@ -946,11 +901,13 @@ renderVtxTable();
 
     function analyzePath(elevs,dists,txH,rxH,fMHz){
         const totalD=dists[dists.length-1];
+        if(!validElevations(elevs,dists.length)||!Number.isFinite(totalD)||totalD<1)throw new Error('Place points at least one metre apart with complete elevation data.');
         const txE=elevs[0]+txH,rxE=elevs[elevs.length-1]+rxH;
         const losH=i=>txE+(rxE-txE)*(dists[i]/totalD);
         let worstV=-999,worstIdx=-1;
         const points=elevs.map((e,i)=>{
             const d1=Math.max(dists[i],0.1),d2=Math.max(totalD-dists[i],0.1);
+            e+=dists[i]*(totalD-dists[i])/(2*(4/3)*6371000);
             const los=losH(i),cl=los-e;
             const f1=fresnelR(d1,d2,fMHz,1),f60=f1*0.6;
             const v=fresnelV(-cl,d1,d2,fMHz);
@@ -983,7 +940,7 @@ renderVtxTable();
     async function computeFullLink(fromLat,fromLon,fromH,toLat,toLon,toH,proto,txP,txG,rxG,fade,samples,label){
         var pts=interpolatePoints(fromLat,fromLon,toLat,toLon,samples||25);
         var elev;
-        try{elev=await getElevations(pts);}catch(e){elev={elevations:pts.map(function(){return 0;}),source:'Flat'};}
+        elev=await getElevations(pts);
         var dists=pts.map(function(p){return haversine(fromLat,fromLon,p.lat,p.lon);});
         var analysis=analyzePath(elev.elevations,dists,fromH,toH,proto.freq);
         var budget=linkBudget(analysis,txP,proto.rxSens,txG,rxG,proto.freq,fade);
@@ -1165,76 +1122,35 @@ renderVtxTable();
                 return gcs?gcs.txPow:27;
             }
             var mapped=advMap[id];
-            if(mapped){var el=document.getElementById(mapped);if(el)return parseFloat(el.value)||0;}
+            if(mapped){var el=document.getElementById(mapped);if(el)return toolNumber(mapped);}
         }
-        return parseFloat(document.getElementById(id).value)||0;
+        return toolNumber(id);
     }
     function getProto(){
         if(rfHwAdvanced){
             var gcs=RF_ADV_RADIOS[document.getElementById('rf-gcs-radio').value]||RF_ADV_RADIOS.ELRS_900;
             var air=RF_ADV_RADIOS[document.getElementById('rf-air-radio').value]||RF_ADV_RADIOS.ELRS_900_RX;
+            if(gcs.freq!==air.freq)throw new Error('Selected radios have different operating frequencies.');
             return{freq:Math.min(gcs.freq,air.freq),rxSens:Math.max(gcs.rxSens,air.rxSens),mod:gcs.name+' + '+air.name};
         }
         return RF_PROTOCOLS[document.getElementById('rf-protocol').value]||RF_PROTOCOLS.ELRS_900;
     }
 
+    function rfRefreshProtocol(){
+        const proto=RF_PROTOCOLS[document.getElementById('rf-protocol').value];
+        if(!proto)return;
+        document.getElementById('rf-freq-label').textContent=proto.freq+' MHz';
+        document.getElementById('rf-sens-label').textContent=proto.rxSens+' dBm';
+        document.getElementById('rf-mod-label').textContent=proto.mod;
+        document.getElementById('rf-tx-power').value=proto.txPower;
+    }
+    document.getElementById('rf-protocol').addEventListener('change',rfRefreshProtocol);
+
     // ── Address autocomplete with debounce ──
     let acTimer=null;
     function rfSetupAutocomplete(){
-        const input=document.getElementById('rf-coord-input');
-        const dropdown=document.getElementById('rf-autocomplete');
-        if(!input||!dropdown)return;
-
-        input.addEventListener('input',function(){
-            clearTimeout(acTimer);
-            const val=input.value.trim();
-            if(val.length<3){dropdown.style.display='none';return;}
-
-            // Check if it's coordinates first
-            const parsed=parseCoordInput(val);
-            if(parsed){
-                dropdown.style.display='none';
-                rfShowCoordFormats(parsed.lat,parsed.lon);
-                return;
-            }
-
-            // Debounce address search
-            acTimer=setTimeout(function(){
-                fetch('https://nominatim.openstreetmap.org/search?q='+encodeURIComponent(val)+'&format=json&limit=5&addressdetails=1',
-                    {headers:{'User-Agent':'Forge-RF-Tool/1.0'}})
-                .then(r=>r.json()).then(data=>{
-                    if(!data.length){dropdown.style.display='none';return;}
-                    dropdown.innerHTML='';
-                    data.forEach(function(item){
-                        const opt=document.createElement('div');
-                        opt.style.cssText='padding:8px 12px; cursor:pointer; font-size:12px; color:var(--text-muted); border-bottom:1px solid var(--border-color); font-family:var(--font-family);';
-                        opt.textContent=item.display_name.substring(0,80);
-                        opt.onmouseover=function(){opt.style.background='var(--bg-panel-hover)';opt.style.color='var(--text-main)';};
-                        opt.onmouseout=function(){opt.style.background='none';opt.style.color='var(--text-muted)';};
-                        opt.onclick=function(){
-                            const lat=parseFloat(item.lat),lon=parseFloat(item.lon);
-                            input.value=item.display_name.substring(0,60);
-                            dropdown.style.display='none';
-                            rfMoveMapTo(lat,lon);
-                            rfShowCoordFormats(lat,lon);
-                        };
-                        dropdown.appendChild(opt);
-                    });
-                    dropdown.style.display='block';
-                }).catch(function(){dropdown.style.display='none';});
-            },400);
-        });
-
-        input.addEventListener('keydown',function(e){
-            if(e.key==='Enter'){
-                dropdown.style.display='none';
-                rfSearchCoord();
-            }
-        });
-
-        // Close dropdown on outside click
-        document.addEventListener('click',function(e){
-            if(!input.contains(e.target)&&!dropdown.contains(e.target))dropdown.style.display='none';
+        document.getElementById('rf-coord-input').addEventListener('keydown',function(e){
+            if(e.key==='Enter'){e.preventDefault();rfSearchCoord();}
         });
     }
 
@@ -1246,21 +1162,20 @@ renderVtxTable();
             rfMoveMapTo(parsed.lat,parsed.lon);
             rfShowCoordFormats(parsed.lat,parsed.lon);
         } else {
-            fetch('https://nominatim.openstreetmap.org/search?q='+encodeURIComponent(input)+'&format=json&limit=1',
-                {headers:{'User-Agent':'Forge-RF-Tool/1.0'}})
-            .then(r=>r.json()).then(data=>{
+            toolFetch('https://nominatim.openstreetmap.org/search?q='+encodeURIComponent(input)+'&format=json&limit=1')
+            .then(data=>{
                 if(data.length>0){
                     const lat=parseFloat(data[0].lat),lon=parseFloat(data[0].lon);
                     rfMoveMapTo(lat,lon);
                     rfShowCoordFormats(lat,lon);
                     document.getElementById('rf-coord-input').value=data[0].display_name.substring(0,60);
-                }
-            }).catch(function(){});
+                } else { document.getElementById('rf-coord-display').textContent='No matching place found.'; }
+            }).catch(function(){document.getElementById('rf-coord-display').textContent='Place search unavailable. Enter decimal, DMS or MGRS coordinates offline.';});
         }
     }
 
     function rfMoveMapTo(lat,lon){
-        if(rfMap) rfMap.setView([lat,lon],13);
+        if(rfMap) rfMap.setView([lat,lon],13,{animate:false});
         // Don't auto-place markers — user clicks to place
     }
 
@@ -1275,6 +1190,7 @@ renderVtxTable();
 
     // ── Click-to-place markers ──
     function rfMapClick(e){
+        rfInvalidate();
         const lat=e.latlng.lat,lon=e.latlng.lng;
 
         // Route to mode-specific handler
@@ -1318,7 +1234,18 @@ renderVtxTable();
         }
     }
 
+    let rfRevision=0;
+    function rfInvalidate(){
+        rfRevision++; clearTimeout(rfTimer);
+        ['rf-results','rf-budget','rf-path-details','rf-profile-svg','rf-quality-badge','rf-advanced-results'].forEach(id=>document.getElementById(id).innerHTML='');
+        document.getElementById('rf-status').textContent='Inputs changed — calculate to update';
+        window._rfWpLinks=[]; rfClearTrace();rfClearHeatmap();
+    }
+    document.getElementById('tool-rf-terrain').addEventListener('input',e=>{
+        if(e.target.matches('input[type=number],select'))rfInvalidate();
+    });
     function rfUpdateCoordDisplay(){
+        rfInvalidate();
         if(txPos) document.getElementById('rf-tx-coords').textContent=txPos.lat.toFixed(5)+', '+txPos.lon.toFixed(5);
         if(rxPos) document.getElementById('rf-rx-coords').textContent=rxPos.lat.toFixed(5)+', '+rxPos.lon.toFixed(5);
         if(txPos&&rxPos&&pathLine) pathLine.setLatLngs([[txPos.lat,txPos.lon],[rxPos.lat,rxPos.lon]]);
@@ -1331,12 +1258,12 @@ renderVtxTable();
         // Try DMS: "39°44'21"N 104°59'25"W"
         const dmsRe=/(\d+)[°](\d+)[']([0-9.]+)["]?\s*([NSEW])/gi;
         const parts=[...input.matchAll(dmsRe)];
-        if(parts.length===2){
+        if(parts.length===2 && /^[NS]$/i.test(parts[0][4]) && /^[EW]$/i.test(parts[1][4]) && parts.every(p=>+p[2]<60 && +p[3]<60)){
             function dm(p){let d=parseFloat(p[1])+parseFloat(p[2])/60+parseFloat(p[3])/3600;if(p[4]==='S'||p[4]==='W'||p[4]==='s'||p[4]==='w')d=-d;return d;}
-            return{lat:dm(parts[0]),lon:dm(parts[1])};
+            const lat=dm(parts[0]),lon=dm(parts[1]); if(Math.abs(lat)<=90&&Math.abs(lon)<=180)return{lat,lon};
         }
         // Try MGRS: "13SDE8401012345" (basic regex — 10+ chars starting with digit)
-        if(/^\d{1,2}[A-Z]{1,3}\d{4,10}$/i.test(input.replace(/\s/g,''))){
+        if(/^\d{1,2}[C-HJ-NP-X][A-HJ-NP-Z]{2}(?:\d{2}){0,5}$/i.test(input.replace(/\s/g,''))){
             const ll=mgrsToLatLon(input.replace(/\s/g,'').toUpperCase());
             if(ll)return ll;
         }
@@ -1350,54 +1277,11 @@ renderVtxTable();
     }
 
     // Simplified MGRS→LatLon (covers most cases without external lib)
-    function mgrsToLatLon(mgrs){
-        // This is a basic decoder. For full accuracy use a proper lib.
-        // Format: ZZB EE NN (zone, band, sq letters, easting, northing)
-        try{
-            const zoneMatch=mgrs.match(/^(\d{1,2})([C-X])([A-Z]{2})(\d+)$/);
-            if(!zoneMatch)return null;
-            const zone=parseInt(zoneMatch[1]),band=zoneMatch[2],sq=zoneMatch[3],digits=zoneMatch[4];
-            if(digits.length%2!==0)return null;
-            const half=digits.length/2;
-            const eStr=digits.substring(0,half),nStr=digits.substring(half);
-            const scale=Math.pow(10,5-half);
-            const e=parseInt(eStr)*scale+scale/2;
-            const n=parseInt(nStr)*scale+scale/2;
-            // UTM to lat/lon (simplified)
-            const col=sq.charCodeAt(0)-'A'.charCodeAt(0);
-            const row=sq.charCodeAt(1)-'A'.charCodeAt(0);
-            const easting=((col%8)*100000)+e;
-            const northing=(row*100000)+n;
-            // Approximate conversion
-            const lon0=(zone-1)*6-180+3;
-            const lat0=bandToLat(band);
-            const lonApprox=lon0+(easting-500000)/(111320*Math.cos(lat0*Math.PI/180));
-            const latApprox=lat0+northing/110540;
-            if(Math.abs(latApprox)>84||Math.abs(lonApprox)>180)return null;
-            return{lat:latApprox,lon:lonApprox};
-        }catch(e){return null;}
+    function mgrsToLatLon(value){
+        try { const ll=window.mgrs.toPoint(value); return {lat:ll[1],lon:ll[0]}; } catch(e) { return null; }
     }
-    function bandToLat(b){const bands='CDEFGHJKLMNPQRSTUVWX';const i=bands.indexOf(b);return i>=0?-80+i*8:-80;}
     function toMGRS(lat,lon){
-        // Simplified lat/lon→MGRS (approximate, 100m precision)
-        const zone=Math.floor((lon+180)/6)+1;
-        const bands='CDEFGHJKLMNPQRSTUVWX';
-        const bandIdx=Math.min(19,Math.max(0,Math.floor((lat+80)/8)));
-        const band=bands[bandIdx];
-        const lon0=(zone-1)*6-180+3;
-        const k0=0.9996,a=6378137;
-        const easting=500000+k0*a*(lon-lon0)*Math.PI/180*Math.cos(lat*Math.PI/180);
-        const northing=k0*a*(lat*Math.PI/180);
-        const e100k=Math.floor(easting/100000);
-        const n100k=Math.floor((northing%2000000)/100000);
-        const setNum=(zone-1)%6;
-        const colLetters='ABCDEFGHJKLMNPQRSTUVWXYZ';
-        const rowLetters='ABCDEFGHJKLMNPQRSTUV';
-        const colLetter=colLetters[(setNum*8+e100k-1)%24];
-        const rowLetter=rowLetters[(setNum%2===0?0:5+n100k)%20];
-        const eRem=Math.floor(easting%100000/100);
-        const nRem=Math.floor((northing<0?northing+10000000:northing)%100000/100);
-        return zone+band+colLetter+rowLetter+String(eRem).padStart(3,'0')+String(nRem).padStart(3,'0');
+        try { return window.mgrs.forward([lon,lat],5); } catch(e) { return 'Outside UTM coverage'; }
     }
 
     let mapInited=false;
@@ -1441,6 +1325,7 @@ renderVtxTable();
 
     // ── Universal point management ──
     window.rfClearAllPoints=function(){
+        rfInvalidate();
         // Clear simple mode
         if(txMarker){rfMap.removeLayer(txMarker);txMarker=null;}
         if(rxMarker){rfMap.removeLayer(rxMarker);rxMarker=null;}
@@ -1464,6 +1349,7 @@ renderVtxTable();
     };
 
     window.rfUndoLastPoint=function(){
+        rfInvalidate();
         if(rfAdvanced&&rfAdvMode==='waypoint'&&rfWaypoints.length>0){
             rfUndoWaypoint();
             return;
@@ -1730,6 +1616,7 @@ renderVtxTable();
         computing=false; // Reset in case stuck from previous run
         if(!txPos||!rxPos){document.getElementById('rf-status').textContent='Place TX and RX first';return;}
         computing=true;
+        const revision=++rfRevision;
         document.getElementById('rf-status').innerHTML='<span style="color:#eab308;">\u25CF computing...</span>';
         document.getElementById('rf-results').innerHTML='<div style="color:#eab308;font-size:10px;padding:4px;">Computing...</div>';
         try{
@@ -1738,11 +1625,8 @@ renderVtxTable();
             var fade=getVal('rf-fade-margin'),samples=getVal('rf-samples');
             var pts=interpolatePoints(txPos.lat,txPos.lon,rxPos.lat,rxPos.lon,samples);
             var elev;
-            try{
-                elev=await getElevations(pts);
-            }catch(elevErr){
-                elev={elevations:pts.map(function(){return 0;}),source:'Flat (API unavailable)'};
-            }
+            elev=await getElevations(pts);
+            if(revision!==rfRevision)return;
             var dists=pts.map(function(p){return haversine(txPos.lat,txPos.lon,p.lat,p.lon);});
             var analysis=analyzePath(elev.elevations,dists,txH,rxH,proto.freq);
             var budget=linkBudget(analysis,txP,proto.rxSens,txG,rxG,proto.freq,fade);
@@ -1757,10 +1641,13 @@ renderVtxTable();
             try{
                 rfBuildTraceFromOrigin(txPos.lat,txPos.lon,[{lat:rxPos.lat,lon:rxPos.lon}],proto,txP,txG,rxG,fade);
             }catch(traceErr){console.error('Trace error:',traceErr);}
+            document.getElementById('rf-status').textContent='Calculated · '+elev.source;
             if(rfHeatEnabled)rfBuildHeatmap();
         }catch(e){
+            if(revision!==rfRevision)return;
             document.getElementById('rf-status').innerHTML='<span style="color:#f87171;">\u26A0 '+e.message+'</span>';
-            document.getElementById('rf-results').innerHTML='<div style="color:#f87171;font-size:10px;padding:8px;">Error: '+e.message+'<br>Stack: '+String(e.stack).substring(0,200)+'</div>';
+            document.getElementById('rf-results').textContent=e.message;
+            ['rf-budget','rf-path-details','rf-profile-svg','rf-quality-badge'].forEach(id=>document.getElementById(id).innerHTML='');
             console.error('RF compute error:',e);
         }
         computing=false;
@@ -1773,6 +1660,7 @@ renderVtxTable();
     }
 
     // rfCompute is the public function called by the Calculate button
+    function rfComputeError(e){document.getElementById('rf-status').textContent=e.message;document.getElementById('rf-advanced-results').textContent=e.message;document.getElementById('rf-advanced-results').style.display='block';}
     window.rfCompute=function(){
         if(rfAdvanced&&rfAdvMode==='waypoint'&&rfWaypoints.length>=2){
             // Hide basic results, show advanced
@@ -1781,7 +1669,7 @@ renderVtxTable();
             document.getElementById('rf-path-details').innerHTML='';
             var svg=document.getElementById('rf-profile-svg');if(svg)svg.innerHTML='';
             var qb=document.getElementById('rf-quality-badge');if(qb)qb.innerHTML='';
-            rfComputeMultiLeg();
+            rfComputeMultiLeg().catch(rfComputeError);
             return;
         }
         if(rfAdvanced&&rfAdvMode==='repeater'&&rfRepeaterPts.length===3){
@@ -1790,7 +1678,7 @@ renderVtxTable();
             document.getElementById('rf-path-details').innerHTML='';
             var svg=document.getElementById('rf-profile-svg');if(svg)svg.innerHTML='';
             var qb=document.getElementById('rf-quality-badge');if(qb)qb.innerHTML='';
-            rfComputeRepeater();
+            rfComputeRepeater().catch(rfComputeError);
             return;
         }
         if(!txPos||!rxPos){
@@ -1812,6 +1700,7 @@ renderVtxTable();
     let rfRepeaterMarkers=[];
 
     window.rfToggleAdvanced=function(){
+        rfInvalidate();
         rfAdvanced=document.getElementById('rf-advanced-toggle').checked;
         document.getElementById('rf-advanced-panel').style.display=rfAdvanced?'block':'none';
         if(!rfAdvanced){
@@ -1825,6 +1714,7 @@ renderVtxTable();
     };
 
     window.rfSetMode=function(mode){
+        rfInvalidate();
         rfAdvMode=mode;
         document.querySelectorAll('.rf-mode-btn').forEach(b=>{
             const active=b.dataset.mode===mode;
@@ -1872,6 +1762,7 @@ renderVtxTable();
     }
 
     function rfUpdateWaypointList(){
+        rfInvalidate();
         const el=document.getElementById('rf-waypoint-list');
         if(!el)return;
         if(rfWaypoints.length===0){el.innerHTML='<div style="font-size:11px; color:var(--text-faint);">No waypoints placed. Click map to add.</div>';return;}
@@ -1892,6 +1783,7 @@ renderVtxTable();
     }
 
     window.rfClearWaypoints=function(){
+        rfInvalidate();
         rfWaypoints.forEach(wp=>rfMap&&rfMap.removeLayer(wp.marker));
         rfWaypointLines.forEach(l=>rfMap&&rfMap.removeLayer(l));
         rfWaypoints=[];
@@ -1902,6 +1794,7 @@ renderVtxTable();
     };
 
     window.rfUndoWaypoint=function(){
+        rfInvalidate();
         if(rfWaypoints.length===0)return;
         const last=rfWaypoints.pop();
         if(rfMap)rfMap.removeLayer(last.marker);
@@ -1949,6 +1842,7 @@ renderVtxTable();
     }
 
     function rfUpdateRepeaterStatus(){
+        rfInvalidate();
         const el=document.getElementById('rf-repeater-status');
         if(!el)return;
         const labels=['Pilot','Repeater','Target'];
@@ -1972,6 +1866,7 @@ renderVtxTable();
 
     // ── Multi-leg compute ──
     async function rfComputeMultiLeg(){
+        const revision=++rfRevision;
         if(rfWaypoints.length<2)return;
         const proto=getProto();
         const txP=getVal('rf-tx-power'),txG=getVal('rf-tx-gain'),rxG=getVal('rf-rx-gain');
@@ -1983,6 +1878,7 @@ renderVtxTable();
         for(let i=1;i<rfWaypoints.length;i++){
             const wp=rfWaypoints[i];
             const result=await computeFullLink(pilot.lat,pilot.lon,txH,wp.lat,wp.lon,rxH,proto,txP,txG,rxG,fade,samples);
+            if(revision!==rfRevision)return;
             const m=result.budget.margin,d=result.analysis.totalDkm;
             if(m<worstMargin)worstMargin=m;
             if(d>farthestDist){farthestDist=d;farthestIdx=i-1;}
@@ -2015,7 +1911,7 @@ renderVtxTable();
         window._rfWpLinks=links;
         var maxD=Math.max.apply(null,links.map(function(l){return l.distKm;}));
         html+='<div style="margin-top:8px;">';
-        links.sort(function(a,b){return a.distKm-b.distKm;}).forEach(function(l){
+        links.slice().sort(function(a,b){return a.distKm-b.distKm;}).forEach(function(l){
             var pct=maxD>0?(l.distKm/maxD*100):100;
             var lc=l.quality==='excellent'||l.quality==='good'?'#4ade80':l.quality==='marginal'?'#eab308':'#f87171';
             html+='<div style="display:flex;align-items:center;gap:6px;margin-bottom:3px;"><span style="min-width:35px;font-size:9px;color:var(--text-muted);">'+l.to+'</span><div style="flex:1;height:6px;background:var(--bg-dark);border-radius:3px;overflow:hidden;"><div style="width:'+pct+'%;height:100%;background:'+lc+';border-radius:3px;"></div></div><span style="min-width:50px;font-size:9px;color:'+lc+';font-weight:600;text-align:right;">'+l.margin.toFixed(1)+' dB</span></div>';
@@ -2032,19 +1928,21 @@ renderVtxTable();
 
     // ── Repeater relay compute — repeater is RF origin ──
     async function rfComputeRepeater(){
+        const revision=++rfRevision;
         if(rfRepeaterPts.length<3)return;
         const c2Proto=getProto(),c2Power=getVal('rf-tx-power'),pilotH=getVal('rf-tx-height');
-        const repeaterH=parseFloat(document.getElementById('rf-repeater-height').value)||80;
-        const rPower=parseFloat(document.getElementById('rf-repeater-power').value)||27;
+        const repeaterH=toolNumber('rf-repeater-height');
+        const rPower=toolNumber('rf-repeater-power');
         const fwdKey=document.getElementById('rf-repeater-fwd-proto').value;
         const fwdProto=fwdKey==='same'?c2Proto:(RF_PROTOCOLS[fwdKey]||c2Proto);
-        const targetH=parseFloat(document.getElementById('rf-target-height').value)||50;
+        const targetH=toolNumber('rf-target-height');
         const fade=getVal('rf-fade-margin'),txG=getVal('rf-tx-gain'),rxG=getVal('rf-rx-gain');
         const samples=getVal('rf-samples');
         document.getElementById('rf-status').innerHTML='<span style="color:#eab308;">\u25cf computing relay terrain...</span>';
         var opLink=await computeFullLink(rfRepeaterPts[1].lat,rfRepeaterPts[1].lon,repeaterH,rfRepeaterPts[2].lat,rfRepeaterPts[2].lon,targetH,fwdProto,rPower,txG,rxG,fade,samples);
         var c2Link=await computeFullLink(rfRepeaterPts[0].lat,rfRepeaterPts[0].lon,pilotH,rfRepeaterPts[1].lat,rfRepeaterPts[1].lon,repeaterH,c2Proto,c2Power,txG,rxG,fade,samples);
         var directLink=await computeFullLink(rfRepeaterPts[0].lat,rfRepeaterPts[0].lon,pilotH,rfRepeaterPts[2].lat,rfRepeaterPts[2].lon,targetH,c2Proto,c2Power,txG,rxG,fade,samples);
+        if(revision!==rfRevision)return;
         drawProfile(opLink.analysis,fwdProto.freq);
         var m1=c2Link.budget.margin,m2=opLink.budget.margin,mD=directLink.budget.margin;
         var worst=Math.min(m1,m2);
@@ -2088,7 +1986,7 @@ renderVtxTable();
     window.rfToggleHeatmap=function(){
         rfHeatEnabled=document.getElementById('rf-heatmap-toggle').checked;
         if(!rfHeatEnabled){rfClearHeatmap();return;}
-        rfBuildHeatmap();
+        try{rfBuildHeatmap();}catch(e){rfHeatEnabled=false;document.getElementById('rf-heatmap-toggle').checked=false;document.getElementById('rf-status').textContent=e.message;}
     };
 
     function rfClearHeatmap(){
@@ -2182,6 +2080,7 @@ renderVtxTable();
     };
 
     window.rfExportReport=function(){
+        if(!document.getElementById('rf-profile-svg').innerHTML){document.getElementById('rf-status').textContent='Calculate a terrain path before exporting.';return;}
         // Capture map as image via Leaflet
         var mapCanvas=null;
         try{
@@ -2316,8 +2215,7 @@ renderVtxTable();
         html+='</'+'body></'+'html>';
 
         // Open in new tab — user can print to PDF
-        var w=window.open('','_blank');
-        if(w){w.document.write(html);w.document.close();}
+        saveToolReport('TAK-Bridge-report.html',html);
     };
 
     // Hash routing handled by global router below
@@ -2356,7 +2254,7 @@ renderVtxTable();
         'instamesh':['instamesh'],
         'fhss':['fhss'],
         'lora':['lora'],
-        'custom':['custom','802.11','streamcaster','waverelay','tsm','instamesh','fhss','lora'],
+        'custom':['custom'],
     };
 
     // Check if two radios can interoperate
@@ -2369,35 +2267,18 @@ renderVtxTable();
         return freqOverlap(radioA.freq,radioB.freq);
     }
 
-    function freqOverlap(freqsA,freqsB){
-        // freq arrays: [single] or [low,high] for range, or [band1,band2] for dual
-        // Simplified: check if any freq value is within ±200MHz of another
-        for(var i=0;i<freqsA.length;i++){
-            for(var j=0;j<freqsB.length;j++){
-                if(Math.abs(freqsA[i]-freqsB[j])<500)return true;
-                // Range check: if freqsA is [low,high], check if freqsB[j] is within
-                if(freqsA.length===2&&freqsB[j]>=freqsA[0]&&freqsB[j]<=freqsA[1])return true;
-                if(freqsB.length===2&&freqsA[i]>=freqsB[0]&&freqsA[i]<=freqsB[1])return true;
-            }
-        }
-        return false;
+    function commonFrequency(a,b){
+        // Only the TSM entries declare a continuous frequency range.
+        const ar=a.length===2 && a[0]===225 && a[1]===2500;
+        const br=b.length===2 && b[0]===225 && b[1]===2500;
+        if(ar&&br)return 225;
+        if(ar)return b.find(f=>f>=225&&f<=2500)??null;
+        if(br)return a.find(f=>f>=225&&f<=2500)??null;
+        return a.find(f=>b.includes(f))??null;
     }
+    function freqOverlap(a,b){return commonFrequency(a,b)!==null;}
+    function bestCommonFreq(a,b){return commonFrequency(a.freq,b.freq);}
 
-    // Best common frequency between two radios (for FSPL calc)
-    function bestCommonFreq(radioA,radioB){
-        // Use the lowest common frequency for best propagation
-        var best=2400;
-        var found=false;
-        for(var i=0;i<radioA.freq.length;i++){
-            for(var j=0;j<radioB.freq.length;j++){
-                var fa=radioA.freq[i],fb=radioB.freq[j];
-                if(Math.abs(fa-fb)<500){var f=Math.min(fa,fb);if(!found||f<best){best=f;found=true;}}
-            }
-        }
-        return best;
-    }
-
-    // Throughput estimate from margin
     function estimateThroughput(margin,maxRate){
         if(margin>20)return maxRate;
         if(margin>15)return maxRate*0.8;
@@ -2462,9 +2343,10 @@ renderVtxTable();
         var marker=L.marker([lat,lon],{draggable:true,icon:icon}).addTo(meshMap);
         marker.bindTooltip(id+(isGCS?' (Ground Control)':''),{permanent:false,direction:'top',offset:[0,-12]});
         var defaultRadioKey=document.getElementById('mesh-protocol').value||'DL_2450';
+        if(meshNodes.length===0){meshIdCounter=1;id='GCS';isGCS=true;}
         var node={id:id,lat:lat,lon:lon,marker:marker,active:true,label:id,color:c,num:meshIdCounter,isGCS:isGCS,
             height:isGCS?2:parseFloat(document.getElementById('mesh-node-height').value)||50,
-            power:parseFloat(document.getElementById('mesh-tx-power').value)||30,
+            power:Number(document.getElementById('mesh-tx-power').value),
             radioKey:defaultRadioKey,radio:MESH_RADIOS[defaultRadioKey]||MESH_RADIOS.DL_2450};
         marker.on('dragend',function(){var p=marker.getLatLng();node.lat=p.lat;node.lon=p.lng;meshUpdateNodeList();});
         marker.on('click',function(){
@@ -2474,7 +2356,14 @@ renderVtxTable();
         meshUpdateNodeList();
     }
 
+    let meshRevision=0;
+    document.addEventListener('demchange',()=>meshInvalidate());
+    function meshInvalidate(){
+        meshRevision++; meshClearLinks();meshClearHeatmap();
+        ['mesh-health','mesh-matrix','mesh-issues'].forEach(id=>{document.getElementById(id).innerHTML='';document.getElementById(id).style.display='none';});
+    }
     function meshUpdateNodeList(){
+        meshInvalidate();
         var el=document.getElementById('mesh-node-list');
         if(!el)return;
         document.getElementById('mesh-node-count').textContent=meshNodes.length+' nodes';
@@ -2488,7 +2377,8 @@ renderVtxTable();
         var html='<div style="font-size:9px;">';
         meshNodes.forEach(function(n,i){
             var offline=!n.active;
-            var nodeKeys=n.isGCS?compatKeysGround:compatKeysAir;
+            var nodeKeys=(n.isGCS?compatKeysGround:compatKeysAir).slice();
+            if(!nodeKeys.includes(n.radioKey))nodeKeys.unshift(n.radioKey);
             html+='<div style="display:flex;align-items:center;gap:4px;padding:3px 0;border-bottom:1px solid var(--border-color);">';
             html+='<span style="width:8px;height:8px;border-radius:'+(n.isGCS?'2px':'50%')+';background:'+(offline?'#666':n.color)+';flex-shrink:0;"></span>';
             html+='<span style="color:'+(offline?'#f87171':'var(--text-main)')+';font-weight:600;min-width:22px;">'+n.id+'</span>';
@@ -2505,7 +2395,7 @@ renderVtxTable();
     }
 
     window.meshNodeRadio=function(i,key){
-        if(meshNodes[i]){meshNodes[i].radioKey=key;meshNodes[i].radio=MESH_RADIOS[key]||MESH_RADIOS.DL_2450;meshNodes[i].power=MESH_RADIOS[key].txPow;}
+        if(meshNodes[i]){meshNodes[i].radioKey=key;meshNodes[i].radio=MESH_RADIOS[key]||MESH_RADIOS.DL_2450;meshNodes[i].power=MESH_RADIOS[key].txPow;meshInvalidate();}
     };
 
     // Get compatible radio keys for a given waveform, filtered by role
@@ -2532,18 +2422,22 @@ renderVtxTable();
         // Update all existing nodes to compatible radio if they're incompatible
         var wf=radio.waveform;
         meshNodes.forEach(function(n){
-            if(n.radio&&n.radio.waveform!==wf&&wf!=='custom'&&n.radio.waveform!=='custom'){
+            if(n.radioKey!==sel){
                 n.radioKey=sel;n.radio=radio;n.power=radio.txPow;
             }
         });
         meshUpdateNodeList();
     };
-    window.meshNodeHeight=function(i,v){if(meshNodes[i])meshNodes[i].height=parseFloat(v)||50;};
-    window.meshNodePower=function(i,v){if(meshNodes[i])meshNodes[i].power=parseFloat(v)||30;};
+    window.meshNodeHeight=function(i,v){if(meshNodes[i])meshNodes[i].height=Number(v);meshInvalidate();};
+    window.meshNodePower=function(i,v){if(meshNodes[i])meshNodes[i].power=Number(v);meshInvalidate();};
+    document.getElementById('mesh-tx-power').addEventListener('input',function(){meshNodes.forEach(n=>n.power=Number(this.value));meshInvalidate();});
+    document.getElementById('mesh-node-height').addEventListener('input',function(){meshNodes.filter(n=>!n.isGCS).forEach(n=>n.height=Number(this.value));meshUpdateNodeList();});
+    document.getElementById('mesh-min-margin').addEventListener('input',()=>meshInvalidate());
 
     window.meshUndo=function(){
         if(meshNodes.length===0)return;
         var last=meshNodes.pop();
+        meshIdCounter=meshNodes.length?Math.max(...meshNodes.map(n=>n.num)):0;
         if(last.marker&&meshMap)meshMap.removeLayer(last.marker);
         meshUpdateNodeList();
     };
@@ -2586,8 +2480,12 @@ renderVtxTable();
         var active=meshNodes.filter(function(n){return n.active;});
         if(active.length<2){document.getElementById('mesh-health').innerHTML='<div style="color:#f87171;padding:8px;font-size:11px;">Need at least 2 active nodes</div>';document.getElementById('mesh-health').style.display='block';return;}
         meshClearLinks();
+        const revision=++meshRevision;
+        try { ['mesh-node-height','mesh-tx-power','mesh-min-margin'].forEach(toolNumber);
+            if(active.some(n=>!Number.isFinite(n.height)||n.height<0||n.height>500||!Number.isFinite(n.power)||n.power<0||n.power>50))throw new Error('Check node height and power values.');
+        } catch(e) {document.getElementById('mesh-link-count').textContent=e.message;return;}
         var defaultH=parseFloat(document.getElementById('mesh-node-height').value)||50;
-        var minMargin=parseFloat(document.getElementById('mesh-min-margin').value)||6;
+        var minMargin=toolNumber('mesh-min-margin');
         var txG=2,rxG=2;
         var L=window.L;
         var links=[];
@@ -2599,12 +2497,12 @@ renderVtxTable();
             for(var j=i+1;j<n;j++){
                 var a=active[i],b=active[j];
                 var rA=a.radio||meshGetDefaultRadio(),rB=b.radio||meshGetDefaultRadio();
-                var compatible=radiosCompatible(rA,rB);
+                var compatible=radiosCompatible(rA,rB) && ((rA.mesh&&rB.mesh)||a.isGCS||b.isGCS);
                 var d=hav(a.lat,a.lon,b.lat,b.lon)/1000;
                 var margin=-999,fspl=0,rxPow=-999,throughput=0,linkFreq=2400;
                 if(compatible){
                     linkFreq=bestCommonFreq(rA,rB);
-                    var txP=Math.min(rA.txPow,rB.txPow);
+                    var txP=Math.min(a.power,b.power);
                     var sens=Math.max(rA.rxSens,rB.rxSens); // worst sensitivity
                     fspl=20*Math.log10(d>0.001?d:0.001)+20*Math.log10(linkFreq)+32.44;
                     rxPow=txP+txG+rxG-fspl;
@@ -2627,44 +2525,45 @@ renderVtxTable();
                 try{
                     var pts=window._rfInterpolatePoints(tl.fromNode.lat,tl.fromNode.lon,tl.toNode.lat,tl.toNode.lon,15);
                     var elev=null;
-                    for(var attempt=0;attempt<2&&!elev;attempt++){
+                    for(var attempt=0;attempt<1&&!elev;attempt++){
                         try{var result=await window._rfGetElevations(pts);if(result&&result.elevations)elev=result;}catch(e){}
                     }
-                    if(!elev)elev={elevations:pts.map(function(){return 0;}),source:'flat'};
+                    if(!elev)throw new Error('Elevation unavailable');
                     var dists=pts.map(function(p){return hav(tl.fromNode.lat,tl.fromNode.lon,p.lat,p.lon);});
-                    var hFrom=tl.fromNode.height||defaultH,hTo=tl.toNode.height||defaultH;
-                    var pwr=Math.min(tl.fromNode.radio.txPow,tl.toNode.radio.txPow);
+                    var hFrom=tl.fromNode.height,hTo=tl.toNode.height;
+                    var pwr=Math.min(tl.fromNode.power,tl.toNode.power);
                     var sens=Math.max(tl.fromNode.radio.rxSens,tl.toNode.radio.rxSens);
                     var analysis=window._rfAnalyzePath(elev.elevations,dists,hFrom,hTo,tl.linkFreq);
                     var budget=window._rfLinkBudget(analysis,pwr,sens,txG,rxG,tl.linkFreq,0);
                     tl.margin=budget.margin;tl.diffLoss=analysis.diffLoss;tl.hasLOS=analysis.hasLOS;
-                    tl.terrainDone=true;tl.analysis=analysis;tl.elevSource=elev.source;
+                    tl.terrainDone=true;tl.analysis=analysis;tl.elevSource=elev.source;tl.rxPow=budget.rxPow;
                     tl.throughput=estimateThroughput(budget.margin,Math.min(tl.fromNode.radio.maxRate,tl.toNode.radio.maxRate));
                     terrainOK++;
                 }catch(e){terrainFail++;}
             }
         }
         // Also terrain for strong compatible connected links
-        var nonTerrainConnected=links.filter(function(l){return l.compatible&&!l.terrainDone&&l.margin>=minMargin;});
+        var nonTerrainConnected=links.filter(function(l){return l.compatible&&!l.terrainDone&&l.margin>=30;});
         for(var k=0;k<nonTerrainConnected.length&&k<30;k++){
             var tl=nonTerrainConnected[k];
             try{
                 var pts=window._rfInterpolatePoints(tl.fromNode.lat,tl.fromNode.lon,tl.toNode.lat,tl.toNode.lon,15);
                 var elev=null;
                 try{elev=await window._rfGetElevations(pts);}catch(e){}
-                if(!elev)elev={elevations:pts.map(function(){return 0;}),source:'flat'};
+                if(!elev)throw new Error('Elevation unavailable');
                 var dists=pts.map(function(p){return hav(tl.fromNode.lat,tl.fromNode.lon,p.lat,p.lon);});
-                var hFrom=tl.fromNode.height||defaultH,hTo=tl.toNode.height||defaultH;
-                var pwr=Math.min(tl.fromNode.radio.txPow,tl.toNode.radio.txPow);
+                var hFrom=tl.fromNode.height,hTo=tl.toNode.height;
+                var pwr=Math.min(tl.fromNode.power,tl.toNode.power);
                 var sens=Math.max(tl.fromNode.radio.rxSens,tl.toNode.radio.rxSens);
                 var analysis=window._rfAnalyzePath(elev.elevations,dists,hFrom,hTo,tl.linkFreq);
                 var budget=window._rfLinkBudget(analysis,pwr,sens,txG,rxG,tl.linkFreq,0);
                 tl.margin=budget.margin;tl.diffLoss=analysis.diffLoss;tl.hasLOS=analysis.hasLOS;
-                tl.terrainDone=true;tl.analysis=analysis;tl.elevSource=elev.source;
+                tl.terrainDone=true;tl.analysis=analysis;tl.elevSource=elev.source;tl.rxPow=budget.rxPow;
                 tl.throughput=estimateThroughput(budget.margin,Math.min(tl.fromNode.radio.maxRate,tl.toNode.radio.maxRate));
                 terrainOK++;
             }catch(e){terrainFail++;}
         }
+        if(revision!==meshRevision)return;
         // Classify and draw
         links.forEach(function(l){
             if(!l.compatible){
@@ -2674,11 +2573,13 @@ renderVtxTable();
                 (function(link){l.polyline.on('click',function(){meshShowLinkProfile(link);});})(l);
                 return;
             }
-            l.quality=l.margin>20?'excellent':l.margin>minMargin?'good':l.margin>0?'weak':'fail';
-            l.connected=l.margin>=minMargin;
+            if(!l.terrainDone){l.quality='unknown';l.connected=false;}
+            l.quality=!l.terrainDone?'unknown':l.margin>20?'excellent':l.margin>minMargin?'good':l.margin>0?'weak':'fail';
+            l.connected=l.terrainDone && l.margin>=minMargin;
             var color=l.margin>20?'#4ade80':l.margin>minMargin?'#eab308':l.margin>0?'#f59e0b':'#ef4444';
             var tip=l.from+' \u2194 '+l.to+': '+l.margin.toFixed(1)+' dB';
             if(l.throughput>0)tip+=' \u00B7 ~'+(l.throughput>=1?l.throughput.toFixed(0):l.throughput.toFixed(2))+' Mbps';
+            if(!l.terrainDone)tip+=' (free space only; terrain unknown)';
             if(l.terrainDone)tip+=' (terrain'+(l.hasLOS?'':' \u2014 LOS blocked')+')';
             tip+=' \u2014 click for profile';
             if(l.connected){
@@ -2696,6 +2597,8 @@ renderVtxTable();
         var statusParts=[connCount+'/'+links.length+' connected'];
         if(incompatCount>0)statusParts.push(incompatCount+' incompatible');
         if(terrainCount>0)statusParts.push(terrainCount+' terrain');
+        const unknown=links.filter(l=>l.compatible&&!l.terrainDone).length;
+        if(unknown)statusParts.push(unknown+' terrain unknown — load DEM or retry');
         document.getElementById('mesh-link-count').textContent=statusParts.join(' \u00B7 ');
         meshAnalyze(active,links,minMargin);
         if(meshHeatEnabled)meshBuildHeatmap();
@@ -2742,10 +2645,10 @@ renderVtxTable();
             if(reach.size<n){spofNodes.push(nodes[i].id);}
         }
         // Dijkstra from GCS (node 0) for hop count + path
-        var gcs=0;
+        var gcs=nodes.findIndex(n=>n.isGCS);
         var dist=[];var prev=[];var hops=[];
         for(var i=0;i<n;i++){dist.push(Infinity);prev.push(-1);hops.push(Infinity);}
-        dist[gcs]=0;hops[gcs]=0;
+        if(gcs>=0){dist[gcs]=0;hops[gcs]=0;}
         var visited=new Set();
         for(var iter=0;iter<n;iter++){
             var u=-1,bestD=Infinity;
@@ -2783,8 +2686,9 @@ renderVtxTable();
         nonMeshNodes.forEach(function(nd){
             html+='<div style="padding:4px 8px;margin-bottom:4px;background:rgba(234,179,8,0.1);border:1px solid rgba(234,179,8,0.3);border-radius:var(--radius-sm);font-size:9px;color:#eab308;">\u26A0 '+nd.id+': '+nd.radio.name+' is '+nd.radio.meshType+' \u2014 cannot relay for other nodes.</div>';
         });
+        const unknown=links.some(l=>l.compatible&&!l.terrainDone);
         var statusColor=connected?'#4ade80':(isolated.length>0?'#f87171':'#eab308');
-        html+='<div style="margin-bottom:8px;padding:8px 10px;border-radius:var(--radius-sm);background:'+statusColor+'10;border:1px solid '+statusColor+'40;color:'+statusColor+';font-size:12px;font-weight:700;">'+(connected?'\u2713 FULLY CONNECTED':'\u26A0 NETWORK PARTITIONED \u2014 '+components.length+' fragments')+'</div>';
+        html+='<div style="margin-bottom:8px;padding:8px 10px;border-radius:var(--radius-sm);background:'+statusColor+'10;border:1px solid '+statusColor+'40;color:'+statusColor+';font-size:12px;font-weight:700;">'+(unknown?'TERRAIN INCOMPLETE — connectivity not established':connected?'\u2713 FULLY CONNECTED':'\u26A0 NETWORK PARTITIONED \u2014 '+components.length+' fragments')+'</div>';
         html+='<div style="display:grid;grid-template-columns:1fr 1fr;gap:4px;font-size:10px;">';
         html+='<span style="color:var(--text-muted);">Nodes</span><span style="color:var(--text-main);">'+n+' active</span>';
         html+='<span style="color:var(--text-muted);">Links</span><span style="color:var(--text-main);">'+connectedLinks.length+' / '+links.length+' pairs'+(incompatLinks.length>0?' ('+incompatLinks.length+' incompatible)':'')+'</span>';
@@ -2794,12 +2698,14 @@ renderVtxTable();
         if(isolated.length>0)html+='<span style="color:var(--text-muted);">Isolated</span><span style="color:#f87171;">'+isolated.join(', ')+'</span>';
         if(spofNodes.length>0)html+='<span style="color:var(--text-muted);">SPOF nodes</span><span style="color:#f59e0b;">'+spofNodes.join(', ')+' \u2014 removing breaks mesh</span>';
         html+='</div>';
+        if(gcs<0)html+='<p style="color:#eab308;margin-top:8px;">GCS offline — no ground-control route.</p>';
         // Hop count from GCS
-        if(connected||connectedLinks.length>0){
+        if(gcs>=0&&(connected||connectedLinks.length>0)){
             html+='<div style="margin-top:8px;border-top:1px solid var(--border-color);padding-top:8px;">';
-            html+='<div style="font-size:9px;font-weight:600;color:var(--text-main);text-transform:uppercase;letter-spacing:0.08em;margin-bottom:4px;">Hop Count from GCS ('+nodes[0].id+')</div>';
+            html+='<div style="font-size:9px;font-weight:600;color:var(--text-main);text-transform:uppercase;letter-spacing:0.08em;margin-bottom:4px;">Hop Count from GCS ('+nodes[gcs].id+')</div>';
             html+='<div style="display:grid;grid-template-columns:1fr 1fr;gap:2px;font-size:9px;">';
-            for(var i=1;i<n;i++){
+            for(var i=0;i<n;i++){
+                if(i===gcs)continue;
                 var hopC=hops[i]===Infinity?'\u221E':hops[i];
                 var hopColor=hops[i]<=1?'#4ade80':hops[i]<=2?'#eab308':hops[i]<=3?'#f59e0b':'#f87171';
                 if(hops[i]===Infinity)hopColor='#f87171';
@@ -2830,7 +2736,7 @@ renderVtxTable();
             nodes.forEach(function(col,ci){
                 if(ri===ci){mHtml+='<td style="padding:3px;text-align:center;color:var(--text-faint);">—</td>';return;}
                 var link=links.find(function(l){return(l.from===row.id&&l.to===col.id)||(l.from===col.id&&l.to===row.id);});
-                var m=link?link.margin:null;
+                var m=link&&link.compatible&&link.terrainDone?link.margin:null;
                 var mc=m===null?'var(--text-faint)':m>20?'#4ade80':m>minMargin?'#eab308':m>0?'#f59e0b':'#ef4444';
                 mHtml+='<td style="padding:3px;text-align:center;color:'+mc+';font-weight:'+(link&&link.connected?'700':'400')+';">'+(m!==null?m.toFixed(0):'—')+'</td>';
             });
@@ -2841,11 +2747,12 @@ renderVtxTable();
         // Issues
         var iEl=document.getElementById('mesh-issues');
         var issues=[];
-        if(!connected)issues.push({sev:'CRITICAL',color:'#ef4444',msg:'Network partitioned into '+components.length+' fragments'});
-        isolated.forEach(function(nid){issues.push({sev:'CRITICAL',color:'#ef4444',msg:'Node '+nid+' is isolated — no connections'});});
+        if(unknown)issues.push({sev:'UNKNOWN',color:'#eab308',msg:'Load a DEM or retry online to evaluate missing terrain.'});
+        if(!connected&&!unknown)issues.push({sev:'CRITICAL',color:'#ef4444',msg:'Network partitioned into '+components.length+' fragments'});
+        if(!unknown)isolated.forEach(function(nid){issues.push({sev:'CRITICAL',color:'#ef4444',msg:'Node '+nid+' is isolated — no connections'});});
         spofNodes.forEach(function(nid){issues.push({sev:'WARNING',color:'#f59e0b',msg:'Node '+nid+' is a single point of failure'});});
         if(weakest&&weakest.margin<10)issues.push({sev:'WEAK',color:'#eab308',msg:'Weakest link '+weakest.from+'↔'+weakest.to+' only '+weakest.margin.toFixed(1)+' dB'});
-        links.filter(function(l){return!l.connected&&l.margin>0;}).forEach(function(l){
+        links.filter(function(l){return l.terrainDone&&!l.connected&&l.margin>0;}).forEach(function(l){
             issues.push({sev:'INFO',color:'var(--text-faint)',msg:l.from+'↔'+l.to+' has '+l.margin.toFixed(1)+' dB — below '+minMargin+' dB threshold'});
         });
         if(issues.length===0){
@@ -2884,7 +2791,7 @@ renderVtxTable();
         var active=meshNodes.filter(function(n){return n.active;});
         if(active.length<1)return;
         var proto=meshGetDefaultRadio();
-        var txP=parseFloat(document.getElementById('mesh-tx-power').value)||30;
+        var txP=Number(document.getElementById('mesh-tx-power').value);
         var nodeH=parseFloat(document.getElementById('mesh-node-height').value)||50;
         var txG=2,rxG=2;
         var bounds=meshMap.getBounds();
@@ -2931,6 +2838,8 @@ renderVtxTable();
         var detail=document.getElementById('mesh-profile-detail');
         var svg=document.getElementById('mesh-profile-svg');
         if(!panel||!svg)return;
+        if(!link.compatible){panel.style.display='block';title.textContent=link.from+' ↔ '+link.to;svg.innerHTML='';detail.textContent='Incompatible radios or non-relay topology; no link profile.';return;}
+        const revision=meshRevision;
         title.textContent=link.from+' \u2194 '+link.to+' \u2014 '+link.dist.toFixed(2)+' km';
         panel.style.display='block';
         if(!link.analysis){
@@ -2938,14 +2847,15 @@ renderVtxTable();
             try{
                 var proto=meshGetDefaultRadio();
                 var dH=parseFloat(document.getElementById('mesh-node-height').value)||50;
-                var dP=parseFloat(document.getElementById('mesh-tx-power').value)||30;
+                var dP=Number(document.getElementById('mesh-tx-power').value);
                 var pts=window._rfInterpolatePoints(link.fromNode.lat,link.fromNode.lon,link.toNode.lat,link.toNode.lon,20);
-                var elev;try{elev=await window._rfGetElevations(pts);}catch(e){elev={elevations:pts.map(function(){return 0;}),source:'flat'};}
+                var elev=await window._rfGetElevations(pts);
+                if(revision!==meshRevision)return;
                 var dists=pts.map(function(p){return hav(link.fromNode.lat,link.fromNode.lon,p.lat,p.lon);});
-                var hF=link.fromNode.height||dH,hT=link.toNode.height||dH;
-                var pwr=Math.min(link.fromNode.power||dP,link.toNode.power||dP);
-                var analysis=window._rfAnalyzePath(elev.elevations,dists,hF,hT,proto.freq[0]);
-                var budget=window._rfLinkBudget(analysis,pwr,proto.rxSens,2,2,proto.freq[0],0);
+                var hF=link.fromNode.height,hT=link.toNode.height;
+                var pwr=Math.min(link.fromNode.power,link.toNode.power);
+                var analysis=window._rfAnalyzePath(elev.elevations,dists,hF,hT,link.linkFreq);
+                var budget=window._rfLinkBudget(analysis,pwr,Math.max(link.fromNode.radio.rxSens,link.toNode.radio.rxSens),2,2,link.linkFreq,0);
                 link.analysis=analysis;link.terrainDone=true;link.elevSource=elev.source;
                 link.margin=budget.margin;link.diffLoss=analysis.diffLoss;link.hasLOS=analysis.hasLOS;
             }catch(e){svg.innerHTML='<text x="350" y="90" fill="#f87171" font-size="11" text-anchor="middle">Terrain error</text>';}
@@ -3025,9 +2935,9 @@ renderVtxTable();
             var lat=link.fromNode.lat+(link.toNode.lat-link.fromNode.lat)*t;
             var lon=link.fromNode.lon+(link.toNode.lon-link.fromNode.lon)*t;
             var d=hav(link.fromNode.lat,link.fromNode.lon,lat,lon)/1000;
-            var fspl=d>0.001?(20*Math.log10(d)+20*Math.log10(proto.freq[0])+32.44):0;
-            var pwr=Math.min(link.fromNode.power||30,link.toNode.power||30);
-            var margin=pwr+2+2-fspl-proto.rxSens;
+            var fspl=d>0.001?(20*Math.log10(d)+20*Math.log10(link.linkFreq)+32.44):0;
+            var pwr=Math.min(link.fromNode.power,link.toNode.power);
+            var margin=pwr+2+2-fspl-Math.max(link.fromNode.radio.rxSens,link.toNode.radio.rxSens);
             pts.push({lat:lat,lon:lon,d:d,margin:margin});
         }
         meshTraceData=pts;
@@ -3053,6 +2963,7 @@ renderVtxTable();
     };
 
     window.meshExport=function(){
+        if(!meshLinks.length){document.getElementById('mesh-link-count').textContent='Analyze the mesh before exporting.';return;}
         var h=document.getElementById('mesh-health');
         var m=document.getElementById('mesh-matrix');
         var i=document.getElementById('mesh-issues');
@@ -3066,8 +2977,7 @@ renderVtxTable();
         if(i)html+=i.innerHTML;
         html+='<div style="margin-top:24px;font-size:9px;color:#4a5f75;text-align:center;border-top:1px solid #21262d;padding-top:12px;">Forge Mesh Planner · uas-forge.com/tools/ · AI Wingman by Midwest Nice Advisory LLC</'+'div>';
         html+='</'+'body></'+'html>';
-        var w=window.open('','_blank');
-        if(w){w.document.write(html);w.document.close();}
+        saveToolReport('TAK-Bridge-report.html',html);
     };
 
     document.addEventListener('toolchange', function(event) {

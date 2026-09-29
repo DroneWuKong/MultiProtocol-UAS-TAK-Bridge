@@ -11,6 +11,9 @@
 <link rel="stylesheet" href="tools-mobile.css">
 <script src="vendor/leaflet/leaflet.js"></script>
 <script src="vendor/geotiff/geotiff.js"></script>
+<script src="vendor/mgrs/mgrs.js"></script>
+<script src="tools-actions.js" defer></script>
+<script src="vtx-presets.js" defer></script>
 <script src="tools-ui.js" defer></script>
 <script src="tools-core.js" defer></script>
 </head>
@@ -185,7 +188,7 @@
 <svg height="120" id="fresnel-svg" preserveaspectratio="xMidYMid meet" viewbox="0 0 700 120" width="100%"></svg>
 </div>
 <div class="result-note" style="background:var(--bg-panel); border:1px solid var(--border-color); border-radius:var(--radius-sm); padding:14px; margin-top:8px;">
-                The Fresnel zone is an ellipsoid around the direct LOS path. Obstructions (trees, terrain, buildings) within 60% of the first zone radius cause significant signal degradation. At 915 MHz over 1 km, the first zone radius at midpoint is ~10 m.
+                The Fresnel zone is an ellipsoid around the direct LOS path. Obstructions (trees, terrain, buildings) within 60% of the first zone radius cause significant signal degradation. At 915 MHz over 1 km, the first zone radius at midpoint is ~9.1 m.
             </div>
 </div>
 <div class="tool-panel" id="tool-dipole">
@@ -280,22 +283,16 @@
 <option value="6">UART 6</option>
 </select>
 </div>
-<div class="input-group select-group">
-<label class="input-label" for="vtx-aux">AUX channel for power</label>
-<select class="tool-select" id="vtx-aux">
-<option value="">None</option>
-<option value="AUX10">AUX 10</option>
-<option value="AUX11">AUX 11</option>
-<option value="AUX12">AUX 12</option>
-</select>
+
 </div>
-</div>
+<p class="result-note">Choose an exact supported model. Tables and power values come from Betaflight presets. <a id="vtx-preset-source" target="_blank">Preset source</a></p>
 <div class="section-divider">Generated CLI commands</div>
 <div style="position:relative;">
-<pre id="vtx-cli-output" style="background:var(--bg-dark); border:1px solid var(--border-color); border-radius:var(--radius-sm); padding:16px; font-size:12px; color:var(--accent-green); font-family:'JetBrains Mono',monospace; overflow-x:auto; line-height:1.7; white-space:pre-wrap; min-height:120px;"></pre>
 <button id="vtx-copy-btn" onclick="copyVtxConfig()" style="position:absolute; top:10px; right:10px; padding:5px 12px; border-radius:var(--radius-sm); border:1px solid var(--border-color); background:var(--bg-panel); color:var(--text-muted); font-size:12px; cursor:pointer; font-family:var(--font-family); display:flex; align-items:center; gap:4px;">
 <i class="ph ph-copy"></i> Copy
                 </button>
+<pre id="vtx-cli-output" style="background:var(--bg-dark); border:1px solid var(--border-color); border-radius:var(--radius-sm); padding:16px; font-size:12px; color:var(--accent-green); font-family:'JetBrains Mono',monospace; overflow-x:auto; line-height:1.7; white-space:pre-wrap; min-height:120px;"></pre>
+
 </div>
 <div class="result-note" style="background:var(--bg-panel); border:1px solid var(--border-color); border-radius:var(--radius-sm); padding:14px; margin-top:12px;">
                 Open Betaflight Configurator → CLI tab → paste commands → type <code style="font-size:12px; background:var(--bg-dark); padding:1px 5px; border-radius:3px;">save</code> and press Enter. Requires Betaflight 4.1+.
@@ -303,8 +300,8 @@
 </div>
 <div class="tool-panel" id="tool-mafialrs">
 <div class="tool-header">
-<div class="tool-title"><i class="ph ph-shield-warning" style="color:#eab308"></i> MafiaLRS firmware generator</div>
-<p class="tool-desc">Combat-adapted ELRS fork. Non-standard frequency operation (433–735 MHz) for EW evasion. Self-hosted target database.</p>
+<div class="tool-title"><i class="ph ph-shield-warning" style="color:#eab308"></i> MafiaLRS target catalog</div>
+<p class="tool-desc">Browse the bundled receiver and transmitter catalog. Search by model or manufacturer, inspect the firmware target, and copy the catalog ID.</p>
 </div>
 <div style="display:grid; grid-template-columns:1fr 1fr; gap:16px; margin-bottom:16px;">
 <div style="background:var(--bg-dark); border-radius:var(--radius-sm); padding:14px;">
@@ -346,7 +343,7 @@
 </div>
 </div>
 <div style="margin-top:16px; background:var(--bg-panel); border:1px solid var(--border-color); border-radius:var(--radius-sm); padding:14px; font-size:12px; color:var(--text-muted); line-height:1.6;">
-<strong style="color:var(--text-main);">What is MafiaLRS?</strong> A Ukrainian fork of ExpressLRS modified for combat operations. Key differences from stock ELRS: operates on 433 MHz, 490–560 MHz, and modified 868/915 MHz bands outside standard EW jamming coverage; frequency hopping modifications; actively maintained and battle-tested. Source: <a href="https://github.com/BUSHA/targets/tree/mafia-targets" style="color:var(--accent-red);" target="_blank">BUSHA/targets@mafia-targets</a>.
+<strong style="color:var(--text-main);">What is MafiaLRS?</strong> An ExpressLRS-derived project. This offline catalog contains 222 receiver and 106 transmitter entries from Forge. Catalog IDs identify entries; use the upstream layout and firmware target to confirm hardware support. This tool browses targets; it does not build or flash firmware. Source: <a href="https://github.com/BUSHA/targets/tree/mafia-targets" style="color:var(--accent-red);" target="_blank">BUSHA/targets@mafia-targets</a>.
             </div>
 </div>
 <div class="tool-panel" id="tool-fc-matcher">
@@ -378,7 +375,8 @@
 <div style="margin-bottom:14px;">
 <div style="font-size:12px; color:var(--text-muted); margin-bottom:6px;">VTX Protocol</div>
 <select id="vtx-protocol" onchange="renderVtxTable()" style="width:100%; background:var(--bg-dark); border:1px solid var(--border-color); border-radius:var(--radius-sm); color:var(--text-main); font-size:13px; padding:7px 10px;">
-<option value="smartaudio">SmartAudio</option>
+<option value="smartaudio">SmartAudio 2.1 (dBm)</option>
+<option value="sa20">SmartAudio 2.0 (indices)</option>
 <option value="tramp">IRC Tramp</option>
 </select>
 </div>
@@ -399,7 +397,7 @@
 <label style="display:flex; align-items:center; gap:8px; font-size:13px; color:var(--text-muted); margin-bottom:6px; cursor:pointer;"><input id="vtx-band-A" onchange="renderVtxTable()" type="checkbox"/> Boscam A</label>
 <label style="display:flex; align-items:center; gap:8px; font-size:13px; color:var(--text-muted); cursor:pointer;"><input id="vtx-band-B" onchange="renderVtxTable()" type="checkbox"/> Boscam B</label>
 </div>
-<button onclick="copyVtxTable()" style="width:100%; padding:9px; background:var(--accent-red); color:#fff; border:none; border-radius:var(--radius-sm); cursor:pointer; font-size:13px; font-family:var(--font-family);">Copy to clipboard</button>
+<button id="vtx-table-copy" onclick="copyVtxTable()" style="width:100%; padding:9px; background:var(--accent-red); color:#fff; border:none; border-radius:var(--radius-sm); cursor:pointer; font-size:13px; font-family:var(--font-family);">Copy to clipboard</button>
 </div>
 <div>
 <div style="display:flex; align-items:center; justify-content:space-between; margin-bottom:8px;">
@@ -407,7 +405,7 @@
 <span id="vtx-line-count" style="font-size:12px; color:var(--text-faint);"></span>
 </div>
 <textarea id="vtx-output" readonly="" style="width:100%; height:320px; background:var(--bg-dark); border:1px solid var(--border-color); border-radius:var(--radius-sm); color:#4ade80; font-family:'JetBrains Mono',monospace; font-size:12px; padding:12px; resize:vertical; box-sizing:border-box;"></textarea>
-<div style="font-size:12px; color:var(--text-faint); margin-top:8px;">Paste into Betaflight CLI, then type <code style="background:var(--bg-dark); padding:1px 4px; border-radius:3px;">save</code></div>
+<div style="font-size:12px; color:var(--text-faint); margin-top:8px;">Generic values: check the hardware power table before applying. Final command: <code style="background:var(--bg-dark); padding:1px 4px; border-radius:3px;">save</code></div>
 </div>
 </div>
 </div>
@@ -454,7 +452,7 @@
 <table style="width:100%; font-size:12px; border-collapse:collapse;">
 <tr style="color:var(--text-faint); font-size:12px; text-transform:uppercase; letter-spacing:0.06em;">
 <th style="text-align:left; padding:4px 8px 8px 0;">Setting</th>
-<th style="text-align:left; padding:4px 0 8px 0;">Recommended</th>
+<th style="text-align:left; padding:4px 0 8px 0;">Examples (hardware dependent)</th>
 </tr>
 <tr style="border-top:1px solid var(--border-color);"><td style="padding:7px 8px 7px 0; color:var(--text-main);">Packet rate (2.4 GHz)</td><td style="padding:7px 0; color:var(--text-muted);">500 Hz racing / 250 Hz general</td></tr>
 <tr style="border-top:1px solid var(--border-color);"><td style="padding:7px 8px 7px 0; color:var(--text-main);">Packet rate (900 MHz)</td><td style="padding:7px 0; color:var(--text-muted);">200 Hz / 100 Hz long range</td></tr>
@@ -468,7 +466,7 @@
 <div style="background:var(--bg-panel); border:1px solid var(--border-color); border-radius:var(--radius-sm); padding:18px;">
 <div style="font-size:12px; text-transform:uppercase; letter-spacing:0.08em; color:var(--text-muted); margin-bottom:14px;">Firmware &amp; resources</div>
 <div style="display:flex; flex-direction:column; gap:10px;">
-<a href="https://expresslrs.org/quick-start/getting-started/" style="display:flex; align-items:center; gap:10px; padding:10px 12px; background:var(--bg-dark); border:1px solid var(--border-color); border-radius:var(--radius-sm); text-decoration:none; color:var(--text-main); font-size:13px;" target="_blank">
+<a href="https://www.expresslrs.org/quick-start/installing-configurator/" style="display:flex; align-items:center; gap:10px; padding:10px 12px; background:var(--bg-dark); border:1px solid var(--border-color); border-radius:var(--radius-sm); text-decoration:none; color:var(--text-main); font-size:13px;" target="_blank">
 <i class="ph ph-rocket" style="color:var(--accent-red); font-size:16px;"></i>
 <div><div style="font-size:13px;">ELRS Configurator</div><div style="font-size:12px; color:var(--text-muted);">expresslrs.org — flash TX &amp; RX</div></div>
 </a>
@@ -476,7 +474,7 @@
 <i class="ph ph-github-logo" style="color:var(--accent-red); font-size:16px;"></i>
 <div><div style="font-size:13px;">GitHub Releases</div><div style="font-size:12px; color:var(--text-muted);">Latest firmware binaries</div></div>
 </a>
-<a href="https://expresslrs.org/hardware/supported-hardware/" style="display:flex; align-items:center; gap:10px; padding:10px 12px; background:var(--bg-dark); border:1px solid var(--border-color); border-radius:var(--radius-sm); text-decoration:none; color:var(--text-main); font-size:13px;" target="_blank">
+<a href="https://www.expresslrs.org/product-finder/" style="display:flex; align-items:center; gap:10px; padding:10px 12px; background:var(--bg-dark); border:1px solid var(--border-color); border-radius:var(--radius-sm); text-decoration:none; color:var(--text-main); font-size:13px;" target="_blank">
 <i class="ph ph-list" style="color:var(--accent-red); font-size:16px;"></i>
 <div><div style="font-size:13px;">Supported Hardware List</div><div style="font-size:12px; color:var(--text-muted);">All TX/RX targets</div></div>
 </a>
@@ -491,7 +489,7 @@
 <div class="tool-panel" id="tool-rf-terrain">
 <div class="tool-header">
 <div class="tool-title">Terrain link</div>
-<p class="tool-desc">Place ground and aircraft points to check terrain clearance and estimate your radio link.</p>
+<p class="tool-desc">Place ground and aircraft points to check terrain clearance and estimate your radio link. Model: 4/3 Earth radius, one dominant diffraction edge; sampled terrain excludes trees and buildings. Radio presets are planning assumptions.</p>
 </div><div class="map-card">
 <div id="rf-map"></div>
 <!-- Map layer switcher -->
@@ -715,8 +713,6 @@
 
 <!-- Location search below map -->
 
-<!-- Map tile cache controls -->
-
 <!-- DEM upload -->
 <div style="display:flex;align-items:center;gap:8px;margin-bottom:8px;padding:5px 8px;background:var(--bg-dark);border-radius:var(--radius-sm);font-size:12px;color:var(--text-faint);">
 <span>DEM:</span>
@@ -752,7 +748,7 @@
 <!-- Route trace slider (shown after waypoint calc) -->
 <div id="rf-route-trace" style="display:none; margin-bottom:10px; padding:8px 10px; background:var(--bg-panel); border:1px solid var(--border-color); border-radius:var(--radius-sm);">
 <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:4px;">
-<span style="font-size:12px; font-weight:600; color:var(--text-main); text-transform:uppercase; letter-spacing:0.08em;">Route Trace — drag to fly the path</span>
+<span style="font-size:12px; font-weight:600; color:var(--text-main); text-transform:uppercase; letter-spacing:0.08em;">Free-space route trace — terrain excluded</span>
 <span id="rf-trace-info" style="font-size:12px; color:var(--accent-red); font-family:var(--font-mono); font-weight:600;"></span>
 </div>
 <input id="rf-trace-slider" max="100" min="0" style="width:100%; accent-color:var(--accent-red);" type="range" value="0"/>
@@ -864,7 +860,7 @@
 <div style="margin-bottom:10px;">
 <label style="display:flex;align-items:center;gap:8px;cursor:pointer;font-size:12px;color:var(--text-muted);font-family:var(--font-family);">
 <input id="rf-heatmap-toggle" onchange="rfToggleHeatmap()" style="accent-color:var(--accent-red);" type="checkbox"/>
-                    RF coverage heatmap — signal strength from TX across the area
+                    Free-space coverage overlay — excludes terrain and obstacles
                 </label>
 </div>
 <!-- Export button -->
@@ -947,13 +943,6 @@
 <div style="font-size:12px;color:var(--text-muted);margin:6px 0;">
 <span id="mesh-node-count">0 nodes</span> · <span id="mesh-link-count">0 links</span> · Click map to place nodes
             </div>
-<!-- Map tile cache controls -->
-<div style="display:flex;align-items:center;gap:8px;margin-bottom:8px;padding:5px 8px;background:var(--bg-dark);border-radius:var(--radius-sm);font-size:12px;color:var(--text-faint);">
-<span>Tiles: <span id="mesh-cache-count">—</span></span>
-<button onclick="cacheDownloadArea('mesh')" style="padding:2px 8px;border:1px solid var(--border-color);border-radius:3px;background:none;color:var(--text-muted);font-size:12px;cursor:pointer;font-family:var(--font-family);">↓ Cache Area</button>
-<span id="mesh-cache-status" style="color:var(--text-faint);"></span>
-<button onclick="cacheClear('mesh')" style="margin-left:auto;padding:2px 6px;border:1px solid var(--border-color);border-radius:3px;background:none;color:var(--text-faint);font-size:12px;cursor:pointer;font-family:var(--font-family);">Clear</button>
-</div>
 <!-- DEM upload -->
 <div style="display:flex;align-items:center;gap:8px;margin-bottom:4px;padding:5px 8px;background:var(--bg-dark);border-radius:var(--radius-sm);font-size:12px;color:var(--text-faint);">
 <span>DEM:</span>
@@ -965,7 +954,7 @@
 <button onclick="rfClearDEM()" style="padding:2px 6px;border:1px solid var(--border-color);border-radius:3px;background:none;color:var(--text-faint);font-size:12px;cursor:pointer;font-family:var(--font-family);">Clear</button>
 </div>
 <div style="font-size:12px;color:var(--text-faint);margin-bottom:8px;padding:2px 8px;">
-                Load SRTM .hgt or GeoTIFF .tif for instant terrain. <a href="https://dwtkns.com/srtm30m/" style="color:var(--accent-red);text-decoration:none;" target="_blank">Download tiles here</a>. Shared with RF Terrain tool.
+                Load SRTM .hgt or WGS84 (EPSG:4326) GeoTIFF .tif for instant terrain. <a href="https://dwtkns.com/srtm30m/" style="color:var(--accent-red);text-decoration:none;" target="_blank">Download tiles here</a>. Shared with RF Terrain tool.
             </div>
 <!-- Mesh config -->
 <!-- Action buttons -->
@@ -985,7 +974,7 @@
 <div style="margin-bottom:10px;">
 <label style="display:flex;align-items:center;gap:8px;cursor:pointer;font-size:12px;color:var(--text-muted);font-family:var(--font-family);">
 <input id="mesh-heatmap-toggle" onchange="meshToggleHeatmap()" style="accent-color:var(--accent-red);" type="checkbox"/>
-                    RF coverage heatmap — shows signal strength across the area
+                    Free-space coverage overlay — excludes terrain and obstacles
                 </label>
 </div>
 <!-- Node list -->
@@ -1006,7 +995,7 @@
 <div id="mesh-profile-detail" style="font-size:12px;color:var(--text-muted);margin-top:4px;"></div>
 <div id="mesh-link-trace" style="display:none;margin-top:6px;">
 <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:3px;">
-<span style="font-size:12px;color:var(--text-faint);text-transform:uppercase;">Trace link</span>
+<span style="font-size:12px;color:var(--text-faint);text-transform:uppercase;">Free-space link trace</span>
 <span id="mesh-trace-info" style="font-size:12px;color:var(--accent-red);font-family:var(--font-mono);"></span>
 </div>
 <input id="mesh-trace-slider" max="100" min="0" oninput="meshTraceUpdate()" style="width:100%;accent-color:var(--accent-red);" type="range" value="0"/>
