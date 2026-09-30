@@ -13,7 +13,7 @@ import java.util.UUID
  * Detail element schemas sourced from AndroidTacticalAssaultKit-CIV (GPLv3)
  * takcot/xsd/details/ — authoritative ATAK CoT schema definitions.
  *
- * Wire protocol spec from takproto/*.proto (proto3, package atakmap.commoncommo.protobuf.v1).
+ * Wire protocol spec from the .proto files in takproto/ (proto3, package atakmap.commoncommo.protobuf.v1).
  *
  * Broadcast port 6969 (SA/non-chat), 17012 (chat) per commoncommo/core/atakcotcaptures.txt.
  */
@@ -48,22 +48,24 @@ object CotFormatter {
         cotType: String = CotTypes.UAV_FRIENDLY_ROTARY,
         staleSec: Int = 30,
         battery: Int? = null,
-        endpoint: String? = null
+        endpoint: String? = null,
+        nowMs: Long = System.currentTimeMillis()
     ): String {
-        val now = System.currentTimeMillis()
+        require(pos.hasValidFix && pos.isFresh(nowMs)) { "CoT requires a fresh valid position" }
+        val now = pos.timestampMs
         val stale = now + (staleSec * 1000L)
         val timeStr = isoFmt.format(Date(now))
         val staleStr = isoFmt.format(Date(stale))
 
         // CE from HDOP: HDOP * ~5m typical GPS accuracy
         val ce = if (pos.hdop > 0) pos.hdop * 5.0 else UNKNOWN_CE
-        val hae = if (pos.altMsl != 0.0) pos.altMsl else UNKNOWN_HAE
+        val hae = UNKNOWN_HAE // MSL cannot be labelled HAE without a geoid correction.
 
         return buildString {
             append("<?xml version='1.0' encoding='UTF-8' standalone='yes'?>")
             append("<event version='2.0'")
-            append(" uid='$uid'")
-            append(" type='$cotType'")
+            append(" uid='${xml(uid)}'")
+            append(" type='${xml(cotType)}'")
             append(" time='$timeStr'")
             append(" start='$timeStr'")
             append(" stale='$staleStr'")
@@ -73,8 +75,8 @@ object CotFormatter {
             append("<point")
             append(" lat='${pos.lat}'")
             append(" lon='${pos.lon}'")
-            append(" hae='${String.format("%.2f", hae)}'")
-            append(" ce='${String.format("%.1f", ce)}'")
+            append(" hae='${String.format(Locale.US, "%.2f", hae)}'")
+            append(" ce='${String.format(Locale.US, "%.1f", ce)}'")
             append(" le='$UNKNOWN_LE'/>")
 
             append("<detail>")
@@ -82,18 +84,19 @@ object CotFormatter {
             // <contact> — callsign + optional direct endpoint
             // endpoint format: "ip:port:tcp" or "*:-1:stcp" for TAK server
             // XSD: contact.xsd — callsign required, endpoint optional
-            append("<contact callsign='$callsign'")
-            if (endpoint != null) append(" endpoint='$endpoint'")
+            append("<contact callsign='${xml(callsign)}'")
+            if (endpoint != null) append(" endpoint='${xml(endpoint)}'")
             append("/>")
 
             // <uid> — Droid name (display name in ATAK contact list)
-            append("<uid Droid='$callsign'/>")
+            append("<uid Droid='${xml(callsign)}'/>")
 
             // <track> — speed in m/s, course in degrees true north
             // XSD: track.xsd — course and speed required
-            append("<track")
-            append(" course='${String.format("%.2f", pos.heading)}'")
-            append(" speed='${String.format("%.2f", pos.groundSpeed)}'/>")
+            if (pos.heading in 0.0..<360.0 && pos.groundSpeed >= 0 && pos.groundSpeed.isFinite()) {
+                append("<track course='${String.format(Locale.US, "%.2f", pos.heading)}'")
+                append(" speed='${String.format(Locale.US, "%.2f", pos.groundSpeed)}'/>")
+            }
 
             // <precisionlocation> — source of GPS fix and altitude
             // geopointsrc values: GPS, DGPS, User, Estimated, Simulated
@@ -116,6 +119,7 @@ object CotFormatter {
             append(" os='Android'")
             append(" version='1.0'/>")
 
+            append("<remarks>Altitude MSL: ${String.format(Locale.US, "%.2f", pos.altMsl)} m</remarks>")
             append("</detail>")
             append("</event>")
         }
@@ -403,6 +407,9 @@ object CotFormatter {
             append("</event>")
         }
     }
+
+    private fun xml(value: String): String = value.replace("&", "&amp;")
+        .replace("<", "&lt;").replace(">", "&gt;").replace("'", "&apos;").replace("\"", "&quot;")
 
     // ─── Helpers ───────────────────────────────────────────────────────────────
 

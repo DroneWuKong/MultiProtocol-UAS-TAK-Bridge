@@ -1,0 +1,66 @@
+name: Android compatibility build
+on:
+  push:
+    branches: [main, 'codex/**']
+  pull_request:
+permissions:
+  contents: read
+jobs:
+  android:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '17'
+      - uses: gradle/actions/setup-gradle@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: npm
+          cache-dependency-path: tools/ui-tests/package-lock.json
+      - name: Install browser checks
+        working-directory: tools/ui-tests
+        run: |
+          npm ci
+          npx playwright install --with-deps chromium
+      - name: Check phone tools and offline navigation
+        working-directory: tools/ui-tests
+        run: npm test
+      - name: Verify Gradle launcher
+        run: |
+          test -s gradlew
+          test -x gradlew
+          ./gradlew --version | tee /tmp/gradle-version.txt
+          grep -Fx 'Gradle 8.5' /tmp/gradle-version.txt
+      - name: Test and build
+        run: ./gradlew clean testDebugUnitTest assembleDebug lintDebug --no-daemon
+      - name: Verify native build evidence
+        run: python3 tools/verify_build.py
+      - name: Hash APK
+        run: sha256sum app/build/outputs/apk/debug/app-debug.apk > app/build/outputs/apk/debug/SHA256SUMS
+      - uses: actions/upload-artifact@v4
+        with:
+          name: tak-bridge-debug-${{ github.sha }}
+          path: |
+            app/build/outputs/apk/debug/app-debug.apk
+            app/build/outputs/apk/debug/SHA256SUMS
+          if-no-files-found: error
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: unit-test-results
+          path: |
+            app/build/reports/tests/testDebugUnitTest/
+            app/build/test-results/testDebugUnitTest/
+            app/build/reports/lint-results-debug.html
+          if-no-files-found: ignore
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: ui-checks
+          path: |
+            tools/ui-tests/artifacts/
+            app/build/reports/ui/
+          if-no-files-found: ignore

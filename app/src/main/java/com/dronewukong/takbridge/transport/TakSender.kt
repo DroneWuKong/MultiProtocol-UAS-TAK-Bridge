@@ -1,264 +1,153 @@
 package com.dronewukong.takbridge.transport
 
 import android.content.Context
-import android.net.wifi.WifiManager
-import android.util.Log
+import android.os.Handler
+import android.os.Looper
 import kotlinx.coroutines.*
-import java.io.FileInputStream
-import java.io.OutputStreamWriter
+import kotlinx.coroutines.channels.BufferOverflow
+import kotlinx.coroutines.channels.Channel
 import java.net.*
-import java.security.KeyStore
-import javax.net.ssl.KeyManagerFactory
-import javax.net.ssl.SSLContext
 import javax.net.ssl.SSLSocket
-import javax.net.ssl.TrustManagerFactory
 
-/**
- * TAK Sender — pushes CoT events to ATAK/WinTAK/iTAK.
- *
- * Three output modes (can run simultaneously):
- *   1. Multicast UDP (239.2.3.1:6969) — zero config, works on any shared network
- *   2. TAK Server TCP — plaintext, port 8087
- *   3. TAK Server TLS — encrypted, port 8089, requires .p12 client cert
- *
- * Features:
- *   - Auto-reconnect on TCP/TLS disconnect (linear backoff)
- *   - Thread-safe send via coroutine scope
- *   - Stats tracking for UI
- */
-class TakSender(private val context: Context) {
-
-    companion object {
-        private const val TAG = "TakSender"
-        private const val TCP_CONNECT_TIMEOUT = 5000
-        private const val RECONNECT_DELAY_MS = 5000L
-        private const val MAX_RECONNECT_ATTEMPTS = 10
+/** One writer per output, bounded fresh-only queues, and isolated connection generations. */
+class TakSender(@Suppress("UNUSED_PARAMETER") context: Context) {
+    private data class Message(val xml: String, val deadline: Long)
+    private class Session(val config: TakConfig) {
+        val scope = CoroutineScope(Dispatchers.IO + SupervisorJob())
+        val udp = Channel<Message>(1, BufferOverflow.DROP_OLDEST)
+        val tcp = Channel<Message>(1, BufferOverflow.DROP_OLDEST)
+        @Volatile var active = true
+        @Volatile var socket: Socket? = null
+        @Volatile var datagram: DatagramSocket? = null
+        fun close() {
+            active = false
+            scope.cancel()
+            udp.close(); tcp.close()
+            try { socket?.close() } catch (_: Exception) { }
+            datagram?.close()
+        }
     }
-
-    private var multicastSocket: MulticastSocket? = null
-    private var multicastLock: WifiManager.MulticastLock? = null
-    private var tcpSocket: Socket? = null
-    private var tcpWriter: OutputStreamWriter? = null
-
-    private val scope = CoroutineScope(Dispatchers.IO + SupervisorJob())
-    private var reconnectJob: Job? = null
-
-    var config: TakConfig = TakConfig()
-        private set
-
-    // TLS cert path (loaded from ConfigStore or file picker)
-    var tlsCertPath: String = ""
-    var tlsCertPassword: String = ""
-
-    // Stats
-    var multicastSentCount: Long = 0; private set
-    var tcpSentCount: Long = 0; private set
-    var lastError: String? = null; private set
-    var isMulticastConnected: Boolean = false; private set
-    var isTcpConnected: Boolean = false; private set
-    private var reconnectAttempts = 0
-
-    // Callbacks
+    private val main = Handler(Looper.getMainLooper())
+    @Volatile private var session: Session? = null
+    var config = TakConfig(); private set
+    var tlsCertPath = ""
+    var tlsCertPassword = ""
+    var tlsCaPath = ""
+    @Volatile var multicastSentCount = 0L; private set
+    @Volatile var tcpSentCount = 0L; private set
+    @Volatile var lastError: String? = null; private set
+    @Volatile var isMulticastConnected = false; private set
+    @Volatile var isTcpConnected = false; private set
     var onStatusChanged: (() -> Unit)? = null
 
-    fun updateConfig(newConfig: TakConfig) {
+    @Synchronized fun updateConfig(newConfig: TakConfig) {
+        require(newConfig.tcpPort in 1..65535 && newConfig.multicastPort in 1..65535) { "Port must be 1–65535" }
+        require(newConfig.updateIntervalMs >= 100) { "Update interval too short" }
         config = newConfig
     }
 
-    fun start() {
-        if (config.multicastEnabled) startMulticast()
-        if (config.tcpEnabled && config.tcpHost.isNotBlank()) startTcp()
-    }
-
-    fun stop() {
-        reconnectJob?.cancel()
-        scope.coroutineContext.cancelChildren()
-        stopMulticast()
-        stopTcp()
-        reconnectAttempts = 0
-    }
-
-    fun send(cotXml: String) {
-        if (config.multicastEnabled && isMulticastConnected) sendMulticast(cotXml)
-        if (config.tcpEnabled && isTcpConnected) sendTcp(cotXml)
-    }
-
-    // ── Multicast ──────────────────────────────────────────────
-
-    private fun startMulticast() {
-        scope.launch {
+    @Synchronized fun start() {
+        stop()
+        lastError = null
+        val s = Session(config)
+        session = s
+        val clientPath = tlsCertPath; val password = tlsCertPassword; val caPath = tlsCaPath
+        if (s.config.multicastEnabled) s.scope.launch {
             try {
-                val wifiManager = context.applicationContext
-                    .getSystemService(Context.WIFI_SERVICE) as WifiManager
-                multicastLock = wifiManager.createMulticastLock("TAKBridge").apply {
-                    setReferenceCounted(true)
-                    acquire()
+                val address = InetAddress.getByName(s.config.multicastAddress)
+                require(address.isMulticastAddress) { "Destination is not a multicast address" }
+                // Sending must not bind ATAK's receive port on the same phone.
+                MulticastSocket().use { socket ->
+                    s.datagram = socket
+                    socket.timeToLive = 32
+                    if (!current(s)) return@launch
+                    update(s) { isMulticastConnected = true; notify(s) }
+                    for (message in s.udp) {
+                        if (!current(s) || message.deadline < System.currentTimeMillis()) continue
+                        val bytes = message.xml.toByteArray(Charsets.UTF_8)
+                        socket.send(DatagramPacket(bytes, bytes.size, address, s.config.multicastPort))
+                        update(s) { multicastSentCount++; notify(s) }
+                    }
                 }
-                multicastSocket = MulticastSocket(config.multicastPort).apply {
-                    reuseAddress = true
-                    timeToLive = 32
-                    loopbackMode = false
-                }
-                isMulticastConnected = true
-                lastError = null
-                Log.i(TAG, "Multicast ready on ${config.multicastAddress}:${config.multicastPort}")
-                withContext(Dispatchers.Main) { onStatusChanged?.invoke() }
             } catch (e: Exception) {
-                isMulticastConnected = false
-                lastError = "Multicast: ${e.message}"
-                Log.e(TAG, "Multicast start failed", e)
-                withContext(Dispatchers.Main) { onStatusChanged?.invoke() }
+                update(s) { isMulticastConnected = false; lastError = "Multicast: ${e.message}"; notify(s) }
+            }
+        }
+        if (s.config.tcpEnabled && s.config.tcpHost.isNotBlank()) s.scope.launch {
+            var attempts = 0
+            while (isActive && current(s)) {
+                var reader: Job? = null
+                try {
+                    val socket = if (s.config.useTls) {
+                        TlsCredentials.context(clientPath, password, caPath).socketFactory.createSocket()
+                    } else Socket()
+                    s.socket = socket
+                    socket.use {
+                        if (!current(s)) return@launch
+                        socket.connect(InetSocketAddress(s.config.tcpHost, s.config.tcpPort), 5000)
+                        socket.keepAlive = true
+                        socket.soTimeout = 10000
+                        if (socket is SSLSocket) {
+                            socket.sslParameters = socket.sslParameters.apply { endpointIdentificationAlgorithm = "HTTPS" }
+                            socket.startHandshake()
+                        }
+                        if (!current(s)) return@launch
+                        update(s) { isTcpConnected = true; lastError = null; notify(s) }; attempts = 0
+                        // Detect peer EOF even while GPS/output is idle. Incoming CoT is discarded.
+                        reader = s.scope.launch {
+                            try {
+                                val buffer = ByteArray(4096)
+                                while (isActive && current(s)) {
+                                    try { if (socket.getInputStream().read(buffer) < 0) break }
+                                    catch (_: SocketTimeoutException) { continue }
+                                }
+                            } catch (_: Exception) { }
+                            finally { try { socket.close() } catch (_: Exception) { } }
+                        }
+                        val out = socket.getOutputStream()
+                        while (isActive && current(s) && !socket.isClosed) {
+                            val message = withTimeoutOrNull(250) { s.tcp.receive() } ?: continue
+                            if (message.deadline < System.currentTimeMillis()) continue
+                            out.write(message.xml.toByteArray(Charsets.UTF_8)); out.flush()
+                            update(s) { tcpSentCount++; notify(s) }
+                        }
+                    }
+                    update(s) { lastError = "TAK server closed the connection" }
+                } catch (e: Exception) {
+                    update(s) { lastError = "${if (s.config.useTls) "TLS" else "TCP"}: ${e.message}" }
+                } finally {
+                    reader?.cancel()
+                    try { s.socket?.close() } catch (_: Exception) { }
+                    update(s) { isTcpConnected = false; notify(s) }
+                }
+                if (!current(s)) break
+                attempts++
+                delay((1000L * attempts).coerceAtMost(15000))
             }
         }
     }
 
-    private fun sendMulticast(cotXml: String) {
-        scope.launch {
-            try {
-                val data = cotXml.toByteArray(Charsets.UTF_8)
-                val address = InetAddress.getByName(config.multicastAddress)
-                val packet = DatagramPacket(data, data.size, address, config.multicastPort)
-                multicastSocket?.send(packet)
-                multicastSentCount++
-            } catch (e: Exception) {
-                Log.e(TAG, "Multicast send failed", e)
-                lastError = "MC send: ${e.message}"
-            }
-        }
-    }
-
-    private fun stopMulticast() {
-        try {
-            multicastSocket?.close()
-            multicastLock?.release()
-        } catch (_: Exception) {}
-        multicastSocket = null
-        multicastLock = null
-        isMulticastConnected = false
+    @Synchronized fun stop() {
+        val old = session
+        session = null
+        old?.close()
+        isMulticastConnected = false; isTcpConnected = false; lastError = null
         onStatusChanged?.invoke()
     }
 
-    // ── TCP / TLS ──────────────────────────────────────────────
-
-    private fun startTcp() {
-        scope.launch {
-            try {
-                tcpSocket = if (config.useTls) createTlsSocket() else createPlainSocket()
-                tcpWriter = OutputStreamWriter(tcpSocket!!.getOutputStream(), Charsets.UTF_8)
-                isTcpConnected = true
-                lastError = null
-                reconnectAttempts = 0
-                val mode = if (config.useTls) "TLS" else "TCP"
-                Log.i(TAG, "$mode connected to ${config.tcpHost}:${config.tcpPort}")
-                withContext(Dispatchers.Main) { onStatusChanged?.invoke() }
-                monitorTcp()
-            } catch (e: Exception) {
-                isTcpConnected = false
-                val mode = if (config.useTls) "TLS" else "TCP"
-                lastError = "$mode: ${e.message}"
-                Log.e(TAG, "$mode connect failed", e)
-                withContext(Dispatchers.Main) { onStatusChanged?.invoke() }
-                scheduleReconnect()
-            }
-        }
+    /** A reconnect never flushes a backlog of stale aircraft positions. */
+    @Synchronized fun send(cotXml: String, validUntilMs: Long = System.currentTimeMillis() + 1000) {
+        val s = session ?: return
+        if (validUntilMs < System.currentTimeMillis()) return
+        val message = Message(cotXml, validUntilMs)
+        if (s.config.multicastEnabled) s.udp.trySend(message)
+        if (s.config.tcpEnabled) s.tcp.trySend(message)
     }
-
-    private fun createPlainSocket(): Socket {
-        return Socket().apply {
-            connect(InetSocketAddress(config.tcpHost, config.tcpPort), TCP_CONNECT_TIMEOUT)
-            soTimeout = 10000
-        }
+    // Stop and worker status updates share the same lock: a worker cannot pass a
+    // generation check, lose a race with Stop, then resurrect an old green indicator.
+    private inline fun update(s: Session, action: () -> Unit) = synchronized(this) {
+        if (current(s)) action()
     }
-
-    /**
-     * Create TLS socket using .p12 client certificate.
-     * TAK Server uses mutual TLS — client must present a PKCS12 cert.
-     * The .p12 typically contains both the client cert and the server CA trust chain.
-     */
-    private fun createTlsSocket(): SSLSocket {
-        val sslContext = SSLContext.getInstance("TLSv1.2")
-
-        if (tlsCertPath.isNotBlank()) {
-            val keyStore = KeyStore.getInstance("PKCS12")
-            FileInputStream(tlsCertPath).use { fis ->
-                keyStore.load(fis, tlsCertPassword.toCharArray())
-            }
-
-            val kmf = KeyManagerFactory.getInstance(KeyManagerFactory.getDefaultAlgorithm())
-            kmf.init(keyStore, tlsCertPassword.toCharArray())
-
-            val tmf = TrustManagerFactory.getInstance(TrustManagerFactory.getDefaultAlgorithm())
-            tmf.init(keyStore)
-
-            sslContext.init(kmf.keyManagers, tmf.trustManagers, null)
-        } else {
-            sslContext.init(null, null, null)
-        }
-
-        val factory = sslContext.socketFactory
-        val socket = factory.createSocket() as SSLSocket
-        socket.connect(InetSocketAddress(config.tcpHost, config.tcpPort), TCP_CONNECT_TIMEOUT)
-        socket.soTimeout = 10000
-        socket.startHandshake()
-        Log.i(TAG, "TLS handshake: ${socket.session.protocol} ${socket.session.cipherSuite}")
-        return socket
-    }
-
-    private fun sendTcp(cotXml: String) {
-        scope.launch {
-            try {
-                tcpWriter?.apply {
-                    write(cotXml)
-                    flush()
-                }
-                tcpSentCount++
-            } catch (e: Exception) {
-                Log.e(TAG, "TCP send failed", e)
-                lastError = "Send: ${e.message}"
-                isTcpConnected = false
-                withContext(Dispatchers.Main) { onStatusChanged?.invoke() }
-                scheduleReconnect()
-            }
-        }
-    }
-
-    private suspend fun monitorTcp() {
-        while (isActive) {
-            delay(15_000)
-            if (tcpSocket?.isConnected != true || tcpSocket?.isClosed == true) {
-                isTcpConnected = false
-                withContext(Dispatchers.Main) { onStatusChanged?.invoke() }
-                scheduleReconnect()
-                break
-            }
-        }
-    }
-
-    private fun scheduleReconnect() {
-        if (reconnectAttempts >= MAX_RECONNECT_ATTEMPTS) {
-            lastError = "Gave up after $MAX_RECONNECT_ATTEMPTS attempts"
-            return
-        }
-        reconnectJob?.cancel()
-        reconnectJob = scope.launch {
-            reconnectAttempts++
-            val delay = RECONNECT_DELAY_MS * reconnectAttempts
-            lastError = "Reconnecting ($reconnectAttempts/$MAX_RECONNECT_ATTEMPTS)..."
-            withContext(Dispatchers.Main) { onStatusChanged?.invoke() }
-            delay(delay)
-            stopTcp()
-            startTcp()
-        }
-    }
-
-    private fun stopTcp() {
-        try {
-            tcpWriter?.close()
-            tcpSocket?.close()
-        } catch (_: Exception) {}
-        tcpWriter = null
-        tcpSocket = null
-        isTcpConnected = false
-        onStatusChanged?.invoke()
-    }
+    private fun current(s: Session) = session === s && s.active
+    private fun notify(s: Session) { main.post { if (current(s)) onStatusChanged?.invoke() } }
 }

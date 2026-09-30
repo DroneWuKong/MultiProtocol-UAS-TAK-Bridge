@@ -1,5 +1,60 @@
 # Changelog
 
+## 0.3.0 — Reliability foundation (2026-09-30)
+
+- Restore the empty Unix Gradle launcher and require actual native test/APK/lint evidence in CI.
+- Move USB parsing, GPS freshness, MSP polling and CoT output into a foreground-service session. Closing the activity leaves it running; Stop and USB loss clear live state.
+- Add a local-only MAVLink software demo, connection diagnostics/export and a Local TAK multicast toggle.
+- Complete password-protected PKCS12 import, CA import and TLS hostname checks; remove obsolete plaintext password preferences.
+- Serialize network writes, isolate connection generations, detect idle TCP EOF, reconnect and discard expired queued events.
+- Use an ephemeral UDP source port so ATAK can listen on 6969 on the same phone.
+- Add lifecycle/replay/socket/mTLS regression tests and explicit release-signing requirements.
+
+## 0.2.3 — Tools functional audit (2026-09-29)
+
+- Repair all 13 Tools panels, native clipboard/export, offline RX/TX catalogs, VTX presets, coordinate conversion, terrain imports/calculations and mesh failure cases.
+- Browser checks cover 20 functional groups and 39 navigation checks. See docs/TOOLS_AUDIT_2026-09-29.md.
+
+
+## 0.2.2 — Phone Tools redesign (2026-09-29)
+
+- Replace duplicate scrolling tool bars with one searchable tool library.
+- Rebuild the phone layout with readable contrast, larger inputs, responsive
+  columns, a map-first terrain screen and consistent teal styling.
+- Fix malformed report strings that broke the entire calculator script and
+  leaked report styling into the page; separate HTML, CSS and JavaScript.
+- Bundle Leaflet, GeoTIFF and icon assets, use an HTTPS asset origin, and show
+  map tile failures with a retry action. Add an Android file picker for DEMs.
+- Fix crowded native tab icons/labels and apply system/keyboard insets once.
+- Close the tool chooser before leaving Tools with Android Back.
+- Correct the range calculator's mW-to-dBm and MHz/km path-loss unit errors.
+- Add browser navigation/layout/calculator checks and native navigation checks.
+
+## 0.2.1 — Fix immediate launch crash (2026-09-29)
+
+- Reproduce and fix the startup `NullPointerException`: activity startup tried
+  to bind map controls before the map fragment had created its view.
+- Bind from `MapFragment.onViewCreated` using that fragment's root view.
+- Reuse Android-restored fragments after activity recreation instead of adding
+  a second map/tools pair.
+- Add three Robolectric tests using the real manifest/layout: cold launch,
+  Connect without USB, and recreation with Map/Tools navigation.
+- Version code 3, compatible with installing over the previous debug build.
+
+## 0.2.0 — TAC.CTRL USB compatibility (2026-09-29)
+
+- TAC MAVLink/GHST profiles, configurable DTR, Android permission/retry handling,
+  serial-port selection and disconnect/session cleanup.
+- Correct GHST GPS framing, CRC, units and fix flags; separate CRSF GPS decoding.
+- CRC-checked MAVLink 1/2, zero-truncated/signed frames and source isolation.
+- RC-only versus GPS diagnostics and fresh-position-only CoT publication.
+- Software wire fixtures and Android build CI. The Unix Gradle launcher was later found empty and restored in 0.3.0.
+- Repair pre-existing build errors in the CoT caller/comment, MSP constant,
+  launcher icon and TAK reconnect coroutine; guard optional phone GPS access.
+
+Hardware aircraft-GPS-through-TAC-USB acceptance remains pending; see
+[setup and test steps](docs/TAC_CTRL_SETUP.md).
+
 All notable changes to the MultiProtocol UAS TAK Bridge, most recent first.
 
 ## Unreleased

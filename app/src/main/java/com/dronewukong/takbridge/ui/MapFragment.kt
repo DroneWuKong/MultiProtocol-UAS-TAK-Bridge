@@ -10,8 +10,8 @@ import com.dronewukong.takbridge.R
 /**
  * MapFragment — thin wrapper around the existing map UI layout.
  * MainActivity owns all the map logic; this fragment just inflates the view.
- * The activity accesses map views directly via findViewById after the fragment
- * is added to the container.
+ * Binding happens in onViewCreated: adding the fragment during Activity.onCreate
+ * does not guarantee that its view has been created yet.
  */
 class MapFragment : Fragment() {
     override fun onCreateView(
@@ -19,4 +19,9 @@ class MapFragment : Fragment() {
         container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View = inflater.inflate(R.layout.fragment_map, container, false)
+
+    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+        super.onViewCreated(view, savedInstanceState)
+        (requireActivity() as MainActivity).onMapViewCreated(view)
+    }
 }

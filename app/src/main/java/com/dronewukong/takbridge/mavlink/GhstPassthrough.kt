@@ -1,206 +1,113 @@
 package com.dronewukong.takbridge.mavlink
 
-/**
- * GHST (Ghost Protocol) Passthrough Parser
- *
- * GHST uses CRSF-style framing for telemetry:
- *   [dest_addr] [frame_len] [frame_type] [payload...] [crc8]
- *
- * GPS data comes in two ways over GHST:
- *   1. Native GHST GPS frames (frame_type 0x08/0x09) — parsed directly
- *   2. MSP passthrough frames (frame_type 0x7F) — stripped and forwarded to MspGpsParser
- *
- * This handles the IRONghost JR module → Jumper T20S → USB → S25 path.
- */
-class GhstPassthrough {
+import java.nio.ByteBuffer
+import java.nio.ByteOrder
+
+/** GHST and CRSF share framing, not GPS message IDs. No radio writes or guessed MSP tunnel. */
+class GhstPassthrough(private val clock: () -> Long = System::currentTimeMillis) {
+    private val pending = ArrayList<Byte>()
+    private var primary: GpsPosition? = null
+    private var secondaryAt: Long? = null
+    private var fix = false
+    private var sats = 0
+    private var speed = -1.0
+    private var course = -1.0
+    var onGpsPosition: ((GpsPosition) -> Unit)? = null
+    var framesReceived = 0L; private set
+    var gpsFramesReceived = 0L; private set
+    var rcFramesReceived = 0L; private set
+    var crcErrors = 0L; private set
+
+    fun reset() {
+        pending.clear(); primary = null; secondaryAt = null
+        fix = false; sats = 0; speed = -1.0; course = -1.0
+        framesReceived = 0; gpsFramesReceived = 0; rcFramesReceived = 0; crcErrors = 0
+    }
+
+    fun feed(data: ByteArray, length: Int) {
+        require(length in 0..data.size)
+        for (i in 0 until length) { pending.add(data[i]); drain() }
+    }
+
+    private fun drain() {
+        while (pending.size >= 2) {
+            val addr = pending[0].toInt() and 255
+            val len = pending[1].toInt() and 255
+            if (!(addr in 0x80..0x89 || addr in listOf(0xC8, 0xEA, 0xEC, 0xEE)) || len !in 2..62) {
+                pending.removeAt(0); continue
+            }
+            if (pending.size < len + 2) return
+            val frame = pending.take(len + 2).toByteArray()
+            if (crc8(frame.copyOfRange(2, frame.lastIndex)) != (frame.last().toInt() and 255)) {
+                crcErrors++; pending.removeAt(0); continue
+            }
+            repeat(len + 2) { pending.removeAt(0) }
+            framesReceived++
+            val type = frame[2].toInt() and 255
+            val p = frame.copyOfRange(3, frame.lastIndex)
+            if (addr in 0x80..0x89) parseGhst(type, p)
+            else if (type == 0x02 && p.size == 15) parseCrsf(p)
+        }
+    }
+
+    private fun parseGhst(type: Int, p: ByteArray) {
+        if (type in 0x10..0x12 && p.size == 10) rcFramesReceived++
+        if (p.size != 10) return
+        val b = ByteBuffer.wrap(p).order(ByteOrder.LITTLE_ENDIAN)
+        when (type) {
+            0x25 -> {
+                gpsFramesReceived++
+                primary = GpsPosition(b.int / 1e7, b.int / 1e7, b.short.toDouble(),
+                    -1.0, -1.0, 0, 0, -1.0, clock())
+                emitGhst()
+            }
+            0x26 -> {
+                gpsFramesReceived++
+                speed = (b.short.toInt() and 65535) / 100.0
+                course = (b.short.toInt() and 65535) / 10.0
+                sats = b.get().toInt() and 255
+                fix = (p[9].toInt() and 1) != 0
+                secondaryAt = clock()
+                emitGhst()
+            }
+        }
+    }
+
+    private fun emitGhst() {
+        val pos = primary ?: return
+        val now = clock()
+        val secondaryFresh = secondaryAt?.let { now - it in 0..3000 } == true
+        // Secondary/RC traffic must not refresh an old coordinate's timestamp.
+        onGpsPosition?.invoke(pos.copy(
+            groundSpeed = if (secondaryFresh) speed else -1.0,
+            heading = if (secondaryFresh && course < 360) course else -1.0,
+            satellites = if (secondaryFresh) sats else 0,
+            fixType = if (secondaryFresh && fix && now - pos.timestampMs in 0..3000) 3 else 0
+        ))
+    }
+
+    private fun parseCrsf(p: ByteArray) {
+        val b = ByteBuffer.wrap(p).order(ByteOrder.BIG_ENDIAN)
+        val lat = b.int / 1e7; val lon = b.int / 1e7
+        val velocity = (b.short.toInt() and 65535) / 36.0
+        val heading = (b.short.toInt() and 65535) / 100.0
+        val altitude = (b.short.toInt() and 65535) - 1000.0
+        val satellites = b.get().toInt() and 255
+        gpsFramesReceived++
+        // CRSF has no explicit fix-status field; its satellite count is the evidence.
+        onGpsPosition?.invoke(GpsPosition(lat, lon, altitude, velocity,
+            if (heading < 360) heading else -1.0,
+            if (satellites >= 4) 3 else 0, satellites, -1.0, clock()))
+    }
 
     companion object {
-        // GHST/CRSF frame types
-        private const val GHST_ADDR_FC: Byte = 0xC8.toByte()       // Flight controller address
-        private const val GHST_ADDR_MODULE: Byte = 0xEE.toByte()   // TX module address
-
-        // GHST native GPS frame types
-        private const val GHST_GPS_PRIMARY: Int = 0x08              // Primary GPS data
-        private const val GHST_GPS_SECONDARY: Int = 0x09            // Secondary GPS data
-
-        // MSP passthrough over GHST/CRSF
-        private const val GHST_MSP_REQ: Int = 0x7A                 // MSP request wrapper
-        private const val GHST_MSP_RESP: Int = 0x7B                // MSP response wrapper
-        private const val CRSF_MSP_REQ: Int = 0x7A
-        private const val CRSF_MSP_RESP: Int = 0x7B
-
-        // GHST native telemetry
-        private const val GHST_FRAME_PACK: Int = 0x11              // Battery/RSSI pack
-    }
-
-    private val buffer = ByteArray(256)
-    private var bufferPos = 0
-
-    private enum class State { WAIT_ADDR, WAIT_LEN, PAYLOAD }
-    private var state = State.WAIT_ADDR
-    private var frameLen = 0
-    private var payloadPos = 0
-
-    // Callback for extracted MSP bytes — feed these into MspGpsParser
-    var onMspData: ((ByteArray, Int) -> Unit)? = null
-
-    // Callback for native GHST GPS — direct position extraction
-    var onGpsPosition: ((GpsPosition) -> Unit)? = null
-
-    // Protocol detection
-    var framesReceived: Long = 0; private set
-    var gpsFramesReceived: Long = 0; private set
-
-    /**
-     * Feed raw bytes from USB serial.
-     */
-    fun feed(data: ByteArray, length: Int) {
-        for (i in 0 until length) {
-            processByte(data[i])
-        }
-    }
-
-    private fun processByte(b: Byte) {
-        when (state) {
-            State.WAIT_ADDR -> {
-                // Look for valid GHST/CRSF destination addresses
-                if (b == GHST_ADDR_FC || b == GHST_ADDR_MODULE ||
-                    b == 0xEA.toByte() /* broadcast */) {
-                    buffer[0] = b
-                    bufferPos = 1
-                    state = State.WAIT_LEN
-                }
+        fun crc8(data: ByteArray): Int {
+            var crc = 0
+            for (b in data) {
+                crc = crc xor (b.toInt() and 255)
+                repeat(8) { crc = if (crc and 128 != 0) ((crc shl 1) xor 0xD5) and 255 else (crc shl 1) and 255 }
             }
-            State.WAIT_LEN -> {
-                frameLen = b.toInt() and 0xFF
-                if (frameLen < 2 || frameLen > 64) {
-                    // Invalid frame length — reset
-                    state = State.WAIT_ADDR
-                    return
-                }
-                buffer[1] = b
-                bufferPos = 2
-                payloadPos = 0
-                state = State.PAYLOAD
-            }
-            State.PAYLOAD -> {
-                buffer[bufferPos++] = b
-                payloadPos++
-
-                // frameLen includes type + payload + crc
-                if (payloadPos >= frameLen) {
-                    parseFrame()
-                    state = State.WAIT_ADDR
-                }
-            }
+            return crc
         }
-    }
-
-    private fun parseFrame() {
-        framesReceived++
-
-        // Frame type is at offset 2 (after addr + len)
-        val frameType = buffer[2].toInt() and 0xFF
-
-        // Payload starts at offset 3, CRC is last byte
-        val payloadStart = 3
-        val payloadLen = frameLen - 2 // subtract type byte and CRC
-
-        // TODO: CRC8 validation — skip for now, prioritize getting data flowing
-
-        when (frameType) {
-            GHST_GPS_PRIMARY -> parseGhstGpsPrimary(payloadStart, payloadLen)
-            GHST_GPS_SECONDARY -> parseGhstGpsSecondary(payloadStart, payloadLen)
-            GHST_MSP_RESP, CRSF_MSP_RESP -> extractMspPayload(payloadStart, payloadLen)
-        }
-    }
-
-    /**
-     * GHST GPS Primary frame (0x08)
-     *
-     * Offset  Size  Field
-     * 0       4     Latitude (degrees * 1e7, signed)
-     * 4       4     Longitude (degrees * 1e7, signed)
-     * 8       2     Altitude (meters - 1000m offset)
-     */
-    private fun parseGhstGpsPrimary(offset: Int, len: Int) {
-        if (len < 10) return
-        gpsFramesReceived++
-
-        val lat = readInt32LE(offset) / 1e7
-        val lon = readInt32LE(offset + 4) / 1e7
-        val alt = (readUInt16LE(offset + 8) - 1000).toDouble()
-
-        // Primary frame gives position — merge with secondary if available
-        onGpsPosition?.invoke(
-            GpsPosition(
-                lat = lat,
-                lon = lon,
-                altMsl = alt,
-                groundSpeed = lastSpeed,
-                heading = lastHeading,
-                fixType = if (lat != 0.0 || lon != 0.0) 3 else 0,
-                satellites = lastSats,
-                hdop = -1.0
-            )
-        )
-    }
-
-    // Cached values from secondary frame for merging
-    private var lastSpeed = 0.0
-    private var lastHeading = 0.0
-    private var lastSats = 0
-
-    /**
-     * GHST GPS Secondary frame (0x09)
-     *
-     * Offset  Size  Field
-     * 0       2     Ground speed (km/h * 10)
-     * 2       2     Ground course (degrees * 10)
-     * 4       1     Number of satellites
-     * 5       2     Home distance (meters)
-     * 7       2     Home direction (degrees)
-     * 9       1     Flags
-     */
-    private fun parseGhstGpsSecondary(offset: Int, len: Int) {
-        if (len < 6) return
-        gpsFramesReceived++
-
-        lastSpeed = readUInt16LE(offset) / 36.0  // km/h*10 → m/s
-        lastHeading = readUInt16LE(offset + 2) / 10.0
-        lastSats = buffer[offset + 4].toInt() and 0xFF
-    }
-
-    /**
-     * Extract MSP payload from CRSF/GHST MSP passthrough frame.
-     * Strip the CRSF wrapper, forward raw MSP bytes.
-     */
-    private fun extractMspPayload(offset: Int, len: Int) {
-        if (len < 1) return
-
-        // The MSP frame is embedded in the CRSF payload
-        // First byte might be origin/dest addressing, skip to MSP data
-        val mspStart = offset
-        val mspLen = len
-
-        if (mspLen > 0) {
-            val mspData = ByteArray(mspLen)
-            System.arraycopy(buffer, mspStart, mspData, 0, mspLen)
-            onMspData?.invoke(mspData, mspLen)
-        }
-    }
-
-    // ── Little-endian helpers ──────────────────────────────────
-
-    private fun readInt32LE(offset: Int): Int {
-        return (buffer[offset].toInt() and 0xFF) or
-                ((buffer[offset + 1].toInt() and 0xFF) shl 8) or
-                ((buffer[offset + 2].toInt() and 0xFF) shl 16) or
-                ((buffer[offset + 3].toInt() and 0xFF) shl 24)
-    }
-
-    private fun readUInt16LE(offset: Int): Int {
-        return (buffer[offset].toInt() and 0xFF) or
-                ((buffer[offset + 1].toInt() and 0xFF) shl 8)
     }
 }
