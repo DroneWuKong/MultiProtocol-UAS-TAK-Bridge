@@ -11,12 +11,27 @@ android {
         applicationId = "com.dronewukong.takbridge"
         minSdk = 26
         targetSdk = 35
-        versionCode = 5
-        versionName = "0.2.3"
+        versionCode = 6
+        versionName = "0.3.0"
+    }
+
+    providers.environmentVariable("TAK_DEBUG_KEYSTORE").orNull?.let { path ->
+        signingConfigs.getByName("debug").storeFile = file(path)
+    }
+
+    val releaseKeyPath = providers.environmentVariable("TAK_RELEASE_KEYSTORE").orNull
+    if (releaseKeyPath != null) {
+        signingConfigs.create("release") {
+            storeFile = file(releaseKeyPath)
+            storePassword = providers.environmentVariable("TAK_RELEASE_STORE_PASSWORD").orNull
+            keyAlias = providers.environmentVariable("TAK_RELEASE_KEY_ALIAS").orNull
+            keyPassword = providers.environmentVariable("TAK_RELEASE_KEY_PASSWORD").orNull
+        }
     }
 
     buildTypes {
         release {
+            if (releaseKeyPath != null) signingConfig = signingConfigs.getByName("release")
             isMinifyEnabled = false
             proguardFiles(
                 getDefaultProguardFile("proguard-android-optimize.txt"),
@@ -39,6 +54,8 @@ android {
     }
 
     testOptions.unitTests.isIncludeAndroidResources = true
+    // Robolectric/Conscrypt's JVM TLS adapter needs access to the JDK socket address.
+    testOptions.unitTests.all { it.jvmArgs("--add-opens=java.base/java.net=ALL-UNNAMED") }
 }
 
 dependencies {
@@ -66,4 +83,12 @@ dependencies {
     // Testing
     testImplementation("junit:junit:4.13.2")
     testImplementation("org.robolectric:robolectric:4.16")
+}
+
+// Never silently distribute an unsigned release or substitute a disposable debug key.
+gradle.taskGraph.whenReady {
+    if (allTasks.any { it.name in setOf("assembleRelease", "bundleRelease", "packageRelease") }) {
+        listOf("TAK_RELEASE_KEYSTORE", "TAK_RELEASE_STORE_PASSWORD", "TAK_RELEASE_KEY_ALIAS", "TAK_RELEASE_KEY_PASSWORD")
+            .forEach { check(!System.getenv(it).isNullOrBlank()) { "Release signing requires $it; see docs/V1_READINESS.md" } }
+    }
 }

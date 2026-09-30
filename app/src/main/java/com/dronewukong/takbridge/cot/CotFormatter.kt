@@ -48,9 +48,10 @@ object CotFormatter {
         cotType: String = CotTypes.UAV_FRIENDLY_ROTARY,
         staleSec: Int = 30,
         battery: Int? = null,
-        endpoint: String? = null
+        endpoint: String? = null,
+        nowMs: Long = System.currentTimeMillis()
     ): String {
-        require(pos.hasValidFix && pos.isFresh()) { "CoT requires a fresh valid position" }
+        require(pos.hasValidFix && pos.isFresh(nowMs)) { "CoT requires a fresh valid position" }
         val now = pos.timestampMs
         val stale = now + (staleSec * 1000L)
         val timeStr = isoFmt.format(Date(now))

@@ -28,8 +28,16 @@ jobs:
       - name: Check phone tools and offline navigation
         working-directory: tools/ui-tests
         run: npm test
+      - name: Verify Gradle launcher
+        run: |
+          test -s gradlew
+          test -x gradlew
+          ./gradlew --version | tee /tmp/gradle-version.txt
+          grep -Fx 'Gradle 8.5' /tmp/gradle-version.txt
       - name: Test and build
-        run: ./gradlew testDebugUnitTest assembleDebug lintDebug --no-daemon
+        run: ./gradlew clean testDebugUnitTest assembleDebug lintDebug --no-daemon
+      - name: Verify native build evidence
+        run: python3 tools/verify_build.py
       - name: Hash APK
         run: sha256sum app/build/outputs/apk/debug/app-debug.apk > app/build/outputs/apk/debug/SHA256SUMS
       - uses: actions/upload-artifact@v4
@@ -43,7 +51,10 @@ jobs:
         if: always()
         with:
           name: unit-test-results
-          path: app/build/reports/tests/testDebugUnitTest/
+          path: |
+            app/build/reports/tests/testDebugUnitTest/
+            app/build/test-results/testDebugUnitTest/
+            app/build/reports/lint-results-debug.html
           if-no-files-found: ignore
       - uses: actions/upload-artifact@v4
         if: always()

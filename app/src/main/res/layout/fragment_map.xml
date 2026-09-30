@@ -236,7 +236,7 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="CoT: 0"
-                android:textColor="#555555"
+                android:textColor="#B0BEC5"
                 android:textSize="11sp"
                 android:fontFamily="monospace" />
         </LinearLayout>
@@ -327,7 +327,7 @@
                 android:backgroundTint="#4ECDC4"
                 android:inputType="textCapCharacters"
                 android:hint="Callsign"
-                android:textColorHint="#555555"
+                android:textColorHint="#B0BEC5"
                 android:padding="4dp"
                 android:singleLine="true"
                 android:layout_marginEnd="6dp" />
@@ -337,9 +337,9 @@
                 android:layout_width="0dp"
                 android:layout_height="34dp"
                 android:layout_weight="1"
-                android:hint="TAK Server IP"
+                android:hint="TAK hostname / IP"
                 android:textColor="#FFFFFF"
-                android:textColorHint="#555555"
+                android:textColorHint="#B0BEC5"
                 android:textSize="12sp"
                 android:fontFamily="monospace"
                 android:backgroundTint="#4ECDC4"
@@ -388,7 +388,7 @@
             android:id="@+id/btnLoadCert"
             android:layout_width="wrap_content"
             android:layout_height="30dp"
-            android:text="LOAD .P12 CERT"
+            android:text="CERTIFICATES"
             android:textSize="10sp"
             android:backgroundTint="#222222"
             android:textColor="#4ECDC4"
@@ -400,10 +400,23 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:text=""
-            android:textColor="#555555"
+            android:textColor="#B0BEC5"
             android:textSize="10sp"
             android:fontFamily="monospace"
             android:visibility="gone" />
+
+        <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content"
+            android:orientation="horizontal" android:gravity="center_vertical">
+            <Button android:id="@+id/btnReplay" android:layout_width="0dp" android:layout_weight="1"
+                android:layout_height="48dp" android:text="SOFTWARE DEMO" android:textSize="10sp"
+                android:backgroundTint="#333333" android:textColor="#4ECDC4" />
+            <Button android:id="@+id/btnDiagnostics" android:layout_width="0dp" android:layout_weight="1"
+                android:layout_height="48dp" android:text="DIAGNOSTICS" android:textSize="10sp"
+                android:backgroundTint="#333333" android:textColor="#4ECDC4" />
+            <CheckBox android:id="@+id/checkMulticast" android:layout_width="wrap_content"
+                android:layout_height="48dp" android:text="Local TAK" android:textColor="#B0BEC5"
+                android:textSize="10sp" android:buttonTint="#4ECDC4" />
+        </LinearLayout>
 
         <!-- Status bar -->
         <TextView
@@ -411,7 +424,7 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:text="Ready — plug in drone via USB"
-            android:textColor="#666666"
+            android:textColor="#B0BEC5"
             android:textSize="10sp"
             android:fontFamily="monospace"
             android:gravity="center"

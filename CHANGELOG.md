@@ -1,5 +1,21 @@
 # Changelog
 
+## 0.3.0 — Reliability foundation (2026-09-30)
+
+- Restore the empty Unix Gradle launcher and require actual native test/APK/lint evidence in CI.
+- Move USB parsing, GPS freshness, MSP polling and CoT output into a foreground-service session. Closing the activity leaves it running; Stop and USB loss clear live state.
+- Add a local-only MAVLink software demo, connection diagnostics/export and a Local TAK multicast toggle.
+- Complete password-protected PKCS12 import, CA import and TLS hostname checks; remove obsolete plaintext password preferences.
+- Serialize network writes, isolate connection generations, detect idle TCP EOF, reconnect and discard expired queued events.
+- Use an ephemeral UDP source port so ATAK can listen on 6969 on the same phone.
+- Add lifecycle/replay/socket/mTLS regression tests and explicit release-signing requirements.
+
+## 0.2.3 — Tools functional audit (2026-09-29)
+
+- Repair all 13 Tools panels, native clipboard/export, offline RX/TX catalogs, VTX presets, coordinate conversion, terrain imports/calculations and mesh failure cases.
+- Browser checks cover 20 functional groups and 39 navigation checks. See docs/TOOLS_AUDIT_2026-09-29.md.
+
+
 ## 0.2.2 — Phone Tools redesign (2026-09-29)
 
 - Replace duplicate scrolling tool bars with one searchable tool library.
@@ -32,7 +48,7 @@
 - Correct GHST GPS framing, CRC, units and fix flags; separate CRSF GPS decoding.
 - CRC-checked MAVLink 1/2, zero-truncated/signed frames and source isolation.
 - RC-only versus GPS diagnostics and fresh-position-only CoT publication.
-- Software wire fixtures, a complete Gradle wrapper and Android build CI.
+- Software wire fixtures and Android build CI. The Unix Gradle launcher was later found empty and restored in 0.3.0.
 - Repair pre-existing build errors in the CoT caller/comment, MSP constant,
   launcher icon and TAK reconnect coroutine; guard optional phone GPS access.
 

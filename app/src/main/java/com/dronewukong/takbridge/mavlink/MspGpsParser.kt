@@ -12,10 +12,9 @@ import java.nio.ByteOrder
  *   - MSP_RAW_GPS (106): lat, lon, alt, speed, heading, sats
  *   - MSP_COMP_GPS (107): distance/direction to home (bonus data)
  *
- * GHST (Ghost) protocol wraps MSP frames in CRSF-style framing,
- * so the GhstPassthrough strips that layer and feeds raw MSP here.
+ * GHST and CRSF GPS are decoded separately by GhstPassthrough.
  */
-class MspGpsParser {
+class MspGpsParser(private val clock: () -> Long = System::currentTimeMillis) {
 
     companion object {
         // MSP framing
@@ -223,7 +222,8 @@ class MspGpsParser {
                 heading = course,
                 fixType = mappedFix,
                 satellites = sats,
-                hdop = hdop
+                hdop = hdop,
+                timestampMs = clock()
             )
         )
     }

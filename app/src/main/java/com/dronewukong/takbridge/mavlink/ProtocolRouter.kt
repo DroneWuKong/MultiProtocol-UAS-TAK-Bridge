@@ -1,11 +1,11 @@
 package com.dronewukong.takbridge.mavlink
 
 /** Hardware-independent receive path; only explicit direct-MSP connections may poll. */
-class ProtocolRouter {
+class ProtocolRouter(clock: () -> Long = System::currentTimeMillis) {
     enum class Protocol { AUTO_DETECT, MAVLINK, MSP, GHST, UNKNOWN }
-    val mavlinkParser = MavlinkGpsParser()
-    val mspParser = MspGpsParser()
-    val ghstParser = GhstPassthrough()
+    val mavlinkParser = MavlinkGpsParser(clock)
+    val mspParser = MspGpsParser(clock)
+    val ghstParser = GhstPassthrough(clock)
     var detectedProtocol = Protocol.AUTO_DETECT; private set
     var isLocked = false; private set
     var bytesProcessed = 0L; private set

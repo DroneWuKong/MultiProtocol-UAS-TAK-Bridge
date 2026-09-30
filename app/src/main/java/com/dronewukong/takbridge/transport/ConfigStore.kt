@@ -10,8 +10,7 @@ import com.dronewukong.takbridge.mavlink.ProtocolRouter
  * Saves: callsign, TAK Server IP/port, multicast toggle,
  * baud rate, last detected protocol, CoT type, update interval.
  *
- * No encryption needed — no secrets here. TAK Server certs
- * are handled separately via the Android keystore.
+ * Certificate files remain app-private; passwords are kept only in the running session.
  */
 object ConfigStore {
 
@@ -65,12 +64,12 @@ object ConfigStore {
             cotType = p.getString(KEY_COT_TYPE, "a-f-A-M-H-Q") ?: "a-f-A-M-H-Q",
             multicastEnabled = p.getBoolean(KEY_MULTICAST_ENABLED, true),
             multicastAddress = p.getString(KEY_MULTICAST_ADDRESS, "239.2.3.1") ?: "239.2.3.1",
-            multicastPort = p.getInt(KEY_MULTICAST_PORT, 6969),
+            multicastPort = p.getInt(KEY_MULTICAST_PORT, 6969).takeIf { it in 1..65535 } ?: 6969,
             tcpEnabled = p.getBoolean(KEY_TCP_ENABLED, false),
             tcpHost = p.getString(KEY_TCP_HOST, "") ?: "",
-            tcpPort = p.getInt(KEY_TCP_PORT, 8087),
+            tcpPort = p.getInt(KEY_TCP_PORT, 8087).takeIf { it in 1..65535 } ?: 8087,
             useTls = p.getBoolean(KEY_TCP_USE_TLS, false),
-            updateIntervalMs = p.getLong(KEY_UPDATE_INTERVAL, 1000),
+            updateIntervalMs = p.getLong(KEY_UPDATE_INTERVAL, 1000).coerceAtLeast(100),
             staleSeconds = p.getInt(KEY_STALE_SECONDS, 30)
         )
     }
@@ -96,20 +95,23 @@ object ConfigStore {
         }
     }
 
-    fun saveTlsCertPath(context: Context, path: String, password: String) {
-        prefs(context).edit()
-            .putString(KEY_TLS_CERT_PATH, path)
-            .putString(KEY_TLS_CERT_PASSWORD, password)
-            .apply()
+    fun saveTlsCertPath(context: Context, path: String) {
+        prefs(context).edit().putString(KEY_TLS_CERT_PATH, path)
+            .remove(KEY_TLS_CERT_PASSWORD).apply()
     }
 
-    fun loadTlsCertPath(context: Context): Pair<String, String> {
+    fun loadTlsCertPath(context: Context): String {
         val p = prefs(context)
-        return Pair(
-            p.getString(KEY_TLS_CERT_PATH, "") ?: "",
-            p.getString(KEY_TLS_CERT_PASSWORD, "") ?: ""
-        )
+        // Remove the obsolete plaintext preference, including on upgrades.
+        p.edit().remove(KEY_TLS_CERT_PASSWORD).apply()
+        return p.getString(KEY_TLS_CERT_PATH, "") ?: ""
     }
+
+    fun saveTlsCaPath(context: Context, path: String) {
+        prefs(context).edit().putString("tls_ca_path", path).apply()
+    }
+
+    fun loadTlsCaPath(context: Context): String = prefs(context).getString("tls_ca_path", "") ?: ""
 
     fun loadConnectionProfile(context: Context): ConnectionProfile = try {
         ConnectionProfile.valueOf(prefs(context).getString("connection_profile", "TAC_MAVLINK")!!)

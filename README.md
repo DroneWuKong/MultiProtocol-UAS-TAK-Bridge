@@ -6,6 +6,19 @@ Standalone Android app that reads supported GPS telemetry from a flight controll
 
 Part of the [AI Wingman](https://github.com/DroneWuKong/Ai-Project) ecosystem, but runs independently with zero dependencies on other Wingman components.
 
+## Current development build: 0.3.0
+
+A foreground service owns active USB/TAK sessions. Switching apps or closing the
+screen leaves the session running; use **STOP** or the notification to end it.
+A cable disconnect clears the position and stops the session. Reconnect explicitly.
+
+**SOFTWARE DEMO** works without USB: recorded-format MAVLink goes through the same
+parser and CoT formatter, with fresh/stale/no-fix phases and a clearly labeled local
+preview. It never sends simulated aircraft positions to a network. **DIAGNOSTICS**
+shows/export counters and connection stages without coordinates or credentials.
+
+See [v1 readiness, release signing and remaining device checks](docs/V1_READINESS.md).
+
 ## TAC.CTRL setup
 
 Version 0.2 adds TAC.CTRL USB profiles with Android permission handling and DTR.
@@ -26,27 +39,27 @@ Drone FC ──USB OTG──→ Protocol Auto-Detect ──→ Coordinate Format
 
 1. **Connects** to a flight controller via USB OTG (phone → FC or phone → transmitter)
 2. **Auto-detects** protocol: MAVLink v1/v2, MSP v1/v2, or GHST/CRSF
-3. **Parses** GPS from any firmware: PX4, ArduPilot, Betaflight, iNav
+3. **Parses** supported GPS messages from correctly configured telemetry sources
 4. **Converts** lat/lon to MGRS using NGA's official library
 5. **Displays** live map with drone marker (heading rotation), breadcrumb trail, coordinate readout (tap to cycle MGRS / Lat-Lon DD / Lat-Lon DMS / UTM), fix quality, satellites, altitude, speed
-6. **Pushes** CoT events to ATAK/WinTAK/iTAK via multicast (zero config), TAK Server TCP, or TAK Server TLS
-7. **Tools tab** — the Forge RF tools suite (Channel Planner, Range Estimator, Fresnel Zone, Harmonics, Dipole Length, VTX Config, FC Matcher, ELRS, etc.) runs offline in an embedded WebView; a "Use GPS" bridge pulls the device fix straight into the calculators
+6. **Pushes** CoT events to ATAK/WinTAK/iTAK via configured multicast, TAK Server TCP, or TAK Server TLS
+7. **Tools tab** — the Forge RF tools suite (Channel Planner, Range Estimator, Fresnel Zone, Harmonics, Dipole Length, VTX Config, FC Matcher, ELRS, etc.) runs in an embedded WebView with bundled libraries and catalogs. Online tiles/elevation need network access; local DEMs support offline terrain calculations
 
 ## Supported Protocols
 
 | Protocol | Firmware | GPS Behavior | Default Baud |
 |----------|----------|--------------|--------------|
-| MAVLink v1/v2 | PX4, ArduPilot | Auto-streams GPS | 115200 |
-| MSP v1/v2 | Betaflight, iNav | Polled at 2Hz by app | 115200 |
+| MAVLink v1/v2 | PX4, ArduPilot | Requires upstream GPS stream | 115200 |
+| MSP v1/v2 | Betaflight, iNav | Polled at 2Hz only with Direct FC profile | 115200 |
 | GHST/CRSF | Via IRONghost radio | Native GHST / separate CRSF GPS frames | 115200 |
 
 Auto-detect passively feeds all three parsers; decoded GPS locks the protocol. Manual override is available. Only the explicit Direct FC MSP profile sends GPS read requests.
 
-## Supported Hardware
+## Hardware targets (physical acceptance pending)
 
-- **Flight Controllers:** Any FC running PX4, ArduPilot, Betaflight, or iNav with a GPS module
+- **Flight Controllers:** Compatible USB telemetry interfaces emitting the supported message formats; firmware configuration matters
 - **USB Chips:** CP2102, FTDI, STM32 CDC, CH340
-- **Radio Link:** IRONghost JR module via Jumper T20S (GHST/CRSF telemetry mirror over USB)
+- **Radio Link:** TAC.CTRL MAVLink/GHST and GHST/CRSF telemetry mirrors are compatibility targets, not proof of an aircraft GPS downlink
 - **Ground Station:** Samsung Galaxy S25 (primary target), any Android 8.0+ with USB OTG
 - **Map Tiles:** OpenStreetMap via OSMDroid (no API key required, works offline with cached tiles)
 
@@ -61,13 +74,13 @@ Phone USB-C → OTG adapter → Transmitter USB port. Requires EdgeTX USB serial
 ## TAK Integration
 
 ### Multicast (No Server)
-Enabled by default. Broadcasts CoT events on `239.2.3.1:6969`. Any ATAK/WinTAK/iTAK device on the same Wi-Fi sees the drone appear as a friendly UAV marker. Zero configuration.
+The **Local TAK** checkbox enables UDP output to `239.2.3.1:6969` (default on). Configure ATAK to receive that group/port. Wi-Fi isolation, multicast filtering, VPNs and client settings can prevent delivery. A sent counter proves a socket write, not that ATAK displayed the marker.
 
 ### TAK Server (TCP)
 Enter your TAK Server IP and port (default 8087). Auto-reconnect with linear backoff on disconnect.
 
 ### TAK Server (TLS)
-Check the TLS box, load your `.p12` client certificate, port 8089. Mutual TLS with PKCS12 client cert — standard TAK Server auth.
+Check TLS, open **CERTIFICATES**, import the client `.p12` with its password, and import the server CA `.pem`/`.crt` if needed. The client chain supplies CA trust when no separate CA is imported; otherwise system trust is used. Enter a hostname (or IP) present in the server certificate. Click **TAK** to unlock/connect. Passwords remain in memory only and must be entered again after the process ends. Bad passwords, expired certificates, untrusted servers and hostname mismatches are rejected.
 
 ### CoT Details
 - **Type:** `a-f-A-M-H-Q` (Friendly, Air, Military, Rotary-wing, UAV)

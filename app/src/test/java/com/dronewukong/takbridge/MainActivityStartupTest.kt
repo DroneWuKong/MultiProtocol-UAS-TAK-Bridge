@@ -99,6 +99,18 @@ class MainActivityStartupTest {
                 icon.getGlobalVisibleRect(iconRect); label.getGlobalVisibleRect(labelRect)
                 assertTrue("Tab icon overlaps ${label.text}", iconRect.bottom <= labelRect.top)
             }
+            val replay = activity.findViewById<Button>(R.id.btnReplay)
+            val diagnostics = activity.findViewById<Button>(R.id.btnDiagnostics)
+            assertTrue(replay.isShown && diagnostics.isShown)
+            val replayBounds = Rect(); val diagnosticBounds = Rect()
+            replay.getGlobalVisibleRect(replayBounds); diagnostics.getGlobalVisibleRect(diagnosticBounds)
+            assertTrue(replayBounds.right <= diagnosticBounds.left)
+            assertTrue(diagnosticBounds.bottom <= nav.top)
+            val whole = Bitmap.createBitmap(width, height, Bitmap.Config.ARGB_8888)
+            root.draw(Canvas(whole))
+            val screen = File("build/reports/ui/map-controls.png")
+            screen.parentFile?.mkdirs()
+            screen.outputStream().use { whole.compress(Bitmap.CompressFormat.PNG, 100, it) }
             // Render the real Android navigation component for visual review.
             val bitmap = Bitmap.createBitmap(width, nav.height, Bitmap.Config.ARGB_8888)
             nav.draw(Canvas(bitmap))

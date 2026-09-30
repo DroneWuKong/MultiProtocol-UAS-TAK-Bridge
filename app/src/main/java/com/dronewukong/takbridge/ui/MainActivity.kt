@@ -2,18 +2,12 @@ package com.dronewukong.takbridge.ui
 
 import android.app.Activity
 import android.content.Intent
-import android.graphics.BitmapFactory
-import android.graphics.Canvas
 import android.graphics.Color
 import android.graphics.Paint
-import android.graphics.drawable.BitmapDrawable
 import android.net.Uri
 import android.os.Bundle
-import android.os.Handler
-import android.os.Looper
 import android.preference.PreferenceManager
 import android.view.View
-import android.view.WindowManager
 import android.widget.*
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.AppCompatActivity
@@ -21,9 +15,13 @@ import androidx.core.content.ContextCompat
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowCompat
 import androidx.core.view.WindowInsetsCompat
-import androidx.core.graphics.drawable.toBitmap
 import com.dronewukong.takbridge.R
-import com.dronewukong.takbridge.cot.CotFormatter
+import com.dronewukong.takbridge.bridge.*
+import androidx.lifecycle.lifecycleScope
+import kotlinx.coroutines.*
+import android.Manifest
+import android.os.Build
+import android.text.InputType
 import com.dronewukong.takbridge.mavlink.GpsPosition
 import com.dronewukong.takbridge.mavlink.ProtocolRouter
 import com.dronewukong.takbridge.mgrs.CoordinateFormatter
@@ -36,7 +34,6 @@ import org.osmdroid.views.MapView
 import org.osmdroid.views.overlay.Marker
 import org.osmdroid.views.overlay.Polyline
 import java.io.File
-import java.io.FileOutputStream
 
 /**
  * TAK Bridge — Map-First Main Activity
@@ -101,44 +98,23 @@ class MainActivity : AppCompatActivity() {
         private const val TRAIL_MIN_DISTANCE_M = 2.0 // Min meters between breadcrumbs
     }
 
-    // ── Core components ────────────────────────────────────────
-    private lateinit var usbTransport: UsbSerialTransport
-    private lateinit var protocolRouter: ProtocolRouter
-    private lateinit var takSender: TakSender
-
-    // ── State ──────────────────────────────────────────────────
+    private lateinit var session: BridgeSession
     private var lastPosition: GpsPosition? = null
-    private var isBridgeActive = false
-    private val handler = Handler(Looper.getMainLooper())
-    private var gpsUpdateCount = 0
     private var coordFormat = CoordinateFormatter.Format.MGRS
-    private var lastRateCalcTime = System.currentTimeMillis()
-    private var currentGpsHz = 0.0
-
     private val protocols = arrayOf("Auto (passive)", "MAVLink 1/2", "MSP", "GHST / CRSF")
     private val baudRates = arrayOf(115200, 230400, 57600, 921600, 9600, 460800)
-    private var tlsCertLocalPath = ""
-
-    // ── Runnables ──────────────────────────────────────────────
-    private val cotPushRunnable = object : Runnable {
-        override fun run() {
-            pushCoT()
-            if (isBridgeActive) handler.postDelayed(this, takSender.config.updateIntervalMs)
+    private var importingCa = false
+    private var pendingDiagnostics: String? = null
+    private val sessionObserver: () -> Unit = { renderSession() }
+    private val notificationPermission = registerForActivityResult(ActivityResultContracts.RequestPermission()) { }
+    private val diagnosticExporter = registerForActivityResult(ActivityResultContracts.CreateDocument("application/json")) { uri ->
+        if (uri != null) {
+            try {
+                contentResolver.openOutputStream(uri)?.bufferedWriter()?.use { it.write(pendingDiagnostics ?: session.diagnostics()) }
+                Toast.makeText(this, "Diagnostics saved", Toast.LENGTH_SHORT).show()
+            } catch (e: Exception) { Toast.makeText(this, "Export failed: ${e.message}", Toast.LENGTH_LONG).show() }
         }
-    }
-
-    private val mspPollRunnable = object : Runnable {
-        override fun run() {
-            pollMspGps()
-            if (isBridgeActive) handler.postDelayed(this, 500)
-        }
-    }
-
-    private val rateDisplayRunnable = object : Runnable {
-        override fun run() {
-            updateRateDisplay()
-            if (isBridgeActive) handler.postDelayed(this, 1000)
-        }
+        pendingDiagnostics = null
     }
 
     private val certPickerLauncher = registerForActivityResult(
@@ -154,8 +130,8 @@ class MainActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
-        // Keep screen on during demos
-        window.addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON)
+        importingCa = savedInstanceState?.getBoolean("importingCa") ?: false
+        pendingDiagnostics = savedInstanceState?.getString("pendingDiagnostics")
 
         // OSMDroid config (must be before setContentView)
         Configuration.getInstance().load(this, PreferenceManager.getDefaultSharedPreferences(this))
@@ -201,20 +177,22 @@ class MainActivity : AppCompatActivity() {
         bindViews(view)
         setupMap()
         setupSpinners()
-        initComponents()
+        session = BridgeApplication.session(this)
         loadConfig()
         setupListeners()
+        renderSession()
     }
 
     override fun onResume() {
         super.onResume()
-        mapView.onResume()
+        if (::mapView.isInitialized) mapView.onResume()
+        if (::session.isInitialized) session.observe(sessionObserver)
     }
 
     override fun onPause() {
         super.onPause()
-        mapView.onPause()
-        saveConfig()
+        if (::session.isInitialized) session.removeObserver(sessionObserver)
+        if (::mapView.isInitialized) { mapView.onPause(); saveConfig() }
     }
 
     private fun showFragment(fragment: androidx.fragment.app.Fragment) {
@@ -237,8 +215,7 @@ class MainActivity : AppCompatActivity() {
     }
 
     override fun onDestroy() {
-        stopBridge()
-        usbTransport.destroy()
+        if (::session.isInitialized) session.removeObserver(sessionObserver)
         super.onDestroy()
     }
 
@@ -329,54 +306,14 @@ class MainActivity : AppCompatActivity() {
 
     private fun setupSpinners() {
         spinnerConnectionProfile.adapter = ArrayAdapter(this,
-            android.R.layout.simple_spinner_dropdown_item, ConnectionProfile.values().map { it.label })
+            R.layout.spinner_item, ConnectionProfile.values().map { it.label })
         spinnerProtocol.adapter = ArrayAdapter(
-            this, android.R.layout.simple_spinner_dropdown_item, protocols
+            this, R.layout.spinner_item, protocols
         )
         spinnerBaud.adapter = ArrayAdapter(
-            this, android.R.layout.simple_spinner_dropdown_item,
+            this, R.layout.spinner_item,
             baudRates.map { it.toString() }
         )
-    }
-
-    private fun initComponents() {
-        usbTransport = UsbSerialTransport(this)
-        usbTransport.onConnectionChanged = { connected ->
-            runOnUiThread {
-                updateUsbStatus(connected)
-                if (connected) startBridge()
-                else usbTransport.lastError?.let { statusBar.text = it }
-            }
-        }
-
-        protocolRouter = ProtocolRouter()
-        protocolRouter.onGpsPosition = { pos ->
-            lastPosition = pos
-            gpsUpdateCount++
-            runOnUiThread {
-                updatePositionDisplay(pos)
-                updateMapPosition(pos)
-            }
-        }
-        protocolRouter.onProtocolDetected = { proto ->
-            runOnUiThread {
-                protocolStatus.text = protocolRouter.getStatusString()
-                statusBar.text = "${proto.name} detected"
-                if (proto == ProtocolRouter.Protocol.MSP && profile.pollsMsp) {
-                    handler.removeCallbacks(mspPollRunnable)
-                    handler.postDelayed(mspPollRunnable, 500)
-                }
-            }
-        }
-
-        usbTransport.onDataReceived = { data, length ->
-            protocolRouter.feed(data, length)
-        }
-
-        takSender = TakSender(this)
-        takSender.onStatusChanged = {
-            runOnUiThread { updateTakStatus() }
-        }
     }
 
     private fun setupListeners() {
@@ -404,29 +341,35 @@ class MainActivity : AppCompatActivity() {
             }
         }
         btnConnect.setOnClickListener {
-            if (usbTransport.isConnected || usbTransport.isPermissionPending) {
-                usbTransport.disconnect()
-            } else {
-                lastPosition = null
-                droneMarker?.isEnabled = false
-                protocolRouter.setProtocol(ProtocolRouter.Protocol.values()[spinnerProtocol.selectedItemPosition])
-                usbTransport.baudRate = baudRates[spinnerBaud.selectedItemPosition]
-                usbTransport.assertDtr = checkDtr.isChecked
-                usbTransport.allowMspPolling = profile.pollsMsp &&
-                    protocolRouter.detectedProtocol == ProtocolRouter.Protocol.MSP
+            if (session.running) session.stop()
+            else {
                 saveConfig()
-                val ports = usbTransport.listPorts()
-                if (ports.isEmpty()) {
-                    statusBar.text = "No USB serial interface — use a data cable and TAC telemetry USB mode"
-                } else if (ports.size == 1) {
-                    connectUsbPort(ports.single())
-                } else {
-                    androidx.appcompat.app.AlertDialog.Builder(this)
-                        .setTitle("Choose USB serial port")
-                        .setItems(ports.map { it.label }.toTypedArray()) { _, which -> connectUsbPort(ports[which]) }
-                        .setNegativeButton("Cancel", null).show()
-                }
+                val ports = session.usb.listPorts()
+                if (ports.isEmpty()) statusBar.text = "No USB serial interface — use a data cable and TAC telemetry USB mode"
+                else if (ports.size == 1) connectUsbPort(ports.single())
+                else androidx.appcompat.app.AlertDialog.Builder(this)
+                    .setTitle("Choose USB serial port")
+                    .setItems(ports.map { it.label }.toTypedArray()) { _, which -> connectUsbPort(ports[which]) }
+                    .setNegativeButton("Cancel", null).show()
             }
+        }
+        findViewById<Button>(R.id.btnReplay).setOnClickListener {
+            if (session.running) session.stop()
+            else { saveConfig(); startServiceAction(BridgeService.REPLAY) }
+        }
+        findViewById<Button>(R.id.btnDiagnostics).setOnClickListener {
+            val report = session.diagnostics()
+            androidx.appcompat.app.AlertDialog.Builder(this).setTitle("Connection diagnostics")
+                .setMessage(report)
+                .setPositiveButton("Save report") { _, _ ->
+                    pendingDiagnostics = report
+                    diagnosticExporter.launch("tak-bridge-diagnostics.json")
+                }
+                .setNeutralButton("CoT preview") { _, _ ->
+                    androidx.appcompat.app.AlertDialog.Builder(this).setTitle("Latest CoT · ${session.gpsStage}")
+                        .setMessage(session.lastCot.ifBlank { "No fresh valid GPS has produced an event yet." })
+                        .setPositiveButton("Close", null).show()
+                }.setNegativeButton("Close", null).show()
         }
 
         checkTls.setOnCheckedChangeListener { _, checked ->
@@ -437,32 +380,50 @@ class MainActivity : AppCompatActivity() {
         }
 
         btnLoadCert.setOnClickListener {
-            val intent = Intent(Intent.ACTION_OPEN_DOCUMENT).apply {
-                addCategory(Intent.CATEGORY_OPENABLE)
-                type = "*/*"
-            }
-            certPickerLauncher.launch(intent)
+            androidx.appcompat.app.AlertDialog.Builder(this).setTitle("TAK certificates")
+                .setItems(arrayOf("Import client .p12", "Import server CA .pem / .crt", "Clear certificates")) { _, choice ->
+                    if (choice == 2) {
+                        session.stop()
+                        session.sender.tlsCertPath.takeIf { it.isNotBlank() }?.let { File(it).delete() }
+                        session.sender.tlsCaPath.takeIf { it.isNotBlank() }?.let { File(it).delete() }
+                        session.sender.tlsCertPath = ""; session.sender.tlsCertPassword = ""; session.sender.tlsCaPath = ""
+                        ConfigStore.saveTlsCertPath(this, ""); ConfigStore.saveTlsCaPath(this, "")
+                        updateCertStatus()
+                    } else {
+                        importingCa = choice == 1
+                        certPickerLauncher.launch(Intent(Intent.ACTION_OPEN_DOCUMENT).apply {
+                            addCategory(Intent.CATEGORY_OPENABLE); type = "*/*"
+                        })
+                    }
+                }.show()
         }
-
         btnTakConnect.setOnClickListener {
-            val host = editTakHost.text.toString().trim()
-            val port = editTakPort.text.toString().toIntOrNull() ?: 8087
-            if (host.isBlank()) {
-                Toast.makeText(this, "Enter TAK Server IP", Toast.LENGTH_SHORT).show()
+            if (session.simulation) {
+                statusBar.text = "Stop simulation before connecting live TAK output"
                 return@setOnClickListener
             }
-            takSender.stop()
-            val callsign = editCallsign.text.toString().trim().ifBlank { "DRONE-01" }
-            takSender.updateConfig(takSender.config.copy(
-                tcpEnabled = true, tcpHost = host, tcpPort = port,
-                useTls = checkTls.isChecked, callsign = callsign
-            ))
-            if (checkTls.isChecked && tlsCertLocalPath.isNotBlank()) {
-                takSender.tlsCertPath = tlsCertLocalPath
+            val host = editTakHost.text.toString().trim()
+            val port = editTakPort.text.toString().toIntOrNull()
+            if (host.isBlank() || port == null || port !in 1..65535) {
+                statusBar.text = "Enter a server hostname and a port from 1 to 65535"
+                return@setOnClickListener
             }
-            takSender.start()
-            saveConfig()
-            statusBar.text = "Connecting to $host:$port..."
+            fun connect() {
+                saveConfig()
+                ConfigStore.saveTakConfig(this, ConfigStore.loadTakConfig(this).copy(tcpEnabled = true))
+                startServiceAction(BridgeService.OUTPUT)
+            }
+            if (checkTls.isChecked && session.sender.tlsCertPath.isNotBlank()) {
+                passwordDialog("Unlock client certificate") { password ->
+                    lifecycleScope.launch {
+                        try {
+                            withContext(Dispatchers.IO) { TlsCredentials.loadClient(File(session.sender.tlsCertPath), password) }
+                            session.sender.tlsCertPassword = password
+                            connect()
+                        } catch (e: Exception) { statusBar.text = "Client certificate/password invalid: ${e.message}" }
+                    }
+                }
+            } else connect()
         }
 
         // Map controls
@@ -479,13 +440,17 @@ class MainActivity : AppCompatActivity() {
         btnZoomOut.setOnClickListener { mapView.controller.zoomOut() }
     }
 
-    private fun connectUsbPort(port: UsbSerialTransport.Candidate) {
-        usbTransport.connect(port)
-        if (usbTransport.isPermissionPending) {
-            btnConnect.text = "CANCEL"
-            statusBar.text = "Allow USB access in the Android prompt"
-            setConnectionControlsEnabled(false)
+    private fun startServiceAction(action: String, device: String = "", port: Int = 0) {
+        if (Build.VERSION.SDK_INT >= 33 && ContextCompat.checkSelfPermission(this, Manifest.permission.POST_NOTIFICATIONS)
+            != android.content.pm.PackageManager.PERMISSION_GRANTED) {
+            notificationPermission.launch(Manifest.permission.POST_NOTIFICATIONS)
         }
+        try { BridgeService.start(this, action, device, port) }
+        catch (e: Exception) { statusBar.text = "Unable to start bridge: ${e.message}" }
+    }
+
+    private fun connectUsbPort(port: UsbSerialTransport.Candidate) {
+        startServiceAction(BridgeService.CONNECT, port.device.deviceName, port.portIndex)
     }
 
     private fun setConnectionControlsEnabled(enabled: Boolean) {
@@ -493,77 +458,50 @@ class MainActivity : AppCompatActivity() {
         spinnerProtocol.isEnabled = enabled
         spinnerBaud.isEnabled = enabled
         checkDtr.isEnabled = enabled
+        editCallsign.isEnabled = enabled
     }
 
-    // ── Bridge control ─────────────────────────────────────────
-
-    private fun startBridge() {
-        if (isBridgeActive) return
-        val callsign = editCallsign.text.toString().trim().ifBlank { "DRONE-01" }
-        takSender.updateConfig(TakConfig(
-            multicastEnabled = true, callsign = callsign,
-            uid = "TAKBridge-$callsign",
-            tcpEnabled = takSender.config.tcpEnabled,
-            tcpHost = takSender.config.tcpHost,
-            tcpPort = takSender.config.tcpPort,
-            useTls = takSender.config.useTls
-        ))
-        takSender.start()
-
-        isBridgeActive = true
-        gpsUpdateCount = 0
-        lastRateCalcTime = System.currentTimeMillis()
-        trailPoints.clear()
-
-        handler.postDelayed(cotPushRunnable, 1000)
-        handler.postDelayed(rateDisplayRunnable, 1000)
-
-        val proto = protocolRouter.detectedProtocol
-        if (proto == ProtocolRouter.Protocol.MSP && profile.pollsMsp) {
-            handler.postDelayed(mspPollRunnable, 500)
+    private fun renderSession() {
+        if (!::mapView.isInitialized) return
+        val connected = session.usb.isConnected
+        usbStatusDot.setBackgroundResource(if (connected) R.drawable.dot_green else R.drawable.dot_red)
+        usbStatusText.text = if (session.simulation) "SIM" else "USB"
+        btnConnect.text = if (session.running) "STOP" else "CONNECT"
+        setConnectionControlsEnabled(!session.active)
+        btnLoadCert.isEnabled = !session.running
+        findViewById<Button>(R.id.btnReplay).text = if (session.simulation) "STOP DEMO" else "SOFTWARE DEMO"
+        findViewById<Button>(R.id.btnReplay).isEnabled = !session.running || session.simulation
+        findViewById<CheckBox>(R.id.checkMulticast).isEnabled = !session.running
+        val pos = session.lastPosition
+        if (pos != null) {
+            updatePositionDisplay(pos)
+            if (pos !== lastPosition) updateMapPosition(pos)
+            if (!session.isFresh(pos)) {
+                mgrsText.text = "GPS STALE"; fixText.text = "Stale"
+                droneMarker?.isEnabled = false; mapView.invalidate()
+            }
+        } else {
+            mgrsText.text = "NO LIVE POSITION"; latLonText.text = "---.------ / ---.------"
+            fixText.text = "No Fix"; satsText.text = "--sv"; altText.text = "--m MSL"
+            spdText.text = "-- m/s"; hdgText.text = "HDG --"
+            droneMarker?.isEnabled = false; mapView.invalidate()
         }
-
-        protocolStatus.text = protocolRouter.getStatusString()
-        statusBar.text = "${usbTransport.deviceName} · waiting for GPS fix"
-    }
-
-    private fun stopBridge() {
-        isBridgeActive = false
-        lastPosition = null
-        droneMarker?.isEnabled = false
-        protocolRouter.reset()
-        mgrsText.text = "NO LIVE POSITION"
-        fixText.text = "No Fix"
-        handler.removeCallbacks(cotPushRunnable)
-        handler.removeCallbacks(mspPollRunnable)
-        handler.removeCallbacks(rateDisplayRunnable)
-        takSender.stop()
-        statusBar.text = "Bridge stopped"
-    }
-
-    private fun pollMspGps() {
-        if (!usbTransport.isConnected) return
-        protocolRouter.getMspGpsRequest(profile.pollsMsp)?.let { usbTransport.write(it) }
-    }
-
-    private fun pushCoT() {
-        val pos = lastPosition ?: return
-        if (!isBridgeActive || !usbTransport.isConnected || !pos.hasValidFix || !pos.isFresh()) return
-        val cotXml = CotFormatter.buildDroneSA(
-            pos = pos, uid = takSender.config.uid,
-            callsign = takSender.config.callsign,
-            cotType = takSender.config.cotType,
-            staleSec = takSender.config.staleSeconds
-        )
-        takSender.send(cotXml)
-        runOnUiThread { updateTakStatus() }
+        if (pos == null && lastPosition != null) { trailPoints.clear(); breadcrumbTrail?.setPoints(trailPoints) }
+        lastPosition = pos
+        protocolStatus.text = if (session.active) session.router.getStatusString() else ""
+        cotRateText.text = if (session.simulation) "SIM · ${session.previewCount} local previews"
+            else "CoT sent: ${session.sender.multicastSentCount + session.sender.tcpSentCount}"
+        multicastDot.setBackgroundResource(if (session.sender.isMulticastConnected) R.drawable.dot_green else R.drawable.dot_red)
+        tcpDot.setBackgroundResource(if (session.sender.isTcpConnected) R.drawable.dot_green else R.drawable.dot_red)
+        statusBar.text = if (session.simulation) "SIMULATION · ${session.gpsStage} · local output only"
+            else session.sender.lastError ?: if (session.active) "${session.status} · ${session.gpsStage}" else session.status
     }
 
     // ── Map updates ────────────────────────────────────────────
 
     private fun updateMapPosition(pos: GpsPosition) {
-        droneMarker?.isEnabled = pos.hasValidFix && pos.isFresh()
-        if (!pos.hasValidFix || !pos.isFresh()) { mapView.invalidate(); return }
+        droneMarker?.isEnabled = pos.hasValidFix && session.isFresh(pos)
+        if (!pos.hasValidFix || !session.isFresh(pos)) { mapView.invalidate(); return }
 
         val geoPoint = GeoPoint(pos.lat, pos.lon)
 
@@ -600,7 +538,7 @@ class MainActivity : AppCompatActivity() {
         checkTls.isChecked = config.useTls
         btnLoadCert.visibility = if (config.useTls) View.VISIBLE else View.GONE
         certStatus.visibility = if (config.useTls) View.VISIBLE else View.GONE
-        takSender.updateConfig(config)
+        findViewById<CheckBox>(R.id.checkMulticast).isChecked = config.multicastEnabled
 
         val baud = ConfigStore.loadBaudRate(this)
         val baudIndex = baudRates.indexOf(baud)
@@ -617,11 +555,7 @@ class MainActivity : AppCompatActivity() {
             else -> 0
         })
 
-        val (certPath, _) = ConfigStore.loadTlsCertPath(this)
-        if (certPath.isNotBlank()) {
-            tlsCertLocalPath = certPath
-            certStatus.text = File(certPath).name
-        }
+        updateCertStatus()
 
         // Coordinate format
         coordFormat = ConfigStore.loadCoordFormat(this)
@@ -631,8 +565,10 @@ class MainActivity : AppCompatActivity() {
     private fun saveConfig() {
         val callsign = editCallsign.text.toString().trim().ifBlank { "DRONE-01" }
         val host = editTakHost.text.toString().trim()
-        val port = editTakPort.text.toString().toIntOrNull() ?: 8087
-        ConfigStore.saveTakConfig(this, takSender.config.copy(
+        val port = editTakPort.text.toString().toIntOrNull()?.takeIf { it in 1..65535 } ?: ConfigStore.loadTakConfig(this).tcpPort
+        ConfigStore.saveTakConfig(this, ConfigStore.loadTakConfig(this).copy(
+            uid = "TAKBridge-$callsign",
+            multicastEnabled = findViewById<CheckBox>(R.id.checkMulticast).isChecked,
             callsign = callsign, tcpHost = host, tcpPort = port,
             useTls = checkTls.isChecked
         ))
@@ -646,34 +582,74 @@ class MainActivity : AppCompatActivity() {
         })
     }
 
-    private fun importCert(uri: Uri) {
-        try {
-            val inputStream = contentResolver.openInputStream(uri) ?: return
-            val certFile = File(filesDir, "tak_client.p12")
-            FileOutputStream(certFile).use { out -> inputStream.copyTo(out) }
-            inputStream.close()
-            tlsCertLocalPath = certFile.absolutePath
-            certStatus.text = certFile.name
-            ConfigStore.saveTlsCertPath(this, tlsCertLocalPath, "")
-            Toast.makeText(this, "Certificate loaded", Toast.LENGTH_SHORT).show()
-        } catch (e: Exception) {
-            Toast.makeText(this, "Cert load failed: ${e.message}", Toast.LENGTH_SHORT).show()
+    private fun passwordDialog(title: String, action: (String) -> Unit) {
+        val input = EditText(this).apply {
+            inputType = InputType.TYPE_CLASS_TEXT or InputType.TYPE_TEXT_VARIATION_PASSWORD
+            isSaveEnabled = false
+            importantForAutofill = View.IMPORTANT_FOR_AUTOFILL_NO
+            hint = "Certificate password (blank if none)"
+            setText(session.sender.tlsCertPassword)
         }
+        androidx.appcompat.app.AlertDialog.Builder(this).setTitle(title).setView(input)
+            .setMessage("Password stays in memory until the app process ends.")
+            .setPositiveButton("Continue") { _, _ -> action(input.text.toString()) }
+            .setNegativeButton("Cancel", null).show()
     }
 
-    // ── UI Updates ─────────────────────────────────────────────
-
-    private fun updateUsbStatus(connected: Boolean) {
-        usbStatusDot.setBackgroundResource(if (connected) R.drawable.dot_green else R.drawable.dot_red)
-        usbStatusText.text = if (connected) "USB" else "USB"
-        usbStatusText.setTextColor(if (connected) Color.parseColor("#4ECDC4") else Color.parseColor("#888888"))
-        btnConnect.text = if (connected) "STOP" else "CONNECT"
-        setConnectionControlsEnabled(!connected)
-        if (connected) statusBar.text = usbTransport.deviceName
-        if (!connected) {
-            stopBridge()
-            protocolStatus.text = ""
+    private fun importCert(uri: Uri) {
+        val ca = importingCa
+        fun import(password: String) {
+            lifecycleScope.launch {
+                try {
+                    val file = withContext(Dispatchers.IO) {
+                        val temp = File.createTempFile("cert-import", ".tmp", filesDir)
+                        try {
+                            contentResolver.openInputStream(uri)!!.use { input ->
+                                val bytes = input.readBytesLimited(1024 * 1024)
+                                temp.writeBytes(bytes)
+                            }
+                            if (ca) TlsCredentials.loadCa(temp) else TlsCredentials.loadClient(temp, password)
+                            val destination = File(filesDir, if (ca) "tak_ca.pem" else "tak_client.p12")
+                            check(temp.renameTo(destination)) { "Cannot save certificate" }
+                            destination
+                        } finally { temp.delete() }
+                    }
+                    if (ca) {
+                        session.sender.tlsCaPath = file.absolutePath
+                        ConfigStore.saveTlsCaPath(this@MainActivity, file.absolutePath)
+                    } else {
+                        session.sender.tlsCertPath = file.absolutePath; session.sender.tlsCertPassword = password
+                        ConfigStore.saveTlsCertPath(this@MainActivity, file.absolutePath)
+                    }
+                    updateCertStatus()
+                    statusBar.text = "Certificate validated · reconnect TAK to apply"
+                } catch (e: Exception) { statusBar.text = "Certificate import failed: ${e.message}" }
+            }
         }
+        if (ca) import("") else passwordDialog("Import client certificate") { import(it) }
+    }
+
+    private fun java.io.InputStream.readBytesLimited(limit: Int): ByteArray {
+        val out = java.io.ByteArrayOutputStream()
+        val buffer = ByteArray(8192)
+        while (true) {
+            val count = read(buffer)
+            if (count < 0) break
+            require(out.size() + count <= limit) { "Certificate file exceeds 1 MB" }
+            out.write(buffer, 0, count)
+        }
+        return out.toByteArray()
+    }
+
+    private fun updateCertStatus() {
+        certStatus.text = "Client: ${if (session.sender.tlsCertPath.isBlank()) "none" else "imported"} · " +
+            "CA: ${if (session.sender.tlsCaPath.isBlank()) "client chain / system" else "imported"}"
+    }
+
+    override fun onSaveInstanceState(outState: Bundle) {
+        outState.putBoolean("importingCa", importingCa)
+        outState.putString("pendingDiagnostics", pendingDiagnostics)
+        super.onSaveInstanceState(outState)
     }
 
     private fun updatePositionDisplay(pos: GpsPosition) {
@@ -699,30 +675,4 @@ class MainActivity : AppCompatActivity() {
         hdgText.text = if (pos.heading >= 0) "HDG ${"%.0f".format(pos.heading)}\u00B0" else "HDG --"
     }
 
-    private fun updateRateDisplay() {
-        protocolStatus.text = protocolRouter.getStatusString()
-        if (lastPosition?.isFresh() == false) {
-            droneMarker?.isEnabled = false
-            mgrsText.text = "GPS STALE"
-            fixText.text = "Stale"
-            mapView.invalidate()
-        }
-        val now = System.currentTimeMillis()
-        val elapsed = (now - lastRateCalcTime) / 1000.0
-        if (elapsed > 0) currentGpsHz = gpsUpdateCount / elapsed
-        gpsUpdateCount = 0
-        lastRateCalcTime = now
-        val totalCoT = takSender.multicastSentCount + takSender.tcpSentCount
-        cotRateText.text = "CoT: $totalCoT | ${"%.0f".format(currentGpsHz)}Hz"
-    }
-
-    private fun updateTakStatus() {
-        multicastDot.setBackgroundResource(
-            if (takSender.isMulticastConnected) R.drawable.dot_green else R.drawable.dot_red
-        )
-        tcpDot.setBackgroundResource(
-            if (takSender.isTcpConnected) R.drawable.dot_green else R.drawable.dot_red
-        )
-        takSender.lastError?.let { statusBar.text = it }
-    }
 }
