@@ -100,7 +100,7 @@ class TakTransportTest {
                 await("Reconnect") { sender.isTcpConnected }
                 sender.send("fresh\n", System.currentTimeMillis() + 5000)
                 assertEquals("fresh", second.getInputStream().bufferedReader().readLine())
-                assertEquals(1, sender.tcpSentCount)
+                await("Fresh write counted") { sender.tcpSentCount == 1L }
             }
         }
     }

@@ -40,13 +40,13 @@ class TakSender(@Suppress("UNUSED_PARAMETER") context: Context) {
     @Volatile var isTcpConnected = false; private set
     var onStatusChanged: (() -> Unit)? = null
 
-    fun updateConfig(newConfig: TakConfig) {
+    @Synchronized fun updateConfig(newConfig: TakConfig) {
         require(newConfig.tcpPort in 1..65535 && newConfig.multicastPort in 1..65535) { "Port must be 1–65535" }
         require(newConfig.updateIntervalMs >= 100) { "Update interval too short" }
         config = newConfig
     }
 
-    fun start() {
+    @Synchronized fun start() {
         stop()
         lastError = null
         val s = Session(config)
@@ -61,16 +61,16 @@ class TakSender(@Suppress("UNUSED_PARAMETER") context: Context) {
                     s.datagram = socket
                     socket.timeToLive = 32
                     if (!current(s)) return@launch
-                    isMulticastConnected = true; notify(s)
+                    update(s) { isMulticastConnected = true; notify(s) }
                     for (message in s.udp) {
                         if (!current(s) || message.deadline < System.currentTimeMillis()) continue
                         val bytes = message.xml.toByteArray(Charsets.UTF_8)
                         socket.send(DatagramPacket(bytes, bytes.size, address, s.config.multicastPort))
-                        if (current(s)) { multicastSentCount++; notify(s) }
+                        update(s) { multicastSentCount++; notify(s) }
                     }
                 }
             } catch (e: Exception) {
-                if (current(s)) { isMulticastConnected = false; lastError = "Multicast: ${e.message}"; notify(s) }
+                update(s) { isMulticastConnected = false; lastError = "Multicast: ${e.message}"; notify(s) }
             }
         }
         if (s.config.tcpEnabled && s.config.tcpHost.isNotBlank()) s.scope.launch {
@@ -92,7 +92,7 @@ class TakSender(@Suppress("UNUSED_PARAMETER") context: Context) {
                             socket.startHandshake()
                         }
                         if (!current(s)) return@launch
-                        isTcpConnected = true; lastError = null; attempts = 0; notify(s)
+                        update(s) { isTcpConnected = true; lastError = null; notify(s) }; attempts = 0
                         // Detect peer EOF even while GPS/output is idle. Incoming CoT is discarded.
                         reader = s.scope.launch {
                             try {
@@ -109,16 +109,16 @@ class TakSender(@Suppress("UNUSED_PARAMETER") context: Context) {
                             val message = withTimeoutOrNull(250) { s.tcp.receive() } ?: continue
                             if (message.deadline < System.currentTimeMillis()) continue
                             out.write(message.xml.toByteArray(Charsets.UTF_8)); out.flush()
-                            if (current(s)) { tcpSentCount++; notify(s) }
+                            update(s) { tcpSentCount++; notify(s) }
                         }
                     }
-                    if (current(s)) lastError = "TAK server closed the connection"
+                    update(s) { lastError = "TAK server closed the connection" }
                 } catch (e: Exception) {
-                    if (current(s)) lastError = "${if (s.config.useTls) "TLS" else "TCP"}: ${e.message}"
+                    update(s) { lastError = "${if (s.config.useTls) "TLS" else "TCP"}: ${e.message}" }
                 } finally {
                     reader?.cancel()
                     try { s.socket?.close() } catch (_: Exception) { }
-                    if (current(s)) { isTcpConnected = false; notify(s) }
+                    update(s) { isTcpConnected = false; notify(s) }
                 }
                 if (!current(s)) break
                 attempts++
@@ -127,7 +127,7 @@ class TakSender(@Suppress("UNUSED_PARAMETER") context: Context) {
         }
     }
 
-    fun stop() {
+    @Synchronized fun stop() {
         val old = session
         session = null
         old?.close()
@@ -136,12 +136,17 @@ class TakSender(@Suppress("UNUSED_PARAMETER") context: Context) {
     }
 
     /** A reconnect never flushes a backlog of stale aircraft positions. */
-    fun send(cotXml: String, validUntilMs: Long = System.currentTimeMillis() + 1000) {
+    @Synchronized fun send(cotXml: String, validUntilMs: Long = System.currentTimeMillis() + 1000) {
         val s = session ?: return
         if (validUntilMs < System.currentTimeMillis()) return
         val message = Message(cotXml, validUntilMs)
         if (s.config.multicastEnabled) s.udp.trySend(message)
         if (s.config.tcpEnabled) s.tcp.trySend(message)
+    }
+    // Stop and worker status updates share the same lock: a worker cannot pass a
+    // generation check, lose a race with Stop, then resurrect an old green indicator.
+    private inline fun update(s: Session, action: () -> Unit) = synchronized(this) {
+        if (current(s)) action()
     }
     private fun current(s: Session) = session === s && s.active
     private fun notify(s: Session) { main.post { if (current(s)) onStatusChanged?.invoke() } }
