@@ -14,10 +14,10 @@
 // ── FPV Channel data ───────────────────────────────────────────────────────
 const CHANNELS = {
     R: { name: 'Raceband', freqs: [5658, 5695, 5732, 5769, 5806, 5843, 5880, 5917] },
-    F: { name: 'Fatshark', freqs: [5740, 5760, 5780, 5800, 5820, 5840, 5860, 5880] },
-    E: { name: 'Boscam E', freqs: [5705, 5685, 5665, 5645, 5885, 5905, 5925, 5945] },
-    A: { name: 'Boscam A', freqs: [5865, 5845, 5825, 5805, 5785, 5765, 5745, 5725] },
-    B: { name: 'Boscam B', freqs: [5733, 5752, 5771, 5790, 5809, 5828, 5847, 5866] },
+    F: { name: 'Band F', freqs: [5740, 5760, 5780, 5800, 5820, 5840, 5860, 5880] },
+    E: { name: 'Band E', freqs: [5705, 5685, 5665, 5645, 5885, 5905, 5925, 5945] },
+    A: { name: 'Band A', freqs: [5865, 5845, 5825, 5805, 5785, 5765, 5745, 5725] },
+    B: { name: 'Band B', freqs: [5733, 5752, 5771, 5790, 5809, 5828, 5847, 5866] },
 };
 const PILOT_COLORS = ['#22d3ee','#a78bfa','#4ade80','#f97316','#f87171','#facc15'];
 
@@ -91,20 +91,20 @@ const HARM_PRESETS = {
     c2: [
         {label:'433 MHz (MafiaLRS)',f:433}, {label:'490 MHz (MafiaLRS)',f:490}, {label:'560 MHz (MafiaLRS)',f:560},
         {label:'735 MHz (MafiaLRS)',f:735}, {label:'868 MHz (ELRS EU)',f:868}, {label:'915 MHz (ELRS US)',f:915},
-        {label:'2.4 GHz (ELRS)',f:2400}, {label:'Crossfire 868',f:868}, {label:'Crossfire 915',f:915},
+        {label:'2.4 GHz (ELRS)',f:2400}, {label:'CRSF 868',f:868}, {label:'CRSF 915',f:915},
     ],
     telem: [
-        {label:'RFD900x (915)',f:915}, {label:'RFD868x',f:868}, {label:'SiK 433',f:433},
-        {label:'MicroHard P900',f:900}, {label:'Doodle Labs 2.4G',f:2400}, {label:'Doodle Labs 1.6G',f:1625},
-        {label:'Silvus 1.6G',f:1625}, {label:'Persistent 2.4G',f:2400},
+        {label:'915 MHz FHSS telemetry (915)',f:915}, {label:'868 MHz FHSS telemetry',f:868}, {label:'SiK 433',f:433},
+        {label:'900 MHz telemetry',f:900}, {label:'802.11 mesh 2.4G',f:2400}, {label:'802.11 mesh 1.6G',f:1625},
+        {label:'MIMO mesh family A 1.6G',f:1625}, {label:'2.4 GHz MIMO mesh',f:2400},
     ],
     video: [
-        {label:'5.8 GHz Analog/Digital',f:5800}, {label:'2.4 GHz (DJI O4)',f:2400},
-        {label:'1.3 GHz Long Range',f:1300}, {label:'HDZero 5.8G',f:5800},
+        {label:'5.8 GHz Analog/Digital',f:5800}, {label:'2.4 GHz (digital video)',f:2400},
+        {label:'1.3 GHz Long Range',f:1300}, {label:'Digital video profile B 5.8G',f:5800},
     ],
     mesh: [
-        {label:'Doodle Labs 2.4G',f:2400}, {label:'Silvus 1625',f:1625},
-        {label:'Persistent 2.4G',f:2400}, {label:'Rajant 2.4G',f:2400}, {label:'Rajant 5.8G',f:5800},
+        {label:'802.11 mesh 2.4G',f:2400}, {label:'MIMO mesh family A 1625',f:1625},
+        {label:'2.4 GHz MIMO mesh',f:2400}, {label:'2.4 GHz multi-radio mesh',f:2400}, {label:'5.8 GHz multi-radio mesh',f:5800},
     ],
     other: [
         {label:'Custom...',f:0},
@@ -385,10 +385,10 @@ calcClosestChannel();
 
 // ── TOOL 7: VTX Config Generator ─────────────────────────────────────────
 const VTX_BANDS_FULL = [
-    { name:'BOSCAM_A', letter:'A', flag:'FACTORY', freqs:[5865,5845,5825,5805,5785,5765,5745,5725] },
-    { name:'BOSCAM_B', letter:'B', flag:'FACTORY', freqs:[5733,5752,5771,5790,5809,5828,5847,5866] },
-    { name:'BOSCAM_E', letter:'E', flag:'FACTORY', freqs:[5705,5685,5665,5645,5885,5905,5925,5945] },
-    { name:'FATSHARK', letter:'F', flag:'FACTORY', freqs:[5740,5760,5780,5800,5820,5840,5860,5880] },
+    { name:'BAND_A', letter:'A', flag:'FACTORY', freqs:[5865,5845,5825,5805,5785,5765,5745,5725] },
+    { name:'BAND_B', letter:'B', flag:'FACTORY', freqs:[5733,5752,5771,5790,5809,5828,5847,5866] },
+    { name:'BAND_E', letter:'E', flag:'FACTORY', freqs:[5705,5685,5665,5645,5885,5905,5925,5945] },
+    { name:'BAND_F', letter:'F', flag:'FACTORY', freqs:[5740,5760,5780,5800,5820,5840,5860,5880] },
     { name:'RACEBAND', letter:'R', flag:'FACTORY', freqs:[5658,5695,5732,5769,5806,5843,5880,5917] },
 ];
 
@@ -408,7 +408,7 @@ function updateVtxConfig() {
     const vtx = VTX_DB.find(v => v.name === document.getElementById('vtx-model').value);
     if (!vtx) return;
     const uart = Number(document.getElementById('vtx-uart').value);
-    const protocol = vtx.proto === 8192 ? 'IRC Tramp' : 'SmartAudio';
+    const protocol = vtx.proto === 8192 ? 'Tramp' : 'SmartAudio';
     const lines = [
         '# '+vtx.mfr+' '+vtx.name+' — '+protocol,
         '# Use a free UART '+uart+' TX pad wired to the VTX control input.',
@@ -428,41 +428,41 @@ populateVtxMfr();
 
 // ── FC Target Matcher ─────────────────────────────────────────────────────
 const FC_DB = [
-    { target:'BETAFLIGHTF4', mcu:'STM32F405', gyros:['MPU6000'], manufacturers:['Betaflight','Various'] },
-    { target:'OMNIBUSF4SD', mcu:'STM32F405', gyros:['MPU6000'], manufacturers:['Airbot','Omnibus'] },
-    { target:'OMNIBUSF7', mcu:'STM32F745', gyros:['MPU6000'], manufacturers:['Airbot'] },
-    { target:'SPRACINGF3', mcu:'STM32F303', gyros:['MPU6500'], manufacturers:['SP Racing'] },
-    { target:'SPRACINGF7DUAL', mcu:'STM32F745', gyros:['MPU6000','ICM20689'], manufacturers:['SP Racing'] },
-    { target:'MATEKF405', mcu:'STM32F405', gyros:['ICM20602','MPU6000'], manufacturers:['Matek'] },
-    { target:'MATEKF411', mcu:'STM32F411', gyros:['ICM20602'], manufacturers:['Matek'] },
-    { target:'MATEKF722', mcu:'STM32F722', gyros:['MPU6000','ICM20602'], manufacturers:['Matek'] },
-    { target:'MATEKF745', mcu:'STM32F745', gyros:['MPU6000'], manufacturers:['Matek'] },
-    { target:'MATEKH743', mcu:'STM32H743', gyros:['ICM42688P','MPU6000'], manufacturers:['Matek'] },
-    { target:'IFLIGHT_BLITZ_F7_AIO', mcu:'STM32F745', gyros:['BMI270'], manufacturers:['iFlight'] },
-    { target:'IFLIGHT_BLITZ_H7', mcu:'STM32H743', gyros:['ICM42688P'], manufacturers:['iFlight'] },
-    { target:'IFLIGHT_BLITZ_ATF435', mcu:'AT32F435', gyros:['ICM42688P'], manufacturers:['iFlight'] },
-    { target:'GEPRC_F405', mcu:'STM32F405', gyros:['MPU6000','ICM42688P'], manufacturers:['GEPRC'] },
-    { target:'GEPRC_F722', mcu:'STM32F722', gyros:['MPU6000','ICM42688P'], manufacturers:['GEPRC'] },
-    { target:'GEPRC_TAKER_H743', mcu:'STM32H743', gyros:['MPU6000','ICM42688'], manufacturers:['GEPRC'] },
-    { target:'SPEEDYBEEF405', mcu:'STM32F405', gyros:['ICM42688P','MPU6000'], manufacturers:['SpeedyBee'] },
-    { target:'SPEEDYBEEF7', mcu:'STM32F722', gyros:['MPU6000'], manufacturers:['SpeedyBee'] },
-    { target:'FLYWOOF745', mcu:'STM32F745', gyros:['ICM42688P'], manufacturers:['Flywoo'] },
-    { target:'FLYWOOF722', mcu:'STM32F722', gyros:['ICM42688P','MPU6000'], manufacturers:['Flywoo'] },
-    { target:'FOXEERF405V3', mcu:'STM32F405', gyros:['ICM42688P'], manufacturers:['Foxeer'] },
-    { target:'NEUTRONRCF435', mcu:'AT32F435', gyros:['ICM42688P'], manufacturers:['NeutronRC'] },
-    { target:'SKYSTARSF405', mcu:'STM32F405', gyros:['MPU6000'], manufacturers:['Skystars'] },
-    { target:'TMOTORF7', mcu:'STM32F722', gyros:['ICM20689','MPU6000'], manufacturers:['T-Motor'] },
-    { target:'TMOTORF405', mcu:'STM32F405', gyros:['MPU6000'], manufacturers:['T-Motor'] },
-    { target:'KAKUTEF7', mcu:'STM32F745', gyros:['ICM20689'], manufacturers:['Holybro'] },
-    { target:'KAKUTEH7', mcu:'STM32H743', gyros:['ICM42688P','MPU6000'], manufacturers:['Holybro'] },
-    { target:'LUXH743HD', mcu:'STM32H743', gyros:['ICM42688P'], manufacturers:['Lumenier'] },
-    { target:'MICOAIRF405', mcu:'STM32F405', gyros:['BMI270','ICM42688P'], manufacturers:['MicoAir'] },
-    { target:'MICOAIRH743', mcu:'STM32H743', gyros:['BMI270','BMI088'], manufacturers:['MicoAir'] },
-    { target:'TBSLUCIDH7', mcu:'STM32H743', gyros:['ICM42688P','MPU6000'], manufacturers:['TBS'] },
-    { target:'TBSLUCIDPRO', mcu:'STM32H743', gyros:['ICM42688P'], manufacturers:['TBS'] },
-    { target:'HGLRCF428', mcu:'STM32F405', gyros:['MPU6000','ICM42688P'], manufacturers:['HGLRC'] },
-    { target:'HGLRCH743', mcu:'STM32H743', gyros:['ICM42688P'], manufacturers:['HGLRC'] },
-    { target:'IFLIGHT_BLITZ_F722', mcu:'STM32F722', gyros:['BMI270'], manufacturers:['iFlight'] },
+    { target:'BETAFLIGHTF4', mcu:'STM32F405', gyros:['MPU6000'], manufacturers:[] },
+    { target:'OMNIBUSF4SD', mcu:'STM32F405', gyros:['MPU6000'], manufacturers:[] },
+    { target:'OMNIBUSF7', mcu:'STM32F745', gyros:['MPU6000'], manufacturers:[] },
+    { target:'SPRACINGF3', mcu:'STM32F303', gyros:['MPU6500'], manufacturers:[] },
+    { target:'SPRACINGF7DUAL', mcu:'STM32F745', gyros:['MPU6000','ICM20689'], manufacturers:[] },
+    { target:'MATEKF405', mcu:'STM32F405', gyros:['ICM20602','MPU6000'], manufacturers:[] },
+    { target:'MATEKF411', mcu:'STM32F411', gyros:['ICM20602'], manufacturers:[] },
+    { target:'MATEKF722', mcu:'STM32F722', gyros:['MPU6000','ICM20602'], manufacturers:[] },
+    { target:'MATEKF745', mcu:'STM32F745', gyros:['MPU6000'], manufacturers:[] },
+    { target:'MATEKH743', mcu:'STM32H743', gyros:['ICM42688P','MPU6000'], manufacturers:[] },
+    { target:'IFLIGHT_BLITZ_F7_AIO', mcu:'STM32F745', gyros:['BMI270'], manufacturers:[] },
+    { target:'IFLIGHT_BLITZ_H7', mcu:'STM32H743', gyros:['ICM42688P'], manufacturers:[] },
+    { target:'IFLIGHT_BLITZ_ATF435', mcu:'AT32F435', gyros:['ICM42688P'], manufacturers:[] },
+    { target:'GEPRC_F405', mcu:'STM32F405', gyros:['MPU6000','ICM42688P'], manufacturers:[] },
+    { target:'GEPRC_F722', mcu:'STM32F722', gyros:['MPU6000','ICM42688P'], manufacturers:[] },
+    { target:'GEPRC_TAKER_H743', mcu:'STM32H743', gyros:['MPU6000','ICM42688'], manufacturers:[] },
+    { target:'SPEEDYBEEF405', mcu:'STM32F405', gyros:['ICM42688P','MPU6000'], manufacturers:[] },
+    { target:'SPEEDYBEEF7', mcu:'STM32F722', gyros:['MPU6000'], manufacturers:[] },
+    { target:'FLYWOOF745', mcu:'STM32F745', gyros:['ICM42688P'], manufacturers:[] },
+    { target:'FLYWOOF722', mcu:'STM32F722', gyros:['ICM42688P','MPU6000'], manufacturers:[] },
+    { target:'FOXEERF405V3', mcu:'STM32F405', gyros:['ICM42688P'], manufacturers:[] },
+    { target:'NEUTRONRCF435', mcu:'AT32F435', gyros:['ICM42688P'], manufacturers:[] },
+    { target:'SKYSTARSF405', mcu:'STM32F405', gyros:['MPU6000'], manufacturers:[] },
+    { target:'TMOTORF7', mcu:'STM32F722', gyros:['ICM20689','MPU6000'], manufacturers:[] },
+    { target:'TMOTORF405', mcu:'STM32F405', gyros:['MPU6000'], manufacturers:[] },
+    { target:'KAKUTEF7', mcu:'STM32F745', gyros:['ICM20689'], manufacturers:[] },
+    { target:'KAKUTEH7', mcu:'STM32H743', gyros:['ICM42688P','MPU6000'], manufacturers:[] },
+    { target:'LUXH743HD', mcu:'STM32H743', gyros:['ICM42688P'], manufacturers:[] },
+    { target:'MICOAIRF405', mcu:'STM32F405', gyros:['BMI270','ICM42688P'], manufacturers:[] },
+    { target:'MICOAIRH743', mcu:'STM32H743', gyros:['BMI270','BMI088'], manufacturers:[] },
+    { target:'TBSLUCIDH7', mcu:'STM32H743', gyros:['ICM42688P','MPU6000'], manufacturers:[] },
+    { target:'TBSLUCIDPRO', mcu:'STM32H743', gyros:['ICM42688P'], manufacturers:[] },
+    { target:'HGLRCF428', mcu:'STM32F405', gyros:['MPU6000','ICM42688P'], manufacturers:[] },
+    { target:'HGLRCH743', mcu:'STM32H743', gyros:['ICM42688P'], manufacturers:[] },
+    { target:'IFLIGHT_BLITZ_F722', mcu:'STM32F722', gyros:['BMI270'], manufacturers:[] },
 ];
 
 function fcMatcherPlaceholder() {
@@ -519,7 +519,7 @@ function runFcMatcher() {
                 <div style="width:6px; height:6px; border-radius:50%; background:${conf}; flex-shrink:0;"></div>
                 <div style="flex:1;">
                     <div style="font-family:'JetBrains Mono',monospace; font-size:13px; color:var(--text-main);">${m.target}</div>
-                    <div style="font-size:11px; color:var(--text-muted); margin-top:2px;">${m.mcu} · ${m.gyros.join(' / ')} · ${m.manufacturers.join(', ')}</div>
+                    <div style="font-size:11px; color:var(--text-muted); margin-top:2px;">${m.mcu} · ${m.gyros.join(' / ')}</div>
                 </div>
                 <div style="font-size:10px; color:var(--text-faint);">score ${m.score}</div>
             </div>`;
@@ -535,10 +535,10 @@ document.getElementById('fc-matcher-result').innerHTML = fcMatcherPlaceholder();
 // ── VTX Unlock Table ──────────────────────────────────────────────────────
 const VTX_UNLOCK_BANDS = {
     R: { name:'RACEBAND', freqs:[5658,5695,5732,5769,5806,5843,5880,5917] },
-    F: { name:'FATSHARK', freqs:[5740,5760,5780,5800,5820,5840,5860,5880] },
-    E: { name:'BOSCAM_E', freqs:[5705,5685,5665,5645,5885,5905,5925,5945] },
-    A: { name:'BOSCAM_A', freqs:[5865,5845,5825,5805,5785,5765,5745,5725] },
-    B: { name:'BOSCAM_B', freqs:[5733,5752,5771,5790,5809,5828,5847,5866] },
+    F: { name:'BAND_F', freqs:[5740,5760,5780,5800,5820,5840,5860,5880] },
+    E: { name:'BAND_E', freqs:[5705,5685,5665,5645,5885,5905,5925,5945] },
+    A: { name:'BAND_A', freqs:[5865,5845,5825,5805,5785,5765,5745,5725] },
+    B: { name:'BAND_B', freqs:[5733,5752,5771,5790,5809,5828,5847,5866] },
 };
 const VTX_POWER_LEVELS = [
     { mw: 25,  label: '25' },
@@ -558,7 +558,7 @@ function renderVtxTable() {
 
     let lines = [];
     lines.push('# Generic 5.8 GHz table — verify power levels against your VTX manual');
-    lines.push(`# Protocol: ${proto === 'smartaudio' ? 'SmartAudio 2.1 (dBm)' : proto === 'sa20' ? 'SmartAudio 2.0 (indices)' : 'IRC Tramp (mW)'}`);
+    lines.push(`# Protocol: ${proto === 'smartaudio' ? 'SmartAudio 2.1 (dBm)' : proto === 'sa20' ? 'SmartAudio 2.0 (indices)' : 'Tramp (mW)'}`);
     lines.push('vtxtable bands ' + activeBands.length);
     lines.push('vtxtable channels 8');
     lines.push('vtxtable powerlevels ' + powers.length);
@@ -683,18 +683,18 @@ renderVtxTable();
 // ═══════════════════════════════════════════════════════════════════════════
 (function(){
     const RF_PROTOCOLS = {
-        GHST:       { name:"GHST (ImmersionRC)",   freq:2400, txPower:27, rxSens:-108, mod:"LoRa-like" },
+        GHST:       { name:"GHST",   freq:2400, txPower:27, rxSens:-108, mod:"LoRa-like" },
         ELRS_2G4:   { name:"ExpressLRS 2.4G",      freq:2400, txPower:27, rxSens:-123, mod:"LoRa" },
         ELRS_900:   { name:"ExpressLRS 900M",       freq:915,  txPower:27, rxSens:-123, mod:"LoRa" },
-        CRSF:       { name:"Crossfire (TBS)",       freq:915,  txPower:30, rxSens:-130, mod:"LoRa" },
-        DJI_O3:     { name:"DJI O3/O4",            freq:5800, txPower:25, rxSens:-93,  mod:"OFDM" },
-        HDZERO:     { name:"HDZero",                freq:5800, txPower:25, rxSens:-90,  mod:"OFDM" },
-        WALKSNAIL:  { name:"Walksnail Avatar",      freq:5800, txPower:25, rxSens:-92,  mod:"OFDM" },
+        CRSF:       { name:"CRSF",       freq:915,  txPower:30, rxSens:-130, mod:"LoRa" },
+        VIDEO_A:     { name:"Digital video profile A",            freq:5800, txPower:25, rxSens:-93,  mod:"OFDM" },
+        VIDEO_B:     { name:"Digital video profile B",                freq:5800, txPower:25, rxSens:-90,  mod:"OFDM" },
+        VIDEO_C:  { name:"Digital video profile C",      freq:5800, txPower:25, rxSens:-92,  mod:"OFDM" },
         ANALOG_FPV: { name:"Analog FPV",            freq:5800, txPower:25, rxSens:-85,  mod:"FM" },
-        DOODLE_MESH:{ name:"Doodle Labs Mesh",      freq:2400, txPower:30, rxSens:-96,  mod:"OFDM" },
-        SILVUS:     { name:"Silvus StreamCaster",    freq:1625, txPower:33, rxSens:-100, mod:"MIMO-OFDM" },
-        RFD900X:    { name:"RFD900x",               freq:915,  txPower:30, rxSens:-121, mod:"FHSS" },
-        PERSISTENT: { name:"Persistent MPU5",       freq:2400, txPower:33, rxSens:-98,  mod:"MIMO-OFDM" },
+        MESH_80211:{ name:"802.11 mesh",      freq:2400, txPower:30, rxSens:-96,  mod:"OFDM" },
+        MESH_MIMO_A:     { name:"MIMO mesh family A",    freq:1625, txPower:33, rxSens:-100, mod:"MIMO-OFDM" },
+        TELEMETRY_915:    { name:"915 MHz FHSS telemetry",               freq:915,  txPower:30, rxSens:-121, mod:"FHSS" },
+        MESH_MIMO_B: { name:"MIMO mesh profile C",       freq:2400, txPower:33, rxSens:-98,  mod:"MIMO-OFDM" },
     };
 
     function haversine(lat1,lon1,lat2,lon2){
@@ -1069,24 +1069,24 @@ renderVtxTable();
 
     // Advanced hardware radio specs (used when checkbox is checked)
     var RF_ADV_RADIOS={
-        DL_2450:{freq:2400,txPow:30,rxSens:-96,name:'Doodle Labs RM-2450'},
-        DL_1675:{freq:1625,txPow:30,rxSens:-96,name:'Doodle Labs RM-1675'},
-        DL_2458:{freq:2400,txPow:30,rxSens:-93,name:'Doodle Labs DM-2458'},
-        SC4200:{freq:1625,txPow:33,rxSens:-100,name:'Silvus SC4200'},
-        SC4400:{freq:1625,txPow:33,rxSens:-100,name:'Silvus SC4400'},
-        MPU5:{freq:2400,txPow:33,rxSens:-98,name:'Persistent MPU5'},
-        TW950:{freq:1350,txPow:30,rxSens:-100,name:'TW-950 Shadow'},
-        TW135:{freq:1350,txPow:43,rxSens:-100,name:'TW-135 Shadow HPR'},
-        TW750:{freq:1350,txPow:30,rxSens:-100,name:'TW-750 Shadow'},
-        TW650:{freq:1350,txPow:27,rxSens:-100,name:'TW-650 Module'},
-        TW870:{freq:1350,txPow:24,rxSens:-100,name:'TW-870 Ghost'},
-        TW880:{freq:1350,txPow:24,rxSens:-100,name:'TW-880 Ghost Module'},
-        RFD900X:{freq:915,txPow:30,rxSens:-121,name:'RFD900x'},
-        RAJANT_ES1:{freq:2400,txPow:27,rxSens:-95,name:'Rajant ES1'},
-        RAJANT_PG:{freq:2400,txPow:27,rxSens:-93,name:'Rajant Peregrine'},
+        MESH_A_24:{freq:2400,txPow:30,rxSens:-96,name:'802.11 mesh profile A (2.4 GHz)'},
+        MESH_A_16:{freq:1625,txPow:30,rxSens:-96,name:'802.11 mesh profile B (1.6 GHz)'},
+        MESH_A_DUAL:{freq:2400,txPow:30,rxSens:-93,name:'802.11 mesh profile C (dual band)'},
+        MESH_B_COMPACT:{freq:1625,txPow:33,rxSens:-100,name:'MIMO mesh profile A'},
+        MESH_B_WIDE:{freq:1625,txPow:33,rxSens:-100,name:'MIMO mesh profile B'},
+        MESH_C_WIDE:{freq:2400,txPow:33,rxSens:-98,name:'MIMO mesh profile C'},
+        MESH_D_A:{freq:1350,txPow:30,rxSens:-100,name:'Wideband mesh profile A'},
+        MESH_D_HIGH:{freq:1350,txPow:43,rxSens:-100,name:'Wideband mesh profile B (high power)'},
+        MESH_D_C:{freq:1350,txPow:30,rxSens:-100,name:'Wideband mesh profile C'},
+        MESH_D_MODULE:{freq:1350,txPow:27,rxSens:-100,name:'Wideband mesh profile D (module)'},
+        MESH_D_E:{freq:1350,txPow:24,rxSens:-100,name:'Wideband mesh profile E'},
+        MESH_D_SMALL_MODULE:{freq:1350,txPow:24,rxSens:-100,name:'Wideband mesh profile F (module)'},
+        TELEMETRY_915:{freq:915,txPow:30,rxSens:-121,name:'915 MHz FHSS telemetry'},
+        MESH_E_SINGLE:{freq:2400,txPow:27,rxSens:-95,name:'Multi-radio mesh profile A'},
+        MESH_E_DUAL:{freq:2400,txPow:27,rxSens:-93,name:'Multi-radio mesh profile B'},
         ELRS_900:{freq:915,txPow:27,rxSens:-123,name:'ELRS 900M TX'},ELRS_900_RX:{freq:915,txPow:20,rxSens:-123,name:'ELRS 900M RX'},
         ELRS_24:{freq:2400,txPow:13,rxSens:-118,name:'ELRS 2.4G TX'},ELRS_24_RX:{freq:2400,txPow:13,rxSens:-118,name:'ELRS 2.4G RX'},
-        CRSF_TX:{freq:915,txPow:30,rxSens:-130,name:'Crossfire TX'},CRSF_RX:{freq:915,txPow:20,rxSens:-130,name:'Crossfire RX'},
+        CRSF_TX:{freq:915,txPow:30,rxSens:-130,name:'CRSF TX'},CRSF_RX:{freq:915,txPow:20,rxSens:-130,name:'CRSF RX'},
         GHST_TX:{freq:2400,txPow:27,rxSens:-108,name:'GHST TX'},GHST_RX:{freq:2400,txPow:24,rxSens:-108,name:'GHST RX'},
     };
 
@@ -2225,21 +2225,21 @@ renderVtxTable();
 (function(){
     // ── Radio Hardware Database ──
     var MESH_RADIOS={
-        DL_2450:{name:'Doodle Labs RM-2450',freq:[2400],txPow:30,rxSens:-96,maxRate:20,mesh:true,meshType:'batman-adv',waveform:'802.11',weight:45,ground:true,air:true},
-        DL_1675:{name:'Doodle Labs RM-1675',freq:[1625],txPow:30,rxSens:-96,maxRate:20,mesh:true,meshType:'batman-adv',waveform:'802.11',weight:45,ground:true,air:true},
-        DL_2458:{name:'Doodle Labs DM-2458',freq:[2400,5800],txPow:30,rxSens:-93,maxRate:40,mesh:true,meshType:'batman-adv (dual)',waveform:'802.11',weight:55,ground:true,air:true},
-        SC4200:{name:'Silvus SC4200',freq:[1350,1850],txPow:33,rxSens:-100,maxRate:100,mesh:true,meshType:'StreamCaster',waveform:'streamcaster',weight:310,ground:true,air:true},
-        SC4400:{name:'Silvus SC4400',freq:[1350,6200],txPow:33,rxSens:-100,maxRate:100,mesh:true,meshType:'StreamCaster',waveform:'streamcaster',weight:340,ground:true,air:false},
-        MPU5:{name:'Persistent MPU5',freq:[1350,6200],txPow:33,rxSens:-98,maxRate:100,mesh:true,meshType:'Wave Relay',waveform:'waverelay',weight:510,ground:true,air:false},
-        TW950:{name:'TW-950 Shadow',freq:[225,2500],txPow:30,rxSens:-100,maxRate:16,mesh:true,meshType:'TSM Barrage Relay',waveform:'tsm',weight:280,ground:true,air:false},
-        TW135:{name:'TW-135 Shadow HPR',freq:[225,2500],txPow:43,rxSens:-100,maxRate:16,mesh:true,meshType:'TSM Barrage Relay',waveform:'tsm',weight:1800,ground:true,air:false},
-        TW750:{name:'TW-750 Shadow',freq:[225,2500],txPow:30,rxSens:-100,maxRate:16,mesh:true,meshType:'TSM Barrage Relay',waveform:'tsm',weight:350,ground:true,air:false},
-        TW650:{name:'TW-650 Shadow Module',freq:[225,2500],txPow:27,rxSens:-100,maxRate:16,mesh:true,meshType:'TSM Barrage Relay',waveform:'tsm',weight:85,ground:false,air:true},
-        TW870:{name:'TW-870 Ghost',freq:[225,2500],txPow:24,rxSens:-100,maxRate:8,mesh:true,meshType:'TSM Barrage Relay',waveform:'tsm',weight:130,ground:true,air:true},
-        TW880:{name:'TW-880 Ghost Module',freq:[225,2500],txPow:24,rxSens:-100,maxRate:8,mesh:true,meshType:'TSM Barrage Relay',waveform:'tsm',weight:42,ground:false,air:true},
-        RFD900X:{name:'RFD900x',freq:[915],txPow:30,rxSens:-121,maxRate:0.25,mesh:false,meshType:'Point-to-multipoint',waveform:'fhss',weight:29,ground:true,air:true},
-        RAJANT_ES1:{name:'Rajant ES1',freq:[2400],txPow:27,rxSens:-95,maxRate:40,mesh:true,meshType:'Kinetic Mesh',waveform:'instamesh',weight:120,ground:true,air:true},
-        RAJANT_PG:{name:'Rajant Peregrine',freq:[2400,5800],txPow:27,rxSens:-93,maxRate:80,mesh:true,meshType:'Kinetic Mesh',waveform:'instamesh',weight:140,ground:true,air:true},
+        MESH_A_24:{name:'802.11 mesh profile A (2.4 GHz)',freq:[2400],txPow:30,rxSens:-96,maxRate:20,mesh:true,meshType:'batman-adv',waveform:'802.11',weight:45,ground:true,air:true},
+        MESH_A_16:{name:'802.11 mesh profile B (1.6 GHz)',freq:[1625],txPow:30,rxSens:-96,maxRate:20,mesh:true,meshType:'batman-adv',waveform:'802.11',weight:45,ground:true,air:true},
+        MESH_A_DUAL:{name:'802.11 mesh profile C (dual band)',freq:[2400,5800],txPow:30,rxSens:-93,maxRate:40,mesh:true,meshType:'batman-adv (dual)',waveform:'802.11',weight:55,ground:true,air:true},
+        MESH_B_COMPACT:{name:'MIMO mesh profile A',freq:[1350,1850],txPow:33,rxSens:-100,maxRate:100,mesh:true,meshType:'MIMO mesh family A',waveform:'mesh-family-a',weight:310,ground:true,air:true},
+        MESH_B_WIDE:{name:'MIMO mesh profile B',freq:[1350,6200],txPow:33,rxSens:-100,maxRate:100,mesh:true,meshType:'MIMO mesh family A',waveform:'mesh-family-a',weight:340,ground:true,air:false},
+        MESH_C_WIDE:{name:'MIMO mesh profile C',freq:[1350,6200],txPow:33,rxSens:-98,maxRate:100,mesh:true,meshType:'MIMO mesh family B',waveform:'mesh-family-b',weight:510,ground:true,air:false},
+        MESH_D_A:{name:'Wideband mesh profile A',freq:[225,2500],txPow:30,rxSens:-100,maxRate:16,mesh:true,meshType:'Wideband mesh family',waveform:'wideband-family',weight:280,ground:true,air:false},
+        MESH_D_HIGH:{name:'Wideband mesh profile B (high power)',freq:[225,2500],txPow:43,rxSens:-100,maxRate:16,mesh:true,meshType:'Wideband mesh family',waveform:'wideband-family',weight:1800,ground:true,air:false},
+        MESH_D_C:{name:'Wideband mesh profile C',freq:[225,2500],txPow:30,rxSens:-100,maxRate:16,mesh:true,meshType:'Wideband mesh family',waveform:'wideband-family',weight:350,ground:true,air:false},
+        MESH_D_MODULE:{name:'Wideband mesh profile D (module)',freq:[225,2500],txPow:27,rxSens:-100,maxRate:16,mesh:true,meshType:'Wideband mesh family',waveform:'wideband-family',weight:85,ground:false,air:true},
+        MESH_D_E:{name:'Wideband mesh profile E',freq:[225,2500],txPow:24,rxSens:-100,maxRate:8,mesh:true,meshType:'Wideband mesh family',waveform:'wideband-family',weight:130,ground:true,air:true},
+        MESH_D_SMALL_MODULE:{name:'Wideband mesh profile F (module)',freq:[225,2500],txPow:24,rxSens:-100,maxRate:8,mesh:true,meshType:'Wideband mesh family',waveform:'wideband-family',weight:42,ground:false,air:true},
+        TELEMETRY_915:{name:'915 MHz FHSS telemetry',freq:[915],txPow:30,rxSens:-121,maxRate:0.25,mesh:false,meshType:'Point-to-multipoint',waveform:'fhss',weight:29,ground:true,air:true},
+        MESH_E_SINGLE:{name:'Multi-radio mesh profile A',freq:[2400],txPow:27,rxSens:-95,maxRate:40,mesh:true,meshType:'Multi-radio mesh family',waveform:'mesh-family-c',weight:120,ground:true,air:true},
+        MESH_E_DUAL:{name:'Multi-radio mesh profile B',freq:[2400,5800],txPow:27,rxSens:-93,maxRate:80,mesh:true,meshType:'Multi-radio mesh family',waveform:'mesh-family-c',weight:140,ground:true,air:true},
         ELRS_900:{name:'ELRS 900M',freq:[915],txPow:27,rxSens:-123,maxRate:0.01,mesh:false,meshType:'None (C2 only)',waveform:'lora',weight:5,ground:true,air:true},
         ELRS_24:{name:'ELRS 2.4G',freq:[2400],txPow:13,rxSens:-118,maxRate:0.01,mesh:false,meshType:'None (C2 only)',waveform:'lora',weight:3,ground:true,air:true},
         CUSTOM:{name:'Custom',freq:[2400],txPow:30,rxSens:-96,maxRate:20,mesh:true,meshType:'Custom',waveform:'custom',weight:0,ground:true,air:true},
@@ -2248,10 +2248,10 @@ renderVtxTable();
     // Waveform families — radios in the same family can interoperate
     var WAVEFORM_COMPAT={
         '802.11':['802.11'],
-        'streamcaster':['streamcaster'],
-        'waverelay':['waverelay'],
-        'tsm':['tsm'],
-        'instamesh':['instamesh'],
+        'mesh-family-a':['mesh-family-a'],
+        'mesh-family-b':['mesh-family-b'],
+        'wideband-family':['wideband-family'],
+        'mesh-family-c':['mesh-family-c'],
         'fhss':['fhss'],
         'lora':['lora'],
         'custom':['custom'],
@@ -2289,7 +2289,7 @@ renderVtxTable();
         return 0;
     }
 
-    function meshGetDefaultRadio(){return MESH_RADIOS[document.getElementById('mesh-protocol').value]||MESH_RADIOS.DL_2450;}
+    function meshGetDefaultRadio(){return MESH_RADIOS[document.getElementById('mesh-protocol').value]||MESH_RADIOS.MESH_A_24;}
 
     var meshMap=null,meshTile=null,meshInited=false;
     var meshNodes=[];
@@ -2342,12 +2342,12 @@ renderVtxTable();
         var icon=L.divIcon({className:'',html:'<div style="width:'+size+'px;height:'+size+'px;border-radius:'+(isGCS?'4px':'50%')+';background:'+c+';border:3px solid #0b0f14;box-shadow:0 0 '+(isGCS?'12':'8')+'px '+c+'88;display:flex;align-items:center;justify-content:center;font-size:'+(isGCS?'8':'7')+'px;font-weight:700;color:#0b0f14;">'+label+'</div>',iconSize:[size,size],iconAnchor:[size/2,size/2]});
         var marker=L.marker([lat,lon],{draggable:true,icon:icon}).addTo(meshMap);
         marker.bindTooltip(id+(isGCS?' (Ground Control)':''),{permanent:false,direction:'top',offset:[0,-12]});
-        var defaultRadioKey=document.getElementById('mesh-protocol').value||'DL_2450';
+        var defaultRadioKey=document.getElementById('mesh-protocol').value||'MESH_A_24';
         if(meshNodes.length===0){meshIdCounter=1;id='GCS';isGCS=true;}
         var node={id:id,lat:lat,lon:lon,marker:marker,active:true,label:id,color:c,num:meshIdCounter,isGCS:isGCS,
             height:isGCS?2:parseFloat(document.getElementById('mesh-node-height').value)||50,
             power:Number(document.getElementById('mesh-tx-power').value),
-            radioKey:defaultRadioKey,radio:MESH_RADIOS[defaultRadioKey]||MESH_RADIOS.DL_2450};
+            radioKey:defaultRadioKey,radio:MESH_RADIOS[defaultRadioKey]||MESH_RADIOS.MESH_A_24};
         marker.on('dragend',function(){var p=marker.getLatLng();node.lat=p.lat;node.lon=p.lng;meshUpdateNodeList();});
         marker.on('click',function(){
             if(meshKillMode){node.active=!node.active;marker.setOpacity(node.active?1:0.3);meshUpdateNodeList();}
@@ -2369,7 +2369,7 @@ renderVtxTable();
         document.getElementById('mesh-node-count').textContent=meshNodes.length+' nodes';
         if(meshNodes.length===0){el.innerHTML='';return;}
         // Get compatible radios based on top selector
-        var topSel=document.getElementById('mesh-protocol').value||'DL_2450';
+        var topSel=document.getElementById('mesh-protocol').value||'MESH_A_24';
         var topRadio=MESH_RADIOS[topSel];
         var topWf=topRadio?topRadio.waveform:'802.11';
         var compatKeysGround=getCompatibleRadioKeys(topWf,'ground');
@@ -2395,7 +2395,7 @@ renderVtxTable();
     }
 
     window.meshNodeRadio=function(i,key){
-        if(meshNodes[i]){meshNodes[i].radioKey=key;meshNodes[i].radio=MESH_RADIOS[key]||MESH_RADIOS.DL_2450;meshNodes[i].power=MESH_RADIOS[key].txPow;meshInvalidate();}
+        if(meshNodes[i]){meshNodes[i].radioKey=key;meshNodes[i].radio=MESH_RADIOS[key]||MESH_RADIOS.MESH_A_24;meshNodes[i].power=MESH_RADIOS[key].txPow;meshInvalidate();}
     };
 
     // Get compatible radio keys for a given waveform, filtered by role

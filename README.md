@@ -6,6 +6,9 @@ Standalone Android app that reads supported GPS telemetry from a flight controll
 
 Part of the [AI Wingman](https://github.com/DroneWuKong/Ai-Project) ecosystem, but runs independently with zero dependencies on other Wingman components.
 
+Hardware descriptions use generic profiles; exact interoperability keys and source
+attribution are retained. See [naming scope](docs/NAMING_POLICY.md).
+
 ## Current development build: 0.3.0
 
 A foreground service owns active USB/TAK sessions. Switching apps or closing the
@@ -19,13 +22,13 @@ shows/export counters and connection stages without coordinates or credentials.
 
 See [v1 readiness, release signing and remaining device checks](docs/V1_READINESS.md).
 
-## TAC.CTRL setup
+## USB controller setup
 
-Version 0.2 adds TAC.CTRL USB profiles with Android permission handling and DTR.
-Start with **MAVLink transcode** on TAC and **TAC.CTRL · MAVLink transcode** in the
-app (115200, DTR on). See [the ordered setup and diagnostics](docs/TAC_CTRL_SETUP.md).
+Version 0.2 adds USB controller USB profiles with Android permission handling and DTR.
+Start with **MAVLink transcode** on controller and **USB controller · MAVLink transcode** in the
+app (115200, DTR on). See [the ordered setup and diagnostics](docs/USB_CONTROLLER_SETUP.md).
 The alternate GHST profile decodes actual GHST GPS types and reports RC-only
-streams separately. Software compatibility is tested; direct TAC USB GPS still
+streams separately. Software compatibility is tested; direct controller USB GPS still
 requires the physical acceptance check in that guide.
 
 ## What It Does
@@ -51,16 +54,16 @@ Drone FC ──USB OTG──→ Protocol Auto-Detect ──→ Coordinate Format
 |----------|----------|--------------|--------------|
 | MAVLink v1/v2 | PX4, ArduPilot | Requires upstream GPS stream | 115200 |
 | MSP v1/v2 | Betaflight, iNav | Polled at 2Hz only with Direct FC profile | 115200 |
-| GHST/CRSF | Via IRONghost radio | Native GHST / separate CRSF GPS frames | 115200 |
+| GHST/CRSF | Via compatible telemetry mirror | Native GHST / separate CRSF GPS frames | 115200 |
 
 Auto-detect passively feeds all three parsers; decoded GPS locks the protocol. Manual override is available. Only the explicit Direct FC MSP profile sends GPS read requests.
 
 ## Hardware targets (physical acceptance pending)
 
 - **Flight Controllers:** Compatible USB telemetry interfaces emitting the supported message formats; firmware configuration matters
-- **USB Chips:** CP2102, FTDI, STM32 CDC, CH340
-- **Radio Link:** TAC.CTRL MAVLink/GHST and GHST/CRSF telemetry mirrors are compatibility targets, not proof of an aircraft GPS downlink
-- **Ground Station:** Samsung Galaxy S25 (primary target), any Android 8.0+ with USB OTG
+- **USB Chips:** CDC ACM and supported USB-to-serial interfaces
+- **Radio Link:** USB controller MAVLink/GHST and GHST/CRSF telemetry mirrors are compatibility targets, not proof of an aircraft GPS downlink
+- **Ground Station:** Any Android 8.0+ with USB OTG
 - **Map Tiles:** OpenStreetMap via OSMDroid (no API key required, works offline with cached tiles)
 
 ## Connection Methods
@@ -152,7 +155,7 @@ See [`docs/TAK_Bridge_Quick_Start.pdf`](docs/TAK_Bridge_Quick_Start.pdf) for a p
 
 ## What This Is NOT
 
-This is not a flight controller. This is not a GCS. This is not ATAK. This is a **bridge** — it reads position data and relays it to TAK. It does not command the drone, change flight modes, or modify parameters. TAC/passive profiles only receive; the explicit direct-FC MSP profile sends GPS read requests. Stale or invalid GPS is not published.
+This is not a flight controller. This is not a GCS. This is not ATAK. This is a **bridge** — it reads position data and relays it to TAK. It does not command the drone, change flight modes, or modify parameters. controller/passive profiles only receive; the explicit direct-FC MSP profile sends GPS read requests. Stale or invalid GPS is not published.
 
 ## Visual Identity
 

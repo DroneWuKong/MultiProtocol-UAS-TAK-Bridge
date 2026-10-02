@@ -1,4 +1,4 @@
-# TAC.CTRL compatibility software evidence — September 29, 2026
+# USB controller compatibility software evidence — September 29, 2026
 
 Base: `0ee99facc78cea410bd694b57e02786ed77d3968`.
 Operator reference: `2a569fbe0c03b31e7baafbcebccbeb63950ab3d5`.
@@ -16,10 +16,10 @@ Operator reference: `2a569fbe0c03b31e7baafbcebccbeb63950ab3d5`.
 Built APK SHA-256: `5907fa373b9e75f78236995af5367b932ad62bf2af7e3b55441d7433daff41c6`.
 The APK is a test build, not a store release.
 
-Fixtures cover actual-format GHST GPS, TAC RC-only streams, separate CRSF GPS,
+Fixtures cover actual-format GHST GPS, controller RC-only streams, separate CRSF GPS,
 CRC rejection, split packets, signed and zero-truncated MAVLink 2, MAVLink 1,
 source identity, reconnect reset, fresh fix requirements, stale-position CoT
-rejection, XML escaping, locale handling and the no-poll TAC profile contract.
+rejection, XML escaping, locale handling and the no-poll controller profile contract.
 The same parsing and publication code runs without hardware in these tests.
 
 Build repair also resolved pre-existing source errors: a nested Kotlin comment,
@@ -30,10 +30,10 @@ permission or using phone GPS as aircraft position.
 
 ## Not measured here
 
-No Android device, TAC controller, radio, aircraft or ATAK instance was connected.
-Android USB permission/DTR behavior and aircraft GPS through TAC USB remain the
-physical acceptance steps in [TAC_CTRL_SETUP.md](TAC_CTRL_SETUP.md).
-The historical Operator capture proves TAC USB RC streaming only; synthetic
+No Android device, controller controller, radio, aircraft or ATAK instance was connected.
+Android USB permission/DTR behavior and aircraft GPS through controller USB remain the
+physical acceptance steps in [USB_CONTROLLER_SETUP.md](USB_CONTROLLER_SETUP.md).
+The historical Operator capture proves controller USB RC streaming only; synthetic
 GPS fixtures do not promote it to measured aircraft telemetry.
 
 ## 0.2.1 launch-crash follow-up
@@ -59,7 +59,7 @@ The three new tests cover cold launch, Connect without hardware, and activity
 recreation while Tools is selected followed by navigation back to Map. These
 run entirely in software and are included in the existing Android CI command.
 This reproduces and fixes the observed class of launch failure; no physical
-phone or TAC controller was connected to this test environment.
+phone or controller controller was connected to this test environment.
 
 `assembleDebug` and `lintDebug` also pass (0 lint errors, 81 warnings).
 APK 0.2.1 (version code 3) signature verifies and its signing certificate matches
