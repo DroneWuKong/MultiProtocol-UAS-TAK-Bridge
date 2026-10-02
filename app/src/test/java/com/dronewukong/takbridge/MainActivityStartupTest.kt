@@ -125,8 +125,13 @@ class MainActivityStartupTest {
             val activity = controller.setup().get()
             val root = activity.findViewById<ViewGroup>(R.id.appRoot)
             val density = activity.resources.displayMetrics.density
+            fun forceMeasure(view: View) {
+                view.forceLayout()
+                if (view is ViewGroup) for (i in 0 until view.childCount) forceMeasure(view.getChildAt(i))
+            }
             fun layout(w: Int, h: Int) {
                 repeat(3) {
+                    forceMeasure(root)
                     val width = (w * density).toInt(); val height = (h * density).toInt()
                     root.measure(View.MeasureSpec.makeMeasureSpec(width, View.MeasureSpec.EXACTLY),
                         View.MeasureSpec.makeMeasureSpec(height, View.MeasureSpec.EXACTLY))
@@ -146,6 +151,7 @@ class MainActivityStartupTest {
                 val frame = panel.parent as View
                 assertTrue("Settings panel clipped at $w x $h: ${panel.top}..${panel.bottom}/${frame.height}",
                     panel.top >= 0 && panel.bottom <= frame.height)
+                assertTrue("Map fragment clipped at $w x $h", frame.top >= 0 && frame.bottom <= (frame.parent as View).height)
                 assertTrue(settings.isShown && settings.height > 0)
                 assertTrue(toggle.height >= (44 * density).toInt())
                 val connect = activity.findViewById<Button>(R.id.btnConnect)
