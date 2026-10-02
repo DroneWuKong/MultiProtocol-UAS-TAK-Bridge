@@ -186,16 +186,6 @@ class MainActivity : AppCompatActivity() {
         val toggle = view.findViewById<Button>(R.id.btnConnectionSettings)
         fun updateSettings() {
             val settings = view.findViewById<View>(R.id.connectionSettings)
-            val panel = view.findViewById<View>(R.id.bottomPanel)
-            if (connectionSettingsExpanded && view.height > 0) {
-                val actionsHeight = panel.height - if (settings.visibility == View.VISIBLE) settings.height else 0
-                val available = (view.height - actionsHeight - 16 * resources.displayMetrics.density).toInt()
-                val maxHeight = (340 * resources.displayMetrics.density).toInt()
-                val height = available.coerceIn(48, maxHeight)
-                if (settings.layoutParams.height != height) {
-                    settings.layoutParams = settings.layoutParams.apply { this.height = height }
-                }
-            }
             settings.visibility = if (connectionSettingsExpanded) View.VISIBLE else View.GONE
             view.findViewById<View>(R.id.topPanel).visibility = if (connectionSettingsExpanded) View.GONE else View.VISIBLE
             view.findViewById<View>(R.id.mapControls).visibility = if (connectionSettingsExpanded) View.GONE else View.VISIBLE
@@ -203,7 +193,6 @@ class MainActivity : AppCompatActivity() {
             toggle.contentDescription = if (connectionSettingsExpanded) "Collapse connection settings" else "Expand connection settings"
         }
         toggle.setOnClickListener { connectionSettingsExpanded = !connectionSettingsExpanded; updateSettings() }
-        view.addOnLayoutChangeListener { _, _, _, _, _, _, _, _, _ -> updateSettings() }
         updateSettings()
     }
 
