@@ -152,10 +152,12 @@ class MainActivityStartupTest {
                 val bounds = Rect(0, 0, connect.width, connect.height)
                 root.offsetDescendantRectToMyCoords(connect, bounds)
                 assertTrue(bounds.bottom <= nav.top)
+                settings.isSmoothScrollingEnabled = false
                 settings.fullScroll(View.FOCUS_DOWN)
                 val local = activity.findViewById<CheckBox>(R.id.checkMulticast)
                 val localBounds = Rect(0, 0, local.width, local.height)
                 settings.offsetDescendantRectToMyCoords(local, localBounds)
+                localBounds.offset(0, -settings.scrollY)
                 assertTrue("Local TAK unreachable at $w x $h: $localBounds / ${settings.height}",
                     localBounds.top >= 0 && localBounds.bottom <= settings.height)
             }
