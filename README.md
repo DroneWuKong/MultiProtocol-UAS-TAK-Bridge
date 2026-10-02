@@ -22,15 +22,6 @@ shows/export counters and connection stages without coordinates or credentials.
 
 See [v1 readiness, release signing and remaining device checks](docs/V1_READINESS.md).
 
-## USB controller setup
-
-Version 0.2 adds USB controller USB profiles with Android permission handling and DTR.
-Start with **MAVLink transcode** on controller and **USB controller · MAVLink transcode** in the
-app (115200, DTR on). See [the ordered setup and diagnostics](docs/USB_CONTROLLER_SETUP.md).
-The alternate GHST profile decodes actual GHST GPS types and reports RC-only
-streams separately. Software compatibility is tested; direct controller USB GPS still
-requires the physical acceptance check in that guide.
-
 ## What It Does
 
 ```
@@ -62,7 +53,7 @@ Auto-detect passively feeds all three parsers; decoded GPS locks the protocol. M
 
 - **Flight Controllers:** Compatible USB telemetry interfaces emitting the supported message formats; firmware configuration matters
 - **USB Chips:** CDC ACM and supported USB-to-serial interfaces
-- **Radio Link:** USB controller MAVLink/GHST and GHST/CRSF telemetry mirrors are compatibility targets, not proof of an aircraft GPS downlink
+- **Telemetry Sources:** Existing USB streams using supported protocols; aircraft GPS delivery requires physical verification
 - **Ground Station:** Any Android 8.0+ with USB OTG
 - **Map Tiles:** OpenStreetMap via OSMDroid (no API key required, works offline with cached tiles)
 
@@ -72,7 +63,7 @@ Auto-detect passively feeds all three parsers; decoded GPS locks the protocol. M
 Phone USB-C → OTG adapter → FC USB port. Simplest path — no radio config needed. FC must have GPS module with satellite fix.
 
 ### Through Transmitter (For live flight telemetry)
-Phone USB-C → OTG adapter → Transmitter USB port. Requires EdgeTX USB serial mode set to VCP/Debug with telemetry mirroring enabled on the external module.
+Phone USB-C → OTG adapter → a compatible USB telemetry output. The source must already provide a supported aircraft GPS stream. Device-side feature enablement is outside this guide's scope.
 
 ## TAK Integration
 

@@ -6,6 +6,10 @@ roles, protocols, bands and profile IDs. They do not advertise manufacturers or
 hardware product names. USB devices display VID:PID and serial-port number
 instead of the device's self-reported product string.
 
+Public guides cover the bridge's operation with an existing supported telemetry
+stream. They omit device-side feature discovery, activation menus and
+controller-specific enablement recipes. Support remains in the implementation.
+
 The telemetry parsers, USB IDs, baud/DTR settings, polling rules, RF numerical
 values, waveform compatibility groups and source data remain functional. Old
 persisted connection keys are accepted on upgrade and new saves use generic

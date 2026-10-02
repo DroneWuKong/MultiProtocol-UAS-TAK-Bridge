@@ -2,6 +2,8 @@
 
 ## Unreleased - Hardware-neutral naming (2026-10-02)
 
+- Omit device-side activation recipes from the README and public guides;
+  retain support in the code and document bridge operation for existing streams.
 - Replace hardware manufacturer/product descriptions with generic USB, radio,
   video, VTX and catalog profiles; keep telemetry, USB IDs and RF values intact.
 - Preserve saved connection-profile selections through an upgrade migration.
