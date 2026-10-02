@@ -248,10 +248,10 @@
 <select class="tool-select" id="cc-band">
 <option value="all">All bands</option>
 <option selected="" value="R">Raceband (R)</option>
-<option value="F">Fatshark (F)</option>
-<option value="E">Boscam E</option>
-<option value="A">Boscam A</option>
-<option value="B">Boscam B</option>
+<option value="F">Band F (F)</option>
+<option value="E">Band E</option>
+<option value="A">Band A</option>
+<option value="B">Band B</option>
 </select>
 </div>
 </div>
@@ -261,15 +261,15 @@
 <div class="tool-panel" id="tool-vtx-config">
 <div class="tool-header">
 <div class="tool-title"><i class="ph ph-sliders" style="color:var(--accent-red)"></i> VTX config generator</div>
-<p class="tool-desc">Generate ready-to-paste Betaflight <code style="font-size:12px; background:var(--bg-dark); padding:1px 6px; border-radius:4px;">vtxtable</code> CLI commands for your VTX. Select your model, copy, paste into CLI.</p>
+<p class="tool-desc">Generate ready-to-paste Betaflight <code style="font-size:12px; background:var(--bg-dark); padding:1px 6px; border-radius:4px;">vtxtable</code> CLI commands for your VTX. Select a profile with matching frequency and power values, then copy the CLI commands.</p>
 </div>
 <div class="input-grid">
 <div class="input-group select-group">
-<label class="input-label" for="vtx-mfr">Manufacturer</label>
+<label class="input-label" for="vtx-mfr">Profile family</label>
 <select class="tool-select" id="vtx-mfr" onchange="updateVtxModels()"></select>
 </div>
 <div class="input-group select-group">
-<label class="input-label" for="vtx-model">Model</label>
+<label class="input-label" for="vtx-model">Profile</label>
 <select class="tool-select" id="vtx-model" onchange="updateVtxConfig()"></select>
 </div>
 <div class="input-group select-group">
@@ -285,7 +285,7 @@
 </div>
 
 </div>
-<p class="result-note">Choose an exact supported model. Tables and power values come from Betaflight presets. <a id="vtx-preset-source" target="_blank">Preset source</a></p>
+<p class="result-note">Match the profile to your hardware using the frequency table, power encoding and pinned source. Tables and power values come from Betaflight presets. <a id="vtx-preset-source" target="_blank">Preset source</a></p>
 <div class="section-divider">Generated CLI commands</div>
 <div style="position:relative;">
 <button id="vtx-copy-btn" onclick="copyVtxConfig()" style="position:absolute; top:10px; right:10px; padding:5px 12px; border-radius:var(--radius-sm); border:1px solid var(--border-color); background:var(--bg-panel); color:var(--text-muted); font-size:12px; cursor:pointer; font-family:var(--font-family); display:flex; align-items:center; gap:4px;">
@@ -301,7 +301,7 @@
 <div class="tool-panel" id="tool-mafialrs">
 <div class="tool-header">
 <div class="tool-title"><i class="ph ph-shield-warning" style="color:#eab308"></i> MafiaLRS target catalog</div>
-<p class="tool-desc">Browse the bundled receiver and transmitter catalog. Search by model or manufacturer, inspect the firmware target, and copy the catalog ID.</p>
+<p class="tool-desc">Browse the bundled receiver and transmitter catalog. Search by profile or family, inspect the firmware target, and copy the catalog ID.</p>
 </div>
 <div style="display:grid; grid-template-columns:1fr 1fr; gap:16px; margin-bottom:16px;">
 <div style="background:var(--bg-dark); border-radius:var(--radius-sm); padding:14px;">
@@ -322,9 +322,9 @@
 <div style="display:flex; gap:8px; margin-bottom:12px;">
 <label class="sr-only" for="mafia-search">Search targets</label>
 <input id="mafia-search" placeholder="Search targets..." style="flex:1; padding:8px 12px; background:var(--bg-dark); border:1px solid var(--border-color); border-radius:var(--radius-sm); color:var(--text-main); font-size:13px; font-family:var(--font-family);" type="text"/>
-<label class="sr-only" for="mafia-mfr">Filter manufacturer</label>
+<label class="sr-only" for="mafia-mfr">Filter profile family</label>
 <select id="mafia-mfr" style="padding:8px; background:var(--bg-dark); border:1px solid var(--border-color); border-radius:var(--radius-sm); color:var(--text-muted); font-size:12px; font-family:var(--font-family); max-width:180px;">
-<option value="">All manufacturers</option>
+<option value="">All profile families</option>
 </select>
 </div>
 <!-- Target list -->
@@ -377,7 +377,7 @@
 <select id="vtx-protocol" onchange="renderVtxTable()" style="width:100%; background:var(--bg-dark); border:1px solid var(--border-color); border-radius:var(--radius-sm); color:var(--text-main); font-size:13px; padding:7px 10px;">
 <option value="smartaudio">SmartAudio 2.1 (dBm)</option>
 <option value="sa20">SmartAudio 2.0 (indices)</option>
-<option value="tramp">IRC Tramp</option>
+<option value="tramp">Tramp</option>
 </select>
 </div>
 <div style="margin-bottom:14px;">
@@ -392,10 +392,10 @@
 <div style="margin-bottom:16px;">
 <div style="font-size:12px; color:var(--text-muted); margin-bottom:8px;">Bands to include</div>
 <label style="display:flex; align-items:center; gap:8px; font-size:13px; color:var(--text-muted); margin-bottom:6px; cursor:pointer;"><input checked="" id="vtx-band-R" onchange="renderVtxTable()" type="checkbox"/> Raceband (R)</label>
-<label style="display:flex; align-items:center; gap:8px; font-size:13px; color:var(--text-muted); margin-bottom:6px; cursor:pointer;"><input checked="" id="vtx-band-F" onchange="renderVtxTable()" type="checkbox"/> Fatshark (F)</label>
-<label style="display:flex; align-items:center; gap:8px; font-size:13px; color:var(--text-muted); margin-bottom:6px; cursor:pointer;"><input checked="" id="vtx-band-E" onchange="renderVtxTable()" type="checkbox"/> Boscam E</label>
-<label style="display:flex; align-items:center; gap:8px; font-size:13px; color:var(--text-muted); margin-bottom:6px; cursor:pointer;"><input id="vtx-band-A" onchange="renderVtxTable()" type="checkbox"/> Boscam A</label>
-<label style="display:flex; align-items:center; gap:8px; font-size:13px; color:var(--text-muted); cursor:pointer;"><input id="vtx-band-B" onchange="renderVtxTable()" type="checkbox"/> Boscam B</label>
+<label style="display:flex; align-items:center; gap:8px; font-size:13px; color:var(--text-muted); margin-bottom:6px; cursor:pointer;"><input checked="" id="vtx-band-F" onchange="renderVtxTable()" type="checkbox"/> Band F (F)</label>
+<label style="display:flex; align-items:center; gap:8px; font-size:13px; color:var(--text-muted); margin-bottom:6px; cursor:pointer;"><input checked="" id="vtx-band-E" onchange="renderVtxTable()" type="checkbox"/> Band E</label>
+<label style="display:flex; align-items:center; gap:8px; font-size:13px; color:var(--text-muted); margin-bottom:6px; cursor:pointer;"><input id="vtx-band-A" onchange="renderVtxTable()" type="checkbox"/> Band A</label>
+<label style="display:flex; align-items:center; gap:8px; font-size:13px; color:var(--text-muted); cursor:pointer;"><input id="vtx-band-B" onchange="renderVtxTable()" type="checkbox"/> Band B</label>
 </div>
 <button id="vtx-table-copy" onclick="copyVtxTable()" style="width:100%; padding:9px; background:var(--accent-red); color:#fff; border:none; border-radius:var(--radius-sm); cursor:pointer; font-size:13px; font-family:var(--font-family);">Copy to clipboard</button>
 </div>
@@ -423,12 +423,12 @@
 <th style="text-align:left; padding:4px 8px 8px 0;">Type</th>
 <th style="text-align:left; padding:4px 0 8px 0;">Notes</th>
 </tr>
-<tr style="border-top:1px solid var(--border-color);"><td style="padding:7px 8px 7px 0; color:var(--text-main);">RadioMaster Ranger</td><td style="padding:7px 8px 7px 0; color:var(--text-muted);">TX Module</td><td style="padding:7px 0; color:var(--text-muted);">1W, JR bay</td></tr>
-<tr style="border-top:1px solid var(--border-color);"><td style="padding:7px 8px 7px 0; color:var(--text-main);">RadioMaster Boxer/TX16S</td><td style="padding:7px 8px 7px 0; color:var(--text-muted);">Radio (internal)</td><td style="padding:7px 0; color:var(--text-muted);">250 mW internal</td></tr>
+<tr style="border-top:1px solid var(--border-color);"><td style="padding:7px 8px 7px 0; color:var(--text-main);">2.4 GHz transmitter module</td><td style="padding:7px 8px 7px 0; color:var(--text-muted);">TX Module</td><td style="padding:7px 0; color:var(--text-muted);">1W, JR bay</td></tr>
+<tr style="border-top:1px solid var(--border-color);"><td style="padding:7px 8px 7px 0; color:var(--text-main);">2.4 GHz internal transmitter</td><td style="padding:7px 8px 7px 0; color:var(--text-muted);">Radio (internal)</td><td style="padding:7px 0; color:var(--text-muted);">250 mW internal</td></tr>
 <tr style="border-top:1px solid var(--border-color);"><td style="padding:7px 8px 7px 0; color:var(--text-main);">BetaFPV SuperG</td><td style="padding:7px 8px 7px 0; color:var(--text-muted);">TX Module</td><td style="padding:7px 0; color:var(--text-muted);">Gemini dual-antenna</td></tr>
 <tr style="border-top:1px solid var(--border-color);"><td style="padding:7px 8px 7px 0; color:var(--text-main);">RP1/RP2/RP3/RP4</td><td style="padding:7px 8px 7px 0; color:var(--text-muted);">RX</td><td style="padding:7px 0; color:var(--text-muted);">Nano form factor</td></tr>
-<tr style="border-top:1px solid var(--border-color);"><td style="padding:7px 8px 7px 0; color:var(--text-main);">EP1 / EP2</td><td style="padding:7px 8px 7px 0; color:var(--text-muted);">RX</td><td style="padding:7px 0; color:var(--text-muted);">HappyModel, TCXO</td></tr>
-<tr style="border-top:1px solid var(--border-color);"><td style="padding:7px 8px 7px 0; color:var(--text-main);">GEPRC Nano / GemX</td><td style="padding:7px 8px 7px 0; color:var(--text-muted);">RX</td><td style="padding:7px 0; color:var(--text-muted);">Dual-band capable</td></tr>
+<tr style="border-top:1px solid var(--border-color);"><td style="padding:7px 8px 7px 0; color:var(--text-main);">2.4 GHz compact receiver</td><td style="padding:7px 8px 7px 0; color:var(--text-muted);">RX</td><td style="padding:7px 0; color:var(--text-muted);">TCXO reference</td></tr>
+<tr style="border-top:1px solid var(--border-color);"><td style="padding:7px 8px 7px 0; color:var(--text-main);">Dual-band compact receiver</td><td style="padding:7px 8px 7px 0; color:var(--text-muted);">RX</td><td style="padding:7px 0; color:var(--text-muted);">Dual-band capable</td></tr>
 </table>
 </div>
 <div style="background:var(--bg-panel); border:1px solid var(--border-color); border-radius:var(--radius-sm); padding:18px;">
@@ -439,12 +439,12 @@
 <th style="text-align:left; padding:4px 8px 8px 0;">Type</th>
 <th style="text-align:left; padding:4px 0 8px 0;">Notes</th>
 </tr>
-<tr style="border-top:1px solid var(--border-color);"><td style="padding:7px 8px 7px 0; color:var(--text-main);">RadioMaster Bandit</td><td style="padding:7px 8px 7px 0; color:var(--text-muted);">TX Module</td><td style="padding:7px 0; color:var(--text-muted);">1W, 915/868 MHz</td></tr>
-<tr style="border-top:1px solid var(--border-color);"><td style="padding:7px 8px 7px 0; color:var(--text-main);">HappyModel ES900TX</td><td style="padding:7px 8px 7px 0; color:var(--text-muted);">TX Module</td><td style="padding:7px 0; color:var(--text-muted);">JR nano bay</td></tr>
-<tr style="border-top:1px solid var(--border-color);"><td style="padding:7px 8px 7px 0; color:var(--text-main);">HappyModel ES900RX</td><td style="padding:7px 8px 7px 0; color:var(--text-muted);">RX</td><td style="padding:7px 0; color:var(--text-muted);">Nano, 915/868 MHz</td></tr>
-<tr style="border-top:1px solid var(--border-color);"><td style="padding:7px 8px 7px 0; color:var(--text-main);">GEPRC Nano 900</td><td style="padding:7px 8px 7px 0; color:var(--text-muted);">RX</td><td style="padding:7px 0; color:var(--text-muted);">PA500, 500 mW</td></tr>
+<tr style="border-top:1px solid var(--border-color);"><td style="padding:7px 8px 7px 0; color:var(--text-main);">900 MHz transmitter module</td><td style="padding:7px 8px 7px 0; color:var(--text-muted);">TX Module</td><td style="padding:7px 0; color:var(--text-muted);">1W, 915/868 MHz</td></tr>
+<tr style="border-top:1px solid var(--border-color);"><td style="padding:7px 8px 7px 0; color:var(--text-main);">900 MHz compact transmitter module</td><td style="padding:7px 8px 7px 0; color:var(--text-muted);">TX Module</td><td style="padding:7px 0; color:var(--text-muted);">JR nano bay</td></tr>
+<tr style="border-top:1px solid var(--border-color);"><td style="padding:7px 8px 7px 0; color:var(--text-main);">900 MHz compact receiver</td><td style="padding:7px 8px 7px 0; color:var(--text-muted);">RX</td><td style="padding:7px 0; color:var(--text-muted);">Nano, 915/868 MHz</td></tr>
+<tr style="border-top:1px solid var(--border-color);"><td style="padding:7px 8px 7px 0; color:var(--text-main);">900 MHz receiver</td><td style="padding:7px 8px 7px 0; color:var(--text-muted);">RX</td><td style="padding:7px 0; color:var(--text-muted);">PA500, 500 mW</td></tr>
 <tr style="border-top:1px solid var(--border-color);"><td style="padding:7px 8px 7px 0; color:var(--text-main);">BetaFPV SuperD 915</td><td style="padding:7px 8px 7px 0; color:var(--text-muted);">RX</td><td style="padding:7px 0; color:var(--text-muted);">True diversity</td></tr>
-<tr style="border-top:1px solid var(--border-color);"><td style="padding:7px 8px 7px 0; color:var(--text-main);">iFlight 915 True Div</td><td style="padding:7px 8px 7px 0; color:var(--text-muted);">RX</td><td style="padding:7px 0; color:var(--text-muted);">Dual antenna</td></tr>
+<tr style="border-top:1px solid var(--border-color);"><td style="padding:7px 8px 7px 0; color:var(--text-main);">915 MHz diversity receiver</td><td style="padding:7px 8px 7px 0; color:var(--text-muted);">RX</td><td style="padding:7px 0; color:var(--text-muted);">Dual antenna</td></tr>
 </table>
 </div>
 <div style="background:var(--bg-panel); border:1px solid var(--border-color); border-radius:var(--radius-sm); padding:18px;">
@@ -526,22 +526,22 @@
 <label class="input-label" for="rf-protocol">Protocol</label>
 <select class="tool-select" id="rf-protocol">
 <optgroup label="C2 / Telemetry">
-<option value="GHST">GHST (ImmersionRC)</option>
+<option value="GHST">GHST</option>
 <option value="ELRS_2G4">ExpressLRS 2.4G</option>
 <option selected="" value="ELRS_900">ExpressLRS 900M</option>
-<option value="CRSF">Crossfire (TBS)</option>
+<option value="CRSF">CRSF</option>
 </optgroup>
 <optgroup label="Digital Video + C2">
-<option value="DJI_O3">DJI O3/O4</option>
-<option value="HDZERO">HDZero</option>
-<option value="WALKSNAIL">Walksnail Avatar</option>
+<option value="VIDEO_A">Digital video profile A</option>
+<option value="VIDEO_B">Digital video profile B</option>
+<option value="VIDEO_C">Digital video profile C</option>
 <option value="ANALOG_FPV">Analog FPV</option>
 </optgroup>
 <optgroup label="Mesh / Tactical">
-<option value="DOODLE_MESH">Doodle Labs Mesh</option>
-<option value="SILVUS">Silvus StreamCaster</option>
-<option value="RFD900X">RFD900x</option>
-<option value="PERSISTENT">Persistent MPU5</option>
+<option value="MESH_80211">802.11 mesh</option>
+<option value="MESH_MIMO_A">MIMO mesh family A</option>
+<option value="TELEMETRY_915">915 MHz FHSS telemetry</option>
+<option value="MESH_MIMO_B">MIMO mesh profile C</option>
 </optgroup>
 </select>
 </div>
@@ -603,30 +603,30 @@
 <div class="input-group select-group">
 <label class="input-label" for="rf-gcs-radio">GCS radio</label>
 <select class="tool-select" id="rf-gcs-radio" onchange="rfGcsRadioChange()">
-<optgroup label="Doodle Labs">
-<option value="DL_2450">Doodle Labs RM-2450 (2.4G)</option>
-<option value="DL_1675">Doodle Labs RM-1675 (1.6G)</option>
-<option value="DL_2458">Doodle Labs DM-2458 (Dual)</option>
+<optgroup label="802.11 mesh">
+<option value="MESH_A_24">802.11 mesh profile A (2.4 GHz) (2.4G)</option>
+<option value="MESH_A_16">802.11 mesh profile B (1.6 GHz) (1.6G)</option>
+<option value="MESH_A_DUAL">802.11 mesh profile C (dual band) (Dual)</option>
 </optgroup>
-<optgroup label="TrellisWare TSM">
-<option value="TW950">TW-950 Shadow</option>
-<option value="TW135">TW-135 Shadow HPR (20W)</option>
-<option value="TW750">TW-750 Shadow</option>
-<option value="TW870">TW-870 Ghost</option>
+<optgroup label="Wideband mesh family">
+<option value="MESH_D_A">Wideband mesh profile A</option>
+<option value="MESH_D_HIGH">Wideband mesh profile B (high power) (20W)</option>
+<option value="MESH_D_C">Wideband mesh profile C</option>
+<option value="MESH_D_E">Wideband mesh profile E</option>
 </optgroup>
-<optgroup label="Silvus">
-<option value="SC4200">Silvus SC4200</option>
-<option value="SC4400">Silvus SC4400</option>
+<optgroup label="MIMO mesh family A">
+<option value="MESH_B_COMPACT">MIMO mesh profile A</option>
+<option value="MESH_B_WIDE">MIMO mesh profile B</option>
 </optgroup>
 <optgroup label="Other">
-<option value="MPU5">Persistent MPU5</option>
-<option value="RAJANT_PG">Rajant Peregrine</option>
-<option value="RFD900X">RFD900x</option>
+<option value="MESH_C_WIDE">MIMO mesh profile C</option>
+<option value="MESH_E_DUAL">Multi-radio mesh profile B</option>
+<option value="TELEMETRY_915">915 MHz FHSS telemetry</option>
 </optgroup>
 <optgroup label="FPV / C2">
 <option selected="" value="ELRS_900">ELRS 900M TX</option>
 <option value="ELRS_24">ELRS 2.4G TX</option>
-<option value="CRSF_TX">Crossfire TX</option>
+<option value="CRSF_TX">CRSF TX</option>
 <option value="GHST_TX">GHST TX</option>
 </optgroup>
 </select>
@@ -651,23 +651,23 @@
 <div class="input-group select-group">
 <label class="input-label" for="rf-air-radio">Airframe radio</label>
 <select class="tool-select" id="rf-air-radio" onchange="rfAirRadioChange()">
-<optgroup label="Doodle Labs">
-<option value="DL_2450">Doodle Labs RM-2450</option>
+<optgroup label="802.11 mesh">
+<option value="MESH_A_24">802.11 mesh profile A (2.4 GHz)</option>
 </optgroup>
-<optgroup label="TrellisWare TSM">
-<option value="TW650">TW-650 Shadow Module</option>
-<option value="TW870">TW-870 Ghost</option>
-<option value="TW880">TW-880 Ghost Module</option>
+<optgroup label="Wideband mesh family">
+<option value="MESH_D_MODULE">Wideband mesh profile D (module)</option>
+<option value="MESH_D_E">Wideband mesh profile E</option>
+<option value="MESH_D_SMALL_MODULE">Wideband mesh profile F (module)</option>
 </optgroup>
 <optgroup label="Other">
-<option value="SC4200">Silvus SC4200</option>
-<option value="RFD900X">RFD900x</option>
-<option value="RAJANT_ES1">Rajant ES1</option>
+<option value="MESH_B_COMPACT">MIMO mesh profile A</option>
+<option value="TELEMETRY_915">915 MHz FHSS telemetry</option>
+<option value="MESH_E_SINGLE">Multi-radio mesh profile A</option>
 </optgroup>
 <optgroup label="FPV / C2">
 <option selected="" value="ELRS_900_RX">ELRS 900M RX</option>
 <option value="ELRS_24_RX">ELRS 2.4G RX</option>
-<option value="CRSF_RX">Crossfire RX</option>
+<option value="CRSF_RX">CRSF RX</option>
 <option value="GHST_RX">GHST RX</option>
 </optgroup>
 </select>
@@ -818,12 +818,12 @@
 <option value="same">Same as C2 uplink</option>
 <option value="ELRS_900">ExpressLRS 900M</option>
 <option value="ELRS_2G4">ExpressLRS 2.4G</option>
-<option value="CRSF">Crossfire (TBS)</option>
-<option value="DJI_O3">DJI O3/O4</option>
-<option value="DOODLE_MESH">Doodle Labs Mesh</option>
-<option value="SILVUS">Silvus StreamCaster</option>
-<option value="RFD900X">RFD900x</option>
-<option value="PERSISTENT">Persistent MPU5</option>
+<option value="CRSF">CRSF</option>
+<option value="VIDEO_A">Digital video profile A</option>
+<option value="MESH_80211">802.11 mesh</option>
+<option value="MESH_MIMO_A">MIMO mesh family A</option>
+<option value="TELEMETRY_915">915 MHz FHSS telemetry</option>
+<option value="MESH_MIMO_B">MIMO mesh profile C</option>
 </select>
 </div>
 <div class="input-group">
@@ -883,26 +883,26 @@
 <div class="input-group select-group">
 <label class="input-label" for="mesh-protocol">GCS radio</label>
 <select class="tool-select" id="mesh-protocol" onchange="meshFilterNodeRadios()">
-<optgroup label="Doodle Labs (batman-adv)">
-<option selected="" value="DL_2450">Doodle Labs RM-2450 (2.4G)</option>
-<option value="DL_1675">Doodle Labs RM-1675 (1.6G)</option>
-<option value="DL_2458">Doodle Labs DM-2458 (Dual 2.4/5.8G)</option>
+<optgroup label="802.11 mesh (batman-adv)">
+<option selected="" value="MESH_A_24">802.11 mesh profile A (2.4 GHz) (2.4G)</option>
+<option value="MESH_A_16">802.11 mesh profile B (1.6 GHz) (1.6G)</option>
+<option value="MESH_A_DUAL">802.11 mesh profile C (dual band) (Dual 2.4/5.8G)</option>
 </optgroup>
-<optgroup label="TrellisWare (TSM)">
-<option value="TW950">TW-950 Shadow (UHF/L/S)</option>
-<option value="TW135">TW-135 Shadow HPR (20W)</option>
-<option value="TW750">TW-750 Shadow</option>
-<option value="TW870">TW-870 Ghost</option>
+<optgroup label="Wideband mesh family">
+<option value="MESH_D_A">Wideband mesh profile A (UHF/L/S)</option>
+<option value="MESH_D_HIGH">Wideband mesh profile B (high power) (20W)</option>
+<option value="MESH_D_C">Wideband mesh profile C</option>
+<option value="MESH_D_E">Wideband mesh profile E</option>
 </optgroup>
-<optgroup label="Silvus (StreamCaster)">
-<option value="SC4200">Silvus SC4200</option>
-<option value="SC4400">Silvus SC4400 (wideband)</option>
+<optgroup label="MIMO mesh family A">
+<option value="MESH_B_COMPACT">MIMO mesh profile A</option>
+<option value="MESH_B_WIDE">MIMO mesh profile B (wideband)</option>
 </optgroup>
 <optgroup label="Other">
-<option value="MPU5">Persistent MPU5 (Wave Relay)</option>
-<option value="RAJANT_ES1">Rajant ES1 (2.4G)</option>
-<option value="RAJANT_PG">Rajant Peregrine (Dual)</option>
-<option value="RFD900X">RFD900x (P2MP)</option>
+<option value="MESH_C_WIDE">MIMO mesh profile C (MIMO mesh family B)</option>
+<option value="MESH_E_SINGLE">Multi-radio mesh profile A (2.4G)</option>
+<option value="MESH_E_DUAL">Multi-radio mesh profile B (Dual)</option>
+<option value="TELEMETRY_915">915 MHz FHSS telemetry (P2MP)</option>
 <option value="ELRS_900">ELRS 900M (C2 only)</option>
 </optgroup>
 <option value="CUSTOM">Custom</option>

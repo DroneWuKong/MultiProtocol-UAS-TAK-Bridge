@@ -93,7 +93,7 @@ const origin='https://appassets.androidplatform.net';
    assert.equal(cli.match(/^vtxtable powerlabels (.+)$/m)[1].split(' ').length,count);presets++;
   }
  }
- assert.equal(presets,10);await page.locator('#vtx-mfr').selectOption('TBS');await page.locator('#vtx-model').selectOption('Unify Pro32 HV (SA 2.1)');await page.locator('#vtx-uart').selectOption('3');await has('vtx-cli-output',/serial 2 2048 115200 57600 0 115200/);await has('vtx-cli-output',/powervalues 14 20 26 36/);
+ assert.equal(presets,10);await page.locator('#vtx-mfr').selectOption('SmartAudio');await page.locator('#vtx-model').selectOption('VTX profile 08 (SmartAudio 2.1)');await page.locator('#vtx-uart').selectOption('3');await has('vtx-cli-output',/serial 2 2048 115200 57600 0 115200/);await has('vtx-cli-output',/powervalues 14 20 26 36/);
  await page.locator('#vtx-copy-btn').click();assert.equal(await page.evaluate(()=>navigator.clipboard.readText()),await text('vtx-cli-output'));
  done('VTX configuration: ten sourced presets, UART, complete clipboard output');
  await tool('unlock-vtx');
@@ -107,9 +107,9 @@ const origin='https://appassets.androidplatform.net';
  await tool('fc-matcher');await fill('fc-matcher-input','MCU STM32F405 Clock=168MHz\nGYRO=MPU6000\nboard_name MATEKF405');await page.getByRole('button',{name:'Identify FC',exact:true}).click();await has('fc-matcher-result',/MATEKF405/);await has('fc-matcher-result',/F405/);assert.doesNotMatch(await text('fc-matcher-result'),/MCUSTM32/);
  await fill('fc-matcher-input','unrelated text');await page.getByRole('button',{name:'Identify FC',exact:true}).click();await has('fc-matcher-result',/Could not identify/);
  await page.locator('#tool-fc-matcher').getByRole('button',{name:'Clear',exact:true}).click();assert.equal(await page.locator('#fc-matcher-input').inputValue(),'');done('FC matcher: real status/dump syntax, unknown input, clear');
- await tool('mafialrs');await has('mafia-rx-count',/^222$/);await has('mafia-tx-count',/^106$/);await fill('mafia-search','Anyleaf');assert.ok(await page.locator('.mafia-target-row').count()>0);await page.locator('.mafia-target-row').first().click();await has('mafia-sel-detail',/Firmware: Unified_/);await page.locator('#mafia-copy-pid').click();assert.match(await page.evaluate(()=>navigator.clipboard.readText()),/^RX-MAFIA-/);
+ await tool('mafialrs');await has('mafia-rx-count',/^222$/);await has('mafia-tx-count',/^106$/);await fill('mafia-search','RX profile 001');assert.ok(await page.locator('.mafia-target-row').count()>0);await page.locator('.mafia-target-row').first().click();await has('mafia-sel-detail',/Firmware: Unified_/);await page.locator('#mafia-copy-pid').click();assert.match(await page.evaluate(()=>navigator.clipboard.readText()),/^RX-CATALOG-/);
  await fill('mafia-search','zz-no-match');await has('mafia-target-list',/No targets/);await fill('mafia-search','');await page.locator('[data-type="tx"]').click();assert.equal(await page.locator('.mafia-target-row').count(),106);
- await page.locator('#mafia-mfr').selectOption('RadioMaster');assert.ok(await page.locator('.mafia-target-row').count()>0);done('MafiaLRS: offline catalog, RX/TX, search, manufacturer, detail, copy');
+ await page.locator('#mafia-mfr').selectOption('2.4 GHz');assert.ok(await page.locator('.mafia-target-row').count()>0);done('MafiaLRS: offline catalog, RX/TX, search, manufacturer, detail, copy');
  await tool('elrs-info');assert.equal(await page.locator('#tool-elrs-info a').count(),4);assert.equal(await page.locator('#tool-elrs-info a').nth(2).getAttribute('href'),'https://www.expresslrs.org/product-finder/');done('ELRS reference: content and repaired resource destinations');
  await tool('rf-terrain');
  // Published reference position: Eiffel Tower, WGS84. Old approximate converter missed by kilometres.

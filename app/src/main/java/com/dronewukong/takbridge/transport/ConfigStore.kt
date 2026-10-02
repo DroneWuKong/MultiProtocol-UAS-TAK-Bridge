@@ -113,9 +113,8 @@ object ConfigStore {
 
     fun loadTlsCaPath(context: Context): String = prefs(context).getString("tls_ca_path", "") ?: ""
 
-    fun loadConnectionProfile(context: Context): ConnectionProfile = try {
-        ConnectionProfile.valueOf(prefs(context).getString("connection_profile", "TAC_MAVLINK")!!)
-    } catch (_: Exception) { ConnectionProfile.TAC_MAVLINK }
+    fun loadConnectionProfile(context: Context): ConnectionProfile =
+        ConnectionProfile.fromPersistedName(prefs(context).getString("connection_profile", null))
 
     fun saveConnectionProfile(context: Context, profile: ConnectionProfile, dtr: Boolean) {
         prefs(context).edit().putString("connection_profile", profile.name)

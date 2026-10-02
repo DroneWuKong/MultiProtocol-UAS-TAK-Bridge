@@ -57,7 +57,7 @@ class ProtocolRouter(clock: () -> Long = System::currentTimeMillis) {
 
     fun getStatusString(): String {
         val label = if (isLocked) detectedProtocol.name else "Auto"
-        if (bytesProcessed == 0L) return "$label · USB open, no bytes — check TAC USB mode / DTR"
+        if (bytesProcessed == 0L) return "$label · USB open, no bytes — check controller USB mode / DTR"
         val ghst = ghstParser
         val counts = "${bytesProcessed}B · MAV ${mavlinkParser.framesReceived} · GHST/CRSF ${ghst.framesReceived}"
         return when {

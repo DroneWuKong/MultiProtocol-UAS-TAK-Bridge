@@ -15,11 +15,11 @@ import com.dronewukong.takbridge.mavlink.MspGpsParser
 import com.hoho.android.usbserial.driver.*
 import com.hoho.android.usbserial.util.SerialInputOutputManager
 
-/** Android permission + CDC lifecycle, including TAC composite HID/CDC devices. */
+/** Android permission + CDC lifecycle, including controller composite HID/CDC devices. */
 class UsbSerialTransport(private val context: Context) {
     data class Candidate(val driver: UsbSerialDriver, val portIndex: Int) {
         val device: UsbDevice get() = driver.device
-        val label: String get() = "${device.productName ?: "USB serial"} " +
+        val label: String get() = "USB serial " +
             "[%04X:%04X] port %d".format(device.vendorId, device.productId, portIndex + 1)
     }
     private val manager = context.getSystemService(Context.USB_SERVICE) as UsbManager

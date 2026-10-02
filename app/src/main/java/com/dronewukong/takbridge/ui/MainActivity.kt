@@ -64,7 +64,7 @@ class MainActivity : AppCompatActivity() {
     private lateinit var cotRateText: TextView
     private lateinit var spinnerConnectionProfile: Spinner
     private lateinit var checkDtr: CheckBox
-    private var profile = ConnectionProfile.TAC_MAVLINK
+    private var profile = ConnectionProfile.CONTROLLER_MAVLINK
     private lateinit var spinnerProtocol: Spinner
     private lateinit var spinnerBaud: Spinner
     private lateinit var btnConnect: Button
@@ -345,7 +345,7 @@ class MainActivity : AppCompatActivity() {
             else {
                 saveConfig()
                 val ports = session.usb.listPorts()
-                if (ports.isEmpty()) statusBar.text = "No USB serial interface — use a data cable and TAC telemetry USB mode"
+                if (ports.isEmpty()) statusBar.text = "No USB serial interface — use a data cable and controller telemetry USB mode"
                 else if (ports.size == 1) connectUsbPort(ports.single())
                 else androidx.appcompat.app.AlertDialog.Builder(this)
                     .setTitle("Choose USB serial port")

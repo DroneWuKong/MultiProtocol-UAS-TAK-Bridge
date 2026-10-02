@@ -12,7 +12,7 @@ CI now verifies the launcher version, runs a clean build, and requires nonempty
 passing native test suites, an intact APK with expected assets, and a lint report.
 
 Past documentation checked before changing behavior:
-`SOFTWARE_TAC_CTRL_2026-09-29.md`, `TAC_CTRL_SETUP.md`,
+`SOFTWARE_USB_CONTROLLER_2026-09-29.md`, `USB_CONTROLLER_SETUP.md`,
 `UI_REPAIR_2026-09-29.md`, and `TOOLS_AUDIT_2026-09-29.md`.
 The fragment startup repair and Tools fixes are retained. The former activity-owned
 USB/sender lifecycle and ignored certificate password were independent defects.
@@ -49,7 +49,7 @@ The demo loops ten GPS frames, seven seconds of silence, and three no-fix frames
 Use DIAGNOSTICS → CoT preview to inspect the last event. A stale preview is labeled
 with current GPS state; its timestamp is unchanged. The demo cannot enable real
 TAK output. Test fixtures are synthetic/recorded-format packets, not evidence of
-TAC aircraft GPS. No phone-position substitution or flight-control commands exist.
+controller aircraft GPS. No phone-position substitution or flight-control commands exist.
 The explicit Direct FC MSP profile remains the only serial write path.
 
 ## Reproduce checks
@@ -86,17 +86,17 @@ No hardware, private production credentials, or external TAK server are needed.
 - APK structure, bundled assets and signature verified. See signing continuity below.
 
 An accelerated replay is not a two-hour physical battery/network test. No phone,
-TAC, flight controller or live ATAK instance was connected in this environment.
+controller, flight controller or live ATAK instance was connected in this environment.
 
 ## Remaining v1 acceptance
 
-- [ ] Galaxy S25 clean install and upgrade; one Android tablet layout/install.
+- [ ] Android phone clean install and upgrade; one Android tablet layout/install.
 - [ ] Two real hours with screen off, app switching and normal power management;
       confirm source GPS and ATAK display remain correct.
 - [ ] Twenty physical USB/network disconnect/reconnect cycles; no crash or stale
       position resurrection. Manual USB reconnect is expected.
-- [ ] Real TAC USB enumeration, permission and DTR, followed by measured aircraft
-      GPS through TAC and the same marker in ATAK. Historical RC capture is not GPS proof.
+- [ ] Real controller USB enumeration, permission and DTR, followed by measured aircraft
+      GPS through controller and the same marker in ATAK. Historical RC capture is not GPS proof.
 - [ ] Validate each advertised hardware/firmware/USB-mode combination separately.
 - [ ] Real Android WebView checks of DEM import, export, clipboard and offline
       behavior across the 13 tools. Browser/Robolectric evidence does not replace this.

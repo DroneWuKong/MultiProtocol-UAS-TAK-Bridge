@@ -48,10 +48,10 @@ class TelemetryCompatibilityTest {
         parser.reset(); parser.accept("ghst-primary"); assertFalse(pos!!.hasValidFix)
     }
 
-    @Test fun tacRcOnlyIsRecognizedWithoutInventingGps() {
+    @Test fun controllerRcOnlyIsRecognizedWithoutInventingGps() {
         val router=ProtocolRouter(); var positions=0
         router.onGpsPosition={positions++}
-        val bytes=fixture("tac-rc-only"); router.feed(bytes,bytes.size)
+        val bytes=fixture("controller-rc-only"); router.feed(bytes,bytes.size)
         assertEquals(3L,router.ghstParser.rcFramesReceived)
         assertEquals(0,positions)
         assertTrue(router.getStatusString().contains("controller channels only"))
@@ -132,7 +132,7 @@ class TelemetryCompatibilityTest {
             assertEquals(profile==ConnectionProfile.DIRECT_MSP,
                 router.getMspGpsRequest(profile.pollsMsp)!=null)
         }
-        assertTrue(ConnectionProfile.TAC_GHST.dtr); assertTrue(ConnectionProfile.TAC_MAVLINK.dtr)
+        assertTrue(ConnectionProfile.CONTROLLER_GHST.dtr); assertTrue(ConnectionProfile.CONTROLLER_MAVLINK.dtr)
     }
 
     @Test fun routerReconnectDoesNotReusePartialPackets() {

@@ -38,6 +38,6 @@ def radio(addr,kind,payload):
 save('ghst-primary',radio(0x80,0x25,struct.pack('<iih',0,-875000000,-25)))
 for flag in [0,1]:
     save('ghst-secondary-%d'%flag,radio(0x80,0x26,struct.pack('<HHBHHB',1250,900,12,10,90,flag)))
-# TAC capture established addr 0x81 and RC page types, not this synthetic payload.
-save('tac-rc-only',b''.join(radio(0x81,t,bytes(10)) for t in [0x10,0x11,0x12]))
+# controller capture established addr 0x81 and RC page types, not this synthetic payload.
+save('controller-rc-only',b''.join(radio(0x81,t,bytes(10)) for t in [0x10,0x11,0x12]))
 save('crsf-gps',radio(0xea,0x02,struct.pack('>iiHHHB',0,-875000000,450,9000,975,12)))

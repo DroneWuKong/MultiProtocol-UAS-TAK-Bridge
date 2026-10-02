@@ -31,7 +31,7 @@ class MainActivityStartupTest {
             val activity = controller.setup().get()
             assertTrue(activity.findViewById<Button>(R.id.btnConnect).isEnabled)
             assertTrue(activity.findViewById<CheckBox>(R.id.checkDtr).isChecked)
-            assertEquals("TAC.CTRL · MAVLink transcode",
+            assertEquals("USB controller · MAVLink transcode",
                 activity.findViewById<Spinner>(R.id.spinnerConnectionProfile).selectedItem)
         }
     }

@@ -54,4 +54,4 @@ Catalog: `DroneWuKong/droneclear_Forge`, `forge-source/forge_database.json`, blo
 
 Diffraction reference: [ITU-R P.526](https://www.itu.int/rec/R-REC-P.526). This is a sampled, single dominant-edge planning model. It does not resolve every obstruction, vegetation, buildings, multipath, rain, antenna pattern, or actual throughput. GeoTIFF imports support geographic EPSG:4326 only. Map tiles and address lookup need internet; a covering local DEM enables terrain calculations offline.
 
-No physical TAC.CTRL, VTX, flight controller, phone installation, or over-the-air test was performed. Generated CLI was checked against source-backed formats and tables; it was not applied to hardware. The previous TAC.CTRL telemetry limitations still apply.
+No physical USB controller, VTX, flight controller, phone installation, or over-the-air test was performed. Generated CLI was checked against source-backed formats and tables; it was not applied to hardware. The previous USB controller telemetry limitations still apply.

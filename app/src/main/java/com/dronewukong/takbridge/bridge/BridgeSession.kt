@@ -22,7 +22,7 @@ class BridgeSession(private val context: Context, private val clock: () -> Long 
     var lastCot = ""; private set
     var previewCount = 0L; private set
     var status = "Choose a connection or run the software demo"; private set
-    private var profile = ConnectionProfile.TAC_MAVLINK
+    private var profile = ConnectionProfile.CONTROLLER_MAVLINK
     private var sourceProtocol = ProtocolRouter.Protocol.MAVLINK
     private var nextCotAt = 0L
     private var replayStep = 0

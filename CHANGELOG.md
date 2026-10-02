@@ -1,5 +1,14 @@
 # Changelog
 
+## Unreleased - Hardware-neutral naming (2026-10-02)
+
+- Replace hardware manufacturer/product descriptions with generic USB, radio,
+  video, VTX and catalog profiles; keep telemetry, USB IDs and RF values intact.
+- Preserve saved connection-profile selections through an upgrade migration.
+- Rename USB setup/evidence documents and refresh the printable quick-start.
+- Retain exact upstream target/layout keys, pinned sources and license notices;
+  document the boundary in `docs/NAMING_POLICY.md`.
+
 ## 0.3.0 — Reliability foundation (2026-09-30)
 
 - Restore the empty Unix Gradle launcher and require actual native test/APK/lint evidence in CI.
@@ -41,9 +50,9 @@
   Connect without USB, and recreation with Map/Tools navigation.
 - Version code 3, compatible with installing over the previous debug build.
 
-## 0.2.0 — TAC.CTRL USB compatibility (2026-09-29)
+## 0.2.0 — USB controller USB compatibility (2026-09-29)
 
-- TAC MAVLink/GHST profiles, configurable DTR, Android permission/retry handling,
+- controller MAVLink/GHST profiles, configurable DTR, Android permission/retry handling,
   serial-port selection and disconnect/session cleanup.
 - Correct GHST GPS framing, CRC, units and fix flags; separate CRSF GPS decoding.
 - CRC-checked MAVLink 1/2, zero-truncated/signed frames and source isolation.
@@ -52,8 +61,8 @@
 - Repair pre-existing build errors in the CoT caller/comment, MSP constant,
   launcher icon and TAK reconnect coroutine; guard optional phone GPS access.
 
-Hardware aircraft-GPS-through-TAC-USB acceptance remains pending; see
-[setup and test steps](docs/TAC_CTRL_SETUP.md).
+Hardware aircraft-GPS-through-controller-USB acceptance remains pending; see
+[setup and test steps](docs/USB_CONTROLLER_SETUP.md).
 
 All notable changes to the MultiProtocol UAS TAK Bridge, most recent first.
 
@@ -79,5 +88,5 @@ All notable changes to the MultiProtocol UAS TAK Bridge, most recent first.
 - Added `fitsSystemWindows` so the UI no longer overlaps the phone status bar. (2d12f8d)
 
 ### Changed
-- Removed Orqa branding from docs (README controller note; CoT wire-format `takv`
+- Removed manufacturer branding from docs (README controller note; CoT wire-format `takv`
   device example). (6aaaaf2)
