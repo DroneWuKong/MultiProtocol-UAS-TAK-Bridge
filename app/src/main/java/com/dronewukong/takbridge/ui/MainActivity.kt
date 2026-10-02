@@ -279,9 +279,11 @@ class MainActivity : AppCompatActivity() {
             overlayManager.tilesOverlay.setColorFilter(
                 android.graphics.ColorMatrixColorFilter(
                     floatArrayOf(
-                        -1f, 0f, 0f, 0f, 255f,  // invert red
-                        0f, -1f, 0f, 0f, 255f,  // invert green
-                        0f, 0f, -1f, 0f, 255f,  // invert blue
+                        // Inverse luminance mapped into the Prismo charcoal palette.
+                        // Keep street/label contrast without neon colors from RGB inversion.
+                        -0.1063f, -0.3576f, -0.0361f, 0f, 148f,
+                        -0.11693f, -0.39336f, -0.03971f, 0f, 169f,
+                        -0.120119f, -0.404088f, -0.040793f, 0f, 182f
                         0f, 0f, 0f, 1f, 0f      // alpha unchanged
                     )
                 )
