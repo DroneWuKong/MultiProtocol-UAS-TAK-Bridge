@@ -30,7 +30,7 @@ permission or using phone GPS as aircraft position.
 
 ## Not measured here
 
-No Android device, controller controller, radio, aircraft or ATAK instance was connected.
+No Android device, controller, radio, aircraft or ATAK instance was connected.
 Android USB permission/DTR behavior and aircraft GPS through controller USB remain the
 physical acceptance steps in [USB_CONTROLLER_SETUP.md](USB_CONTROLLER_SETUP.md).
 The historical Operator capture proves controller USB RC streaming only; synthetic
@@ -59,7 +59,7 @@ The three new tests cover cold launch, Connect without hardware, and activity
 recreation while Tools is selected followed by navigation back to Map. These
 run entirely in software and are included in the existing Android CI command.
 This reproduces and fixes the observed class of launch failure; no physical
-phone or controller controller was connected to this test environment.
+phone or controller was connected to this test environment.
 
 `assembleDebug` and `lintDebug` also pass (0 lint errors, 81 warnings).
 APK 0.2.1 (version code 3) signature verifies and its signing certificate matches

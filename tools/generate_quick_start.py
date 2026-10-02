@@ -55,9 +55,9 @@ table([
     ["TAK destination", "ATAK/WinTAK/iTAK receiving the configured multicast, or a TAK Server"],
 ], [120, 396])
 heading("1. Choose a USB path")
-p("<b>USB controller:</b> Select its USB MAVLink transcode mode if available. In the app choose <b>USB controller - MAVLink transcode</b> (115200 baud, DTR on). Alternate: select GHST C2/Telemetry at the source and choose <b>USB controller - GHST C2/Telemetry</b>. Use its USB data port; an Ethernet connector or HID gamepad mode alone is not a serial GPS source.")
+p("<b>USB telemetry source:</b> Connect an already-configured, compatible USB aircraft telemetry output. This guide covers operation of the bridge; device-side feature discovery and enablement are outside its scope. Choose the app profile and protocol that match the stream actually provided by your source.")
 p("<b>Direct flight controller:</b> Use MAVLink or passive auto-detect for an already-streaming source. For an MSP source that needs GPS requests, choose <b>Direct FC - MSP GPS polling</b>. This polls at 2 Hz. Selecting MSP in a passive profile does not enable polling.")
-p("<b>Transmitter mirror:</b> Configure USB serial/VCP mode and supported telemetry mirroring upstream, then use <b>Other USB - passive auto-detect</b> or select the actual protocol. RC/stick frames alone cannot provide aircraft GPS.")
+p("<b>Passive telemetry:</b> Use <b>Other USB - passive auto-detect</b> or select the actual protocol for an existing supported stream. RC/stick frames alone cannot provide aircraft GPS.")
 heading("2. Connect and verify")
 p("With the aircraft on the ground and propellers removed, connect the data cable. Press <b>CONNECT</b>, select a port if prompted, and approve Android USB access. The picker identifies devices by VID:PID and port. Confirm fresh GPS, fix and satellite status. A heartbeat or byte counter alone does not prove a GPS downlink.")
 p("The foreground service keeps an active session running when you switch apps. Use <b>STOP</b> or the notification to end it. USB loss stops the session and clears position; reconnect explicitly.")
@@ -79,7 +79,7 @@ table([
     ["Problem", "Next check"],
     ["No USB serial interface", "Check cable, Android host role and source serial USB mode"],
     ["Permission denied", "Press CONNECT again and approve the Android access request"],
-    ["USB open, no bytes", "Check source mode, selected port, baud and DTR"],
+    ["USB open, no bytes", "Verify that the source is providing telemetry; check the selected port and stream settings"],
     ["Controller channels only", "Configure an upstream aircraft GPS stream; stick motion is not GPS"],
     ["GPS frames, no fix", "Check the source GPS fix; invalid or stale positions are not published"],
     ["TAK marker missing", "Verify group/port or server settings, receiving client and network filtering"],
