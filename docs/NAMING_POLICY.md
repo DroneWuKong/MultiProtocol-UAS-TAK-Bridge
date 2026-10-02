@@ -33,6 +33,6 @@ The current tree is updated. Existing commits, tags, releases and previously
 distributed APKs/documents are historical records and are not rewritten by this
 change. Renamed setup/evidence documents are linked from the current README.
 
-Regenerate the printable guide with `python3 tools/generate_quick_start.py`
+Regenerate the printable guides with `python3 tools/generate_guides.py`
 (ReportLab required). Run the existing browser and Android test suites after
 changing presentation or profile keys.

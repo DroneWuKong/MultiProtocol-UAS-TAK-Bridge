@@ -119,4 +119,72 @@ class MainActivityStartupTest {
             output.outputStream().use { bitmap.compress(Bitmap.CompressFormat.PNG, 100, it) }
         }
     }
+    @Test @GraphicsMode(GraphicsMode.Mode.NATIVE)
+    fun connectionSettingsRemainReachableAtPhoneLandscapeAndTabletSizes() {
+        Robolectric.buildActivity(MainActivity::class.java).use { controller ->
+            val activity = controller.setup().get()
+            val root = activity.findViewById<ViewGroup>(R.id.appRoot)
+            val density = activity.resources.displayMetrics.density
+            fun forceMeasure(view: View) {
+                view.forceLayout()
+                if (view is ViewGroup) for (i in 0 until view.childCount) forceMeasure(view.getChildAt(i))
+            }
+            fun layout(w: Int, h: Int) {
+                repeat(3) {
+                    forceMeasure(root)
+                    val width = (w * density).toInt(); val height = (h * density).toInt()
+                    root.measure(View.MeasureSpec.makeMeasureSpec(width, View.MeasureSpec.EXACTLY),
+                        View.MeasureSpec.makeMeasureSpec(height, View.MeasureSpec.EXACTLY))
+                    root.layout(0, 0, width, height)
+                }
+            }
+            layout(393, 800)
+            val toggle = activity.findViewById<Button>(R.id.btnConnectionSettings)
+            toggle.performClick()
+            for ((w, h) in listOf(360 to 640, 800 to 360, 800 to 1100, 393 to 800)) {
+                layout(w, h)
+                val settings = activity.findViewById<android.widget.ScrollView>(R.id.connectionSettings)
+                val nav = activity.findViewById<View>(R.id.bottomNav)
+                val panel = activity.findViewById<View>(R.id.bottomPanel)
+                // The test sizes the app root independently of Robolectric's decor window.
+                // Check its actual parent geometry, not the default decor's clipping rect.
+                val frame = panel.parent as View
+                assertTrue("Settings panel clipped at $w x $h: ${panel.top}..${panel.bottom}/${frame.height}",
+                    panel.top >= 0 && panel.bottom <= frame.height)
+                assertTrue("Map fragment clipped at $w x $h", frame.top >= 0 && frame.bottom <= (frame.parent as View).height)
+                assertTrue(settings.isShown && settings.height > 0)
+                assertTrue(toggle.height >= (44 * density).toInt())
+                val connect = activity.findViewById<Button>(R.id.btnConnect)
+                val actionRow = connect.parent as View
+                assertTrue("Connect clipped within its action row at $w x $h", connect.top >= 0 && connect.bottom <= actionRow.height)
+                assertTrue("Action row clipped within settings panel at $w x $h", actionRow.top >= 0 && actionRow.bottom <= panel.height)
+                assertTrue("Map content overlaps tabs at $w x $h", activity.findViewById<View>(R.id.fragmentContainer).bottom <= nav.top)
+                settings.isSmoothScrollingEnabled = false
+                settings.fullScroll(View.FOCUS_DOWN)
+                val local = activity.findViewById<CheckBox>(R.id.checkMulticast)
+                val localBounds = Rect(0, 0, local.width, local.height)
+                settings.offsetDescendantRectToMyCoords(local, localBounds)
+                localBounds.offset(0, -settings.scrollY)
+                assertTrue("Local TAK unreachable at $w x $h: $localBounds / ${settings.height}",
+                    localBounds.top >= 0 && localBounds.bottom <= settings.height)
+                val render = Bitmap.createBitmap(root.width, root.height, Bitmap.Config.ARGB_8888)
+                root.draw(Canvas(render))
+                File("build/reports/ui/settings-${w}x${h}.png").apply { parentFile?.mkdirs() }.outputStream().use {
+                    render.compress(Bitmap.CompressFormat.PNG, 100, it)
+                }
+            }
+            val settings = activity.findViewById<android.widget.ScrollView>(R.id.connectionSettings)
+            settings.scrollTo(0, 0)
+            val screenshot = Bitmap.createBitmap(root.width, root.height, Bitmap.Config.ARGB_8888)
+            root.draw(Canvas(screenshot))
+            File("build/reports/ui/connection-settings.png").apply { parentFile?.mkdirs() }.outputStream().use {
+                screenshot.compress(Bitmap.CompressFormat.PNG, 100, it)
+            }
+            controller.recreate()
+            assertEquals(View.VISIBLE, controller.get().findViewById<View>(R.id.connectionSettings).visibility)
+            controller.get().findViewById<Button>(R.id.btnConnectionSettings).performClick()
+            assertEquals(View.GONE, controller.get().findViewById<View>(R.id.connectionSettings).visibility)
+        }
+    }
+
 }

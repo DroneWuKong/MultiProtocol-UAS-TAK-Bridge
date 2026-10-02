@@ -103,6 +103,7 @@ class MainActivity : AppCompatActivity() {
     private var coordFormat = CoordinateFormatter.Format.MGRS
     private val protocols = arrayOf("Auto (passive)", "MAVLink 1/2", "MSP", "GHST / CRSF")
     private val baudRates = arrayOf(115200, 230400, 57600, 921600, 9600, 460800)
+    private var connectionSettingsExpanded = false
     private var importingCa = false
     private var pendingDiagnostics: String? = null
     private val sessionObserver: () -> Unit = { renderSession() }
@@ -130,6 +131,7 @@ class MainActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
+        connectionSettingsExpanded = savedInstanceState?.getBoolean("connectionSettingsExpanded") ?: false
         importingCa = savedInstanceState?.getBoolean("importingCa") ?: false
         pendingDiagnostics = savedInstanceState?.getString("pendingDiagnostics")
 
@@ -181,6 +183,17 @@ class MainActivity : AppCompatActivity() {
         loadConfig()
         setupListeners()
         renderSession()
+        val toggle = view.findViewById<Button>(R.id.btnConnectionSettings)
+        fun updateSettings() {
+            val settings = view.findViewById<View>(R.id.connectionSettings)
+            settings.visibility = if (connectionSettingsExpanded) View.VISIBLE else View.GONE
+            view.findViewById<View>(R.id.topPanel).visibility = if (connectionSettingsExpanded) View.GONE else View.VISIBLE
+            view.findViewById<View>(R.id.mapControls).visibility = if (connectionSettingsExpanded) View.GONE else View.VISIBLE
+            toggle.text = if (connectionSettingsExpanded) "Close connection settings −" else "Connection settings +"
+            toggle.contentDescription = if (connectionSettingsExpanded) "Collapse connection settings" else "Expand connection settings"
+        }
+        toggle.setOnClickListener { connectionSettingsExpanded = !connectionSettingsExpanded; updateSettings() }
+        updateSettings()
     }
 
     override fun onResume() {
@@ -266,9 +279,11 @@ class MainActivity : AppCompatActivity() {
             overlayManager.tilesOverlay.setColorFilter(
                 android.graphics.ColorMatrixColorFilter(
                     floatArrayOf(
-                        -1f, 0f, 0f, 0f, 255f,  // invert red
-                        0f, -1f, 0f, 0f, 255f,  // invert green
-                        0f, 0f, -1f, 0f, 255f,  // invert blue
+                        // Inverse luminance mapped into the Prismo charcoal palette.
+                        // Keep street/label contrast without neon colors from RGB inversion.
+                        -0.1063f, -0.3576f, -0.0361f, 0f, 148f,
+                        -0.11693f, -0.39336f, -0.03971f, 0f, 169f,
+                        -0.120119f, -0.404088f, -0.040793f, 0f, 182f,
                         0f, 0f, 0f, 1f, 0f      // alpha unchanged
                     )
                 )
@@ -277,7 +292,7 @@ class MainActivity : AppCompatActivity() {
 
         // Breadcrumb trail polyline
         breadcrumbTrail = Polyline().apply {
-            outlinePaint.color = Color.parseColor("#4ECDC4")
+            outlinePaint.color = ContextCompat.getColor(this@MainActivity, R.color.prismo_teal)
             outlinePaint.strokeWidth = 4f
             outlinePaint.isAntiAlias = true
             outlinePaint.style = Paint.Style.STROKE
@@ -466,10 +481,11 @@ class MainActivity : AppCompatActivity() {
         val connected = session.usb.isConnected
         usbStatusDot.setBackgroundResource(if (connected) R.drawable.dot_green else R.drawable.dot_red)
         usbStatusText.text = if (session.simulation) "SIM" else "USB"
-        btnConnect.text = if (session.running) "STOP" else "CONNECT"
+        usbStatusDot.contentDescription = if (connected) "USB connected" else "USB disconnected"
+        btnConnect.text = if (session.running) "Stop" else "Connect"
         setConnectionControlsEnabled(!session.active)
         btnLoadCert.isEnabled = !session.running
-        findViewById<Button>(R.id.btnReplay).text = if (session.simulation) "STOP DEMO" else "SOFTWARE DEMO"
+        findViewById<Button>(R.id.btnReplay).text = if (session.simulation) "Stop demo" else "Software demo"
         findViewById<Button>(R.id.btnReplay).isEnabled = !session.running || session.simulation
         findViewById<CheckBox>(R.id.checkMulticast).isEnabled = !session.running
         val pos = session.lastPosition
@@ -493,6 +509,8 @@ class MainActivity : AppCompatActivity() {
             else "CoT sent: ${session.sender.multicastSentCount + session.sender.tcpSentCount}"
         multicastDot.setBackgroundResource(if (session.sender.isMulticastConnected) R.drawable.dot_green else R.drawable.dot_red)
         tcpDot.setBackgroundResource(if (session.sender.isTcpConnected) R.drawable.dot_green else R.drawable.dot_red)
+        multicastDot.contentDescription = if (session.sender.isMulticastConnected) "Local TAK socket ready" else "Local TAK socket inactive"
+        tcpDot.contentDescription = if (session.sender.isTcpConnected) "TAK server connected" else "TAK server disconnected"
         statusBar.text = if (session.simulation) "SIMULATION · ${session.gpsStage} · local output only"
             else session.sender.lastError ?: if (session.active) "${session.status} · ${session.gpsStage}" else session.status
     }
@@ -647,6 +665,7 @@ class MainActivity : AppCompatActivity() {
     }
 
     override fun onSaveInstanceState(outState: Bundle) {
+        outState.putBoolean("connectionSettingsExpanded", connectionSettingsExpanded)
         outState.putBoolean("importingCa", importingCa)
         outState.putString("pendingDiagnostics", pendingDiagnostics)
         super.onSaveInstanceState(outState)
@@ -663,10 +682,10 @@ class MainActivity : AppCompatActivity() {
 
         fixText.text = pos.fixTypeString
         fixText.setTextColor(when {
-            pos.fixType >= 5 -> Color.parseColor("#4ECDC4")  // RTK
-            pos.fixType >= 3 -> Color.parseColor("#44FF44")  // 3D
-            pos.fixType >= 2 -> Color.parseColor("#FFFF44")  // 2D
-            else -> Color.parseColor("#FF4444")
+            pos.fixType >= 5 -> ContextCompat.getColor(this, R.color.prismo_teal)  // RTK
+            pos.fixType >= 3 -> ContextCompat.getColor(this, R.color.prismo_teal)  // 3D
+            pos.fixType >= 2 -> ContextCompat.getColor(this, R.color.prismo_amber)  // 2D
+            else -> ContextCompat.getColor(this, R.color.prismo_red)
         })
 
         satsText.text = if (pos.satellites >= 0) "${pos.satellites}sv" else "--sv"

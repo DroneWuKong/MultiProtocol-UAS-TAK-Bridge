@@ -1,5 +1,15 @@
 # Changelog
 
+## 0.4.0 — Prismo interface and guides (2026-10-02)
+
+- Prismo charcoal, teal and cream styling across Map and Tools, with larger controls, a restrained map palette and named connection-state accessibility descriptions.
+- Scrollable connection settings keep Connect, Send to TAK, Software demo and Diagnostics available. Settings expansion survives activity recreation; map controls return when it closes.
+- Illustrated eleven-page user manual and redesigned two-page quick-start, with searchable Markdown copies and reproducible PDF source.
+- Public guides describe existing streams and generic bridge workflows; device-side feature activation stays out of scope.
+- Added Android layout checks for portrait phones, landscape and tablets, including reachability of lower settings and expansion restoration.
+- Telemetry decoders, protocol behavior, USB matching and RF calculations are retained.
+
+
 ## Unreleased - Hardware-neutral naming (2026-10-02)
 
 - Omit device-side activation recipes from the README and public guides;

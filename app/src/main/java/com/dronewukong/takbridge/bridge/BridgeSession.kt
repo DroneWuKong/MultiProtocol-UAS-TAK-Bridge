@@ -163,7 +163,7 @@ class BridgeSession(private val context: Context, private val clock: () -> Long 
     }
 
     fun diagnostics(): String = JSONObject().apply {
-        put("app", "TAK Bridge 0.3.0")
+        put("app", "TAK Bridge 0.4.0")
         put("mode", if (simulation) "SIMULATION_LOCAL_ONLY" else "USB")
         put("running", running); put("usb_connected", usb.isConnected)
         put("permission_pending", usb.isPermissionPending)
