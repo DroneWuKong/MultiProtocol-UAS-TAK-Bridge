@@ -119,4 +119,53 @@ class MainActivityStartupTest {
             output.outputStream().use { bitmap.compress(Bitmap.CompressFormat.PNG, 100, it) }
         }
     }
+    @Test @GraphicsMode(GraphicsMode.Mode.NATIVE)
+    fun connectionSettingsRemainReachableAtPhoneLandscapeAndTabletSizes() {
+        Robolectric.buildActivity(MainActivity::class.java).use { controller ->
+            val activity = controller.setup().get()
+            val root = activity.findViewById<ViewGroup>(R.id.appRoot)
+            val density = activity.resources.displayMetrics.density
+            fun layout(w: Int, h: Int) {
+                repeat(3) {
+                    val width = (w * density).toInt(); val height = (h * density).toInt()
+                    root.measure(View.MeasureSpec.makeMeasureSpec(width, View.MeasureSpec.EXACTLY),
+                        View.MeasureSpec.makeMeasureSpec(height, View.MeasureSpec.EXACTLY))
+                    root.layout(0, 0, width, height)
+                }
+            }
+            layout(393, 800)
+            val toggle = activity.findViewById<Button>(R.id.btnConnectionSettings)
+            toggle.performClick()
+            for ((w, h) in listOf(360 to 640, 800 to 360, 800 to 1100, 393 to 800)) {
+                layout(w, h)
+                val settings = activity.findViewById<android.widget.ScrollView>(R.id.connectionSettings)
+                val nav = activity.findViewById<View>(R.id.bottomNav)
+                val panel = activity.findViewById<View>(R.id.bottomPanel)
+                val panelBounds = Rect(); panel.getGlobalVisibleRect(panelBounds)
+                assertTrue("Settings panel clipped at $w x $h", panelBounds.height() == panel.height)
+                assertTrue(settings.isShown && settings.height > 0)
+                assertTrue(toggle.height >= (44 * density).toInt())
+                val connect = activity.findViewById<Button>(R.id.btnConnect)
+                val bounds = Rect(); connect.getGlobalVisibleRect(bounds)
+                assertTrue(bounds.height() == connect.height && bounds.bottom <= nav.top)
+                settings.fullScroll(View.FOCUS_DOWN)
+                val local = activity.findViewById<CheckBox>(R.id.checkMulticast)
+                val localBounds = Rect()
+                assertTrue("Local TAK unreachable", local.getGlobalVisibleRect(localBounds))
+                assertEquals(local.height, localBounds.height())
+            }
+            val settings = activity.findViewById<android.widget.ScrollView>(R.id.connectionSettings)
+            settings.scrollTo(0, 0)
+            val screenshot = Bitmap.createBitmap(root.width, root.height, Bitmap.Config.ARGB_8888)
+            root.draw(Canvas(screenshot))
+            File("build/reports/ui/connection-settings.png").apply { parentFile?.mkdirs() }.outputStream().use {
+                screenshot.compress(Bitmap.CompressFormat.PNG, 100, it)
+            }
+            controller.recreate()
+            assertEquals(View.VISIBLE, controller.get().findViewById<View>(R.id.connectionSettings).visibility)
+            controller.get().findViewById<Button>(R.id.btnConnectionSettings).performClick()
+            assertEquals(View.GONE, controller.get().findViewById<View>(R.id.connectionSettings).visibility)
+        }
+    }
+
 }

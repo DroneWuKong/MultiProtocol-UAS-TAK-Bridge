@@ -2,7 +2,7 @@
   color-scheme: dark;
   --bg-dark:#0d141b;--bg-panel:#17222e;--bg-panel-hover:#20303e;
   --text-main:#edf4fa;--text-muted:#b1bfce;--text-faint:#93a5b7;
-  --accent-red:#63dfc6;--accent-darkred:#45c6ad;--accent-green:#63dfc6;
+  --primary:#f1e6d2;--accent-red:#63dfc6;--accent-darkred:#45c6ad;--accent-green:#63dfc6;
   --accent-blue:#8cbcff;--accent-cyan:#63dfc6;--accent-amber:#ffd18a;
   --border-color:#344555;--border-hover:#61798b;
   --font-family:system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;
@@ -49,7 +49,7 @@ label:has(input[type=checkbox]){min-height:48px;line-height:1.5;font-size:13px!i
 .result-label{font-size:12px;line-height:1.4}
 .result-grid{gap:15px;grid-template-columns:repeat(auto-fit,minmax(120px,1fr))}
 .section-divider{font-size:11px;letter-spacing:.08em;color:var(--text-muted);margin:22px 0 12px}
-.primary-action,button[style*="background:var(--accent-red)"]{min-height:48px!important;background:var(--accent-red)!important;color:#09241f!important;border:0!important;font-size:15px!important;font-weight:750!important;padding:12px 18px!important}
+.primary-action,button[style*="background:var(--accent-red)"]{min-height:48px!important;background:var(--primary)!important;color:var(--bg-dark)!important;border:0!important;font-size:15px!important;font-weight:750!important;padding:12px 18px!important}
 .tool-panel button{font-size:13px!important;line-height:1.35}
 .tool-panel p{max-width:100%}
 .map-card{border:1px solid var(--border-color);border-radius:16px;overflow:hidden;background:#14222b;margin-bottom:10px;display:flex;flex-direction:column}
