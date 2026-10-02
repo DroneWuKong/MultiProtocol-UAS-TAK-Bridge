@@ -158,6 +158,10 @@ const origin='https://appassets.androidplatform.net';
  await tool('mesh-planner');await page.waitForFunction(()=>!!window._meshMapRef);await page.evaluate(()=>_meshMapRef.setView([39.5,-104.5],13));
  await page.locator('[onclick="meshCompute()"]').click();await has('mesh-health',/at least 2 active/);
  await points([[39.5,-104.5],[39.51,-104.49],[39.52,-104.48]],'_meshMapRef');await page.locator('[onclick="meshCompute()"]').click();await page.waitForFunction(()=>document.getElementById('mesh-link-count').textContent.includes('3 terrain'));await has('mesh-health',/FULLY CONNECTED/);
+ // Capture a populated software scenario for the public manual before clearing it.
+ await page.evaluate(()=>{_meshMapRef.fitBounds([[39.5,-104.5],[39.52,-104.48]],{padding:[55,55],animate:false});window.scrollTo(0,document.getElementById('mesh-map').getBoundingClientRect().top+scrollY-90);});
+ await page.evaluate(()=>new Promise(resolve=>requestAnimationFrame(()=>requestAnimationFrame(resolve))));
+ await page.screenshot({path:path.join(artifacts,'mesh-plan-example.png')});
  const beforeMatrix=await text('mesh-matrix');await fill('mesh-tx-power',0);assert.equal(await text('mesh-matrix'),'');await page.locator('[onclick="meshCompute()"]').click();await page.waitForFunction(()=>document.getElementById('mesh-link-count').textContent.includes('connected'));assert.notEqual(await text('mesh-matrix'),beforeMatrix);
  await fill('mesh-tx-power',30);await fill('mesh-min-margin',0);await page.locator('[onclick="meshCompute()"]').click();await page.waitForFunction(()=>document.getElementById('mesh-link-count').textContent.includes('3 terrain'));
  const meshDownload=page.waitForEvent('download');await page.locator('[onclick="meshExport()"]').click();await(await meshDownload).saveAs(path.join(artifacts,'mesh-report.html'));

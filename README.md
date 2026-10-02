@@ -9,7 +9,7 @@ Part of the [AI Wingman](https://github.com/DroneWuKong/Ai-Project) ecosystem, b
 Hardware descriptions use generic profiles; exact interoperability keys and source
 attribution are retained. See [naming scope](docs/NAMING_POLICY.md).
 
-## Current development build: 0.3.0
+## Current development build: 0.4.0
 
 A foreground service owns active USB/TAK sessions. Switching apps or closing the
 screen leaves the session running; use **STOP** or the notification to end it.
@@ -37,7 +37,7 @@ Drone FC ──USB OTG──→ Protocol Auto-Detect ──→ Coordinate Format
 4. **Converts** lat/lon to MGRS using NGA's official library
 5. **Displays** live map with drone marker (heading rotation), breadcrumb trail, coordinate readout (tap to cycle MGRS / Lat-Lon DD / Lat-Lon DMS / UTM), fix quality, satellites, altitude, speed
 6. **Pushes** CoT events to ATAK/WinTAK/iTAK via configured multicast, TAK Server TCP, or TAK Server TLS
-7. **Tools tab** — the Forge RF tools suite (Channel Planner, Range Estimator, Fresnel Zone, Harmonics, Dipole Length, VTX Config, FC Matcher, ELRS, etc.) runs in an embedded WebView with bundled libraries and catalogs. Online tiles/elevation need network access; local DEMs support offline terrain calculations
+7. **Tools tab** — the Prismo field tools suite (Channel Planner, Range Estimator, Fresnel Zone, Harmonics, Dipole Length, VTX Config, FC Matcher, ELRS, etc.) runs in an embedded WebView with bundled libraries and catalogs. Online tiles/elevation need network access; local DEMs support offline terrain calculations
 
 ## Supported Protocols
 
@@ -86,7 +86,7 @@ Check TLS, open **CERTIFICATES**, import the client `.p12` with its password, an
 
 ## Map Features
 
-- **Dark/tactical map** — inverted OpenStreetMap tiles
+- **Dark/tactical map** — OpenStreetMap tiles mapped to the Prismo charcoal palette
 - **Drone marker** — teal chevron that rotates with heading
 - **Breadcrumb trail** — teal line showing flight path (500 point history, 2m minimum spacing)
 - **Auto-follow** — map tracks drone position, tap map to pan freely, tap ◎ to re-center
@@ -140,9 +140,23 @@ Standard Android Studio project. Clone, open, sync Gradle, build.
 - [OSMDroid](https://github.com/osmdroid/osmdroid) — OpenStreetMap tiles (no API key)
 - AndroidX / Material Components / Kotlin Coroutines
 
-## Quick Start Guide
+## Manual and Quick Start
 
-See [`docs/TAK_Bridge_Quick_Start.pdf`](docs/TAK_Bridge_Quick_Start.pdf) for a printable 2-page guide covering setup, connection methods, TAK output, and troubleshooting.
+The Prismo interface keeps everyday map actions visible and moves connection details
+into a scrollable **Connection settings** panel. Map and Tools share the dark shell,
+teal accents and cream primary actions.
+
+- [Quick Start PDF](docs/TAK_Bridge_Quick_Start.pdf) — two pages to practice, connect an existing stream and verify TAK delivery.
+- [User Manual PDF](docs/TAK_Bridge_User_Manual.pdf) — eleven illustrated pages covering the map, connections, diagnostics and planning tools.
+- [Quick Start text](docs/QUICK_START.md) and [User Manual text](docs/USER_MANUAL.md) — searchable copies for the repository.
+
+The guides cover bridge operation with an existing compatible stream. Device-side
+feature discovery and activation are outside their scope. Screenshots are actual
+software-test renders; they do not imply physical hardware acceptance.
+
+Rebuild both guides with `python3 tools/generate_guides.py` (ReportLab and DejaVu Sans
+required). Committed screenshots in `docs/guide-assets` come from the Android and
+browser UI checks.
 
 ## What This Is NOT
 

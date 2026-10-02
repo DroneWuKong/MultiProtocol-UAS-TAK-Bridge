@@ -1,6 +1,11 @@
 # TAK Bridge v1 readiness
 
-Current implementation: 0.3.0 development build, September 30, 2026.
+Current implementation: 0.4.0 development build, October 2, 2026.
+
+The Prismo UI refresh adds scrollable connection details and illustrated public
+guides. It retains the telemetry and transport implementation described below.
+Native layout checks cover phone portrait, landscape and tablet dimensions;
+software renders do not replace the remaining physical acceptance checks.
 
 ## What was fixed
 
@@ -87,6 +92,14 @@ No hardware, private production credentials, or external TAK server are needed.
 
 An accelerated replay is not a two-hour physical battery/network test. No phone,
 controller, flight controller or live ATAK instance was connected in this environment.
+
+## Software validation performed October 2
+
+- Prismo interface build: 41 native tests passed, including phone, landscape and tablet settings reachability and activity restoration.
+- APK assembly, lint and native build evidence checks passed.
+- Browser checks passed for 13 panels, 39 navigation checks and 20 functional groups with no uncaught script errors.
+- Public manual and quick-start use committed software-rendered screenshots and reproducible ReportLab sources; PDF pages were rendered for visual review.
+- Remaining physical acceptance below is unchanged.
 
 ## Remaining v1 acceptance
 
