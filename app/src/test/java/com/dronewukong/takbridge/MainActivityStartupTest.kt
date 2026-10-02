@@ -141,18 +141,23 @@ class MainActivityStartupTest {
                 val settings = activity.findViewById<android.widget.ScrollView>(R.id.connectionSettings)
                 val nav = activity.findViewById<View>(R.id.bottomNav)
                 val panel = activity.findViewById<View>(R.id.bottomPanel)
-                val panelBounds = Rect(); panel.getGlobalVisibleRect(panelBounds)
-                assertTrue("Settings panel clipped at $w x $h", panelBounds.height() == panel.height)
+                // The test sizes the app root independently of Robolectric's decor window.
+                // Check its actual parent geometry, not the default decor's clipping rect.
+                val frame = panel.parent as View
+                assertTrue("Settings panel clipped at $w x $h: ${panel.top}..${panel.bottom}/${frame.height}",
+                    panel.top >= 0 && panel.bottom <= frame.height)
                 assertTrue(settings.isShown && settings.height > 0)
                 assertTrue(toggle.height >= (44 * density).toInt())
                 val connect = activity.findViewById<Button>(R.id.btnConnect)
-                val bounds = Rect(); connect.getGlobalVisibleRect(bounds)
-                assertTrue(bounds.height() == connect.height && bounds.bottom <= nav.top)
+                val bounds = Rect(0, 0, connect.width, connect.height)
+                root.offsetDescendantRectToMyCoords(connect, bounds)
+                assertTrue(bounds.bottom <= nav.top)
                 settings.fullScroll(View.FOCUS_DOWN)
                 val local = activity.findViewById<CheckBox>(R.id.checkMulticast)
-                val localBounds = Rect()
-                assertTrue("Local TAK unreachable", local.getGlobalVisibleRect(localBounds))
-                assertEquals(local.height, localBounds.height())
+                val localBounds = Rect(0, 0, local.width, local.height)
+                settings.offsetDescendantRectToMyCoords(local, localBounds)
+                assertTrue("Local TAK unreachable at $w x $h: $localBounds / ${settings.height}",
+                    localBounds.top >= 0 && localBounds.bottom <= settings.height)
             }
             val settings = activity.findViewById<android.widget.ScrollView>(R.id.connectionSettings)
             settings.scrollTo(0, 0)
