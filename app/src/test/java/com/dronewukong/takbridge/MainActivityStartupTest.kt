@@ -149,9 +149,10 @@ class MainActivityStartupTest {
                 assertTrue(settings.isShown && settings.height > 0)
                 assertTrue(toggle.height >= (44 * density).toInt())
                 val connect = activity.findViewById<Button>(R.id.btnConnect)
-                val bounds = Rect(0, 0, connect.width, connect.height)
-                root.offsetDescendantRectToMyCoords(connect, bounds)
-                assertTrue(bounds.bottom <= nav.top)
+                val actionRow = connect.parent as View
+                assertTrue("Connect clipped within its action row at $w x $h", connect.top >= 0 && connect.bottom <= actionRow.height)
+                assertTrue("Action row clipped within settings panel at $w x $h", actionRow.top >= 0 && actionRow.bottom <= panel.height)
+                assertTrue("Map content overlaps tabs at $w x $h", activity.findViewById<View>(R.id.fragmentContainer).bottom <= nav.top)
                 settings.isSmoothScrollingEnabled = false
                 settings.fullScroll(View.FOCUS_DOWN)
                 val local = activity.findViewById<CheckBox>(R.id.checkMulticast)
@@ -160,6 +161,11 @@ class MainActivityStartupTest {
                 localBounds.offset(0, -settings.scrollY)
                 assertTrue("Local TAK unreachable at $w x $h: $localBounds / ${settings.height}",
                     localBounds.top >= 0 && localBounds.bottom <= settings.height)
+                val render = Bitmap.createBitmap(root.width, root.height, Bitmap.Config.ARGB_8888)
+                root.draw(Canvas(render))
+                File("build/reports/ui/settings-${w}x${h}.png").apply { parentFile?.mkdirs() }.outputStream().use {
+                    render.compress(Bitmap.CompressFormat.PNG, 100, it)
+                }
             }
             val settings = activity.findViewById<android.widget.ScrollView>(R.id.connectionSettings)
             settings.scrollTo(0, 0)
