@@ -301,7 +301,7 @@ class MainActivity : AppCompatActivity() {
 
         // Breadcrumb trail polyline
         breadcrumbTrail = Polyline().apply {
-            outlinePaint.color = ContextCompat.getColor(this, R.color.prismo_teal)
+            outlinePaint.color = ContextCompat.getColor(this@MainActivity, R.color.prismo_teal)
             outlinePaint.strokeWidth = 4f
             outlinePaint.isAntiAlias = true
             outlinePaint.style = Paint.Style.STROKE
