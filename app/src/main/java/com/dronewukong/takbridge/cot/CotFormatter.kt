@@ -1,10 +1,10 @@
 package com.dronewukong.takbridge.cot
 
 import com.dronewukong.takbridge.mavlink.GpsPosition
-import java.text.SimpleDateFormat
-import java.util.Date
+import java.time.Instant
+import java.time.format.DateTimeFormatter
+import java.time.ZoneOffset
 import java.util.Locale
-import java.util.TimeZone
 import java.util.UUID
 
 /**
@@ -19,9 +19,9 @@ import java.util.UUID
  */
 object CotFormatter {
 
-    private val isoFmt = SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSS'Z'", Locale.US).apply {
-        timeZone = TimeZone.getTimeZone("UTC")
-    }
+    // Immutable and thread-safe: transport/preview callers may format concurrently.
+    private val isoFmt = DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ss.SSS'Z'", Locale.US)
+        .withZone(ZoneOffset.UTC)
 
     // Unknown/unset values per CoT spec (use 9999999 for ce/le/hae when unknown)
     private const val UNKNOWN_CE = 9999999.0
@@ -49,16 +49,22 @@ object CotFormatter {
         staleSec: Int = 30,
         battery: Int? = null,
         endpoint: String? = null,
-        nowMs: Long = System.currentTimeMillis()
+        nowMs: Long = System.currentTimeMillis(),
+        videoUrl: String? = null,
+        videoUid: String = videoUid(uid)
     ): String {
         require(pos.hasValidFix && pos.isFresh(nowMs)) { "CoT requires a fresh valid position" }
+        require(uid.length in 1..256 && callsign.length in 1..256 && cotType.length in 1..128) { "Invalid CoT identity length" }
+        require(staleSec in 1..3600) { "CoT lifetime must be 1–3600 seconds" }
+        require(battery == null || battery in 0..100) { "Battery must be 0–100 percent" }
+        if (!videoUrl.isNullOrEmpty()) SharedVideoAddress.validate(videoUrl)
         val now = pos.timestampMs
         val stale = now + (staleSec * 1000L)
-        val timeStr = isoFmt.format(Date(now))
-        val staleStr = isoFmt.format(Date(stale))
+        val timeStr = isoFmt.format(Instant.ofEpochMilli(now))
+        val staleStr = isoFmt.format(Instant.ofEpochMilli(stale))
 
         // CE from HDOP: HDOP * ~5m typical GPS accuracy
-        val ce = if (pos.hdop > 0) pos.hdop * 5.0 else UNKNOWN_CE
+        val ce = if (pos.hdop.isFinite() && pos.hdop > 0 && pos.hdop < UNKNOWN_CE / 5.0) pos.hdop * 5.0 else UNKNOWN_CE
         val hae = UNKNOWN_HAE // MSL cannot be labelled HAE without a geoid correction.
 
         return buildString {
@@ -120,6 +126,10 @@ object CotFormatter {
             append(" version='1.0'/>")
 
             append("<remarks>Altitude MSL: ${String.format(Locale.US, "%.2f", pos.altMsl)} m</remarks>")
+            // Null: no video update. Empty: remove the previously advertised link.
+            if (videoUrl != null) {
+                append("<__video url='${xml(videoUrl)}' uid='${xml(videoUid)}' buffer='-1' timeout='5000'/>")
+            }
             append("</detail>")
             append("</event>")
         }
@@ -147,86 +157,47 @@ object CotFormatter {
         lon: Double,
         hae: Double = UNKNOWN_HAE
     ): String {
+        require(lat.isFinite() && lat in -90.0..90.0 && lon.isFinite() && lon in -180.0..180.0) { "Invalid coordinates" }
+        require(hae.isFinite()) { "Invalid altitude" }
         val now = System.currentTimeMillis()
         val stale = now + 30_000L
-        val timeStr = isoFmt.format(Date(now))
-        val staleStr = isoFmt.format(Date(stale))
+        val timeStr = isoFmt.format(Instant.ofEpochMilli(now))
+        val staleStr = isoFmt.format(Instant.ofEpochMilli(stale))
 
         return buildString {
             append("<?xml version='1.0' encoding='UTF-8' standalone='yes'?>")
             append("<event version='2.0'")
-            append(" uid='$spiUid'")
+            append(" uid='${xml(spiUid)}'")
             append(" type='${CotTypes.SENSOR_SPI_LOCATION}'")
             append(" time='$timeStr'")
             append(" start='$timeStr'")
             append(" stale='$staleStr'")
             append(" how='m-g'>")
-            append("<point lat='$lat' lon='$lon' hae='${String.format("%.2f", hae)}'")
+            append("<point lat='$lat' lon='$lon' hae='${String.format(Locale.US, "%.2f", hae)}'")
             append(" ce='$UNKNOWN_CE' le='$UNKNOWN_LE'/>")
             append("<detail>")
-            append("<contact callsign='$callsign SPI'/>")
-            append("<uid Droid='$callsign SPI'/>")
+            append("<contact callsign='${xml(callsign)} SPI'/>")
+            append("<uid Droid='${xml(callsign)} SPI'/>")
             // Link back to parent drone marker
-            append("<link uid='$droneUid' type='${CotTypes.UAV_FRIENDLY_ROTARY}'")
+            append("<link uid='${xml(droneUid)}' type='${CotTypes.UAV_FRIENDLY_ROTARY}'")
             append(" relation='p-p' how='m-g'/>")
             append("</detail>")
             append("</event>")
         }
     }
 
-    /**
-     * Build a video alias CoT event.
-     * Attaches an RTSP/RTMP stream to a drone marker in ATAK.
-     *
-     * Detail spec from VideoDetailHandler.java (ATAK-CIV):
-     *   WARNING: video_spi_uid and video_sensor_uid are used by the UAS tool.
-     *
-     * @param droneUid   UID of the parent drone marker
-     * @param videoUid   Unique UID for this video connection entry
-     * @param callsign   Display name
-     * @param rtspUrl    Full RTSP/RTMP/UDP URL
-     * @param spiUid     UID of associated SPI marker (optional)
-     * @param sensorUid  UID of associated sensor FOV marker (optional)
+    /** Video metadata shares the aircraft's validated position; never publish a fabricated origin.
+     * Wire attribute names are documented in public ATAK sources; see docs/TAK_PUBLISHING.md.
      */
     fun buildVideoAlias(
         droneUid: String,
         videoUid: String,
         callsign: String,
         rtspUrl: String,
-        spiUid: String? = null,
-        sensorUid: String? = null
-    ): String {
-        val now = System.currentTimeMillis()
-        val stale = now + 30_000L
-        val timeStr = isoFmt.format(Date(now))
-        val staleStr = isoFmt.format(Date(stale))
-
-        return buildString {
-            append("<?xml version='1.0' encoding='UTF-8' standalone='yes'?>")
-            append("<event version='2.0'")
-            append(" uid='$droneUid'")
-            append(" type='${CotTypes.UAV_FRIENDLY_ROTARY}'")
-            append(" time='$timeStr'")
-            append(" start='$timeStr'")
-            append(" stale='$staleStr'")
-            append(" how='m-g'>")
-            // Point at 0,0 — video events piggyback on the drone marker's position
-            append("<point lat='0.0' lon='0.0' hae='0.0' ce='$UNKNOWN_CE' le='$UNKNOWN_LE'/>")
-            append("<detail>")
-            // __video element — sourced from VideoDetailHandler.java (ATAK-CIV)
-            // uid links to ConnectionEntry in ATAK's VideoManager
-            // spi/sensor UIDs link to the SPI and FOV cone markers
-            append("<__video")
-            append(" url='$rtspUrl'")
-            append(" uid='$videoUid'")
-            if (spiUid != null) append(" spi='$spiUid'")
-            if (sensorUid != null) append(" sensor='$sensorUid'")
-            append(" buffer='-1'")
-            append(" timeout='5000'/>")
-            append("</detail>")
-            append("</event>")
-        }
-    }
+        pos: GpsPosition,
+        nowMs: Long = System.currentTimeMillis()
+    ): String = buildDroneSA(droneUid, callsign, pos, nowMs = nowMs,
+        videoUrl = SharedVideoAddress.validate(rtspUrl), videoUid = videoUid)
 
     /**
      * Build a Sensor FOV CoT event.
@@ -264,42 +235,47 @@ object CotFormatter {
         lon: Double,
         hae: Double = UNKNOWN_HAE
     ): String {
+        require(lat.isFinite() && lat in -90.0..90.0 && lon.isFinite() && lon in -180.0..180.0) { "Invalid coordinates" }
+        require(hae.isFinite()) { "Invalid altitude" }
+        require(azimuthDeg.isFinite() && azimuthDeg in 0.0..<360.0 &&
+            hFovDeg.isFinite() && hFovDeg in 0.0..360.0 && vFovDeg.isFinite() && vFovDeg in 0.0..180.0 &&
+            rangeM.isFinite() && rangeM >= 0 && rollDeg.isFinite() && elevDeg.isFinite()) { "Invalid sensor geometry" }
         val now = System.currentTimeMillis()
         val stale = now + 30_000L
-        val timeStr = isoFmt.format(Date(now))
-        val staleStr = isoFmt.format(Date(stale))
+        val timeStr = isoFmt.format(Instant.ofEpochMilli(now))
+        val staleStr = isoFmt.format(Instant.ofEpochMilli(stale))
         val clampedRange = minOf(rangeM, 15000.0)
 
         return buildString {
             append("<?xml version='1.0' encoding='UTF-8' standalone='yes'?>")
             append("<event version='2.0'")
-            append(" uid='$sensorUid'")
+            append(" uid='${xml(sensorUid)}'")
             append(" type='${CotTypes.SENSOR_SPI}'")
             append(" time='$timeStr'")
             append(" start='$timeStr'")
             append(" stale='$staleStr'")
             append(" how='m-g'>")
             append("<point lat='$lat' lon='$lon'")
-            append(" hae='${String.format("%.2f", hae)}'")
+            append(" hae='${String.format(Locale.US, "%.2f", hae)}'")
             append(" ce='$UNKNOWN_CE' le='$UNKNOWN_LE'/>")
             append("<detail>")
-            append("<contact callsign='$callsign Sensor'/>")
+            append("<contact callsign='${xml(callsign)} Sensor'/>")
             // sensor element — full schema from SensorDetailHandler.java (ATAK-CIV)
             // NOTE: fov is edge-to-edge, NOT half-angle. A 90-deg camera has fov="90".
             append("<sensor")
-            append(" azimuth='${String.format("%.1f", azimuthDeg)}'")
-            append(" fov='${String.format("%.1f", hFovDeg)}'")
-            append(" vfov='${String.format("%.1f", vFovDeg)}'")
-            append(" range='${String.format("%.0f", clampedRange)}'")
-            append(" roll='${String.format("%.1f", rollDeg)}'")
-            append(" elevation='${String.format("%.1f", elevDeg)}'")
+            append(" azimuth='${String.format(Locale.US, "%.1f", azimuthDeg)}'")
+            append(" fov='${String.format(Locale.US, "%.1f", hFovDeg)}'")
+            append(" vfov='${String.format(Locale.US, "%.1f", vFovDeg)}'")
+            append(" range='${String.format(Locale.US, "%.0f", clampedRange)}'")
+            append(" roll='${String.format(Locale.US, "%.1f", rollDeg)}'")
+            append(" elevation='${String.format(Locale.US, "%.1f", elevDeg)}'")
             append(" fovAlpha='0.3'")
             append(" fovRed='0.0' fovGreen='0.8' fovBlue='1.0'")  // teal
             append(" strokeColor='-1'")  // white outline
             append(" strokeWeight='1.0'")
             append(" displayMagneticReference='0'/>")
             // link back to parent drone
-            append("<link uid='$droneUid' type='${CotTypes.UAV_FRIENDLY_ROTARY}'")
+            append("<link uid='${xml(droneUid)}' type='${CotTypes.UAV_FRIENDLY_ROTARY}'")
             append(" relation='p-p' how='m-g'/>")
             append("</detail>")
             append("</event>")
@@ -326,15 +302,16 @@ object CotFormatter {
         lat: Double,
         lon: Double
     ): String {
+        require(lat.isFinite() && lat in -90.0..90.0 && lon.isFinite() && lon in -180.0..180.0) { "Invalid coordinates" }
         val now = System.currentTimeMillis()
         val stale = now + 60_000L
-        val timeStr = isoFmt.format(Date(now))
-        val staleStr = isoFmt.format(Date(stale))
+        val timeStr = isoFmt.format(Instant.ofEpochMilli(now))
+        val staleStr = isoFmt.format(Instant.ofEpochMilli(stale))
 
         return buildString {
             append("<?xml version='1.0' encoding='UTF-8' standalone='yes'?>")
             append("<event version='2.0'")
-            append(" uid='$targetUid'")
+            append(" uid='${xml(targetUid)}'")
             append(" type='${CotTypes.SENSOR_SPI_LOCATION}'")
             append(" time='$timeStr'")
             append(" start='$timeStr'")
@@ -343,12 +320,12 @@ object CotFormatter {
             append("<point lat='$lat' lon='$lon' hae='$UNKNOWN_HAE'")
             append(" ce='$UNKNOWN_CE' le='$UNKNOWN_LE'/>")
             append("<detail>")
-            append("<contact callsign='$callsign'/>")
+            append("<contact callsign='${xml(callsign)}'/>")
             // __services element from ServicesDetailHandler.java (ATAK-CIV)
             // Type prefix "s-" + taskType. cot:// URI is the tasking sink.
             append("<__services>")
-            append("<ipfeature desc='UAV Tasking' type='s-$taskType'>")
-            append("<sink mime='application/x-cot' uri='cot://$cotSink'/>")
+            append("<ipfeature desc='UAV Tasking' type='s-${xml(taskType)}'>")
+            append("<sink mime='application/x-cot' uri='${xml("cot://$cotSink")}'/>")
             append("</ipfeature>")
             append("</__services>")
             append("</detail>")
@@ -378,38 +355,45 @@ object CotFormatter {
         type: String = "911 Alert",
         cancel: Boolean = false
     ): String {
+        require(lat.isFinite() && lat in -90.0..90.0 && lon.isFinite() && lon in -180.0..180.0) { "Invalid coordinates" }
+        require(hae.isFinite()) { "Invalid altitude" }
         val now = System.currentTimeMillis()
         val stale = now + 300_000L  // 5 min stale for emergency
-        val timeStr = isoFmt.format(Date(now))
-        val staleStr = isoFmt.format(Date(stale))
+        val timeStr = isoFmt.format(Instant.ofEpochMilli(now))
+        val staleStr = isoFmt.format(Instant.ofEpochMilli(stale))
 
         return buildString {
             append("<?xml version='1.0' encoding='UTF-8' standalone='yes'?>")
             append("<event version='2.0'")
-            append(" uid='$uid'")
+            append(" uid='${xml(uid)}'")
             append(" type='${CotTypes.EMERGENCY_911}'")
             append(" time='$timeStr'")
             append(" start='$timeStr'")
             append(" stale='$staleStr'")
             append(" how='m-g'>")
             append("<point lat='$lat' lon='$lon'")
-            append(" hae='${String.format("%.2f", hae)}'")
+            append(" hae='${String.format(Locale.US, "%.2f", hae)}'")
             append(" ce='$UNKNOWN_CE' le='$UNKNOWN_LE'/>")
             append("<detail>")
-            append("<contact callsign='$callsign'/>")
-            append("<uid Droid='$callsign'/>")
+            append("<contact callsign='${xml(callsign)}'/>")
+            append("<uid Droid='${xml(callsign)}'/>")
             if (cancel) {
                 append("<emergency cancel='true'/>")
             } else {
-                append("<emergency type='$type'/>")
+                append("<emergency type='${xml(type)}'/>")
             }
             append("</detail>")
             append("</event>")
         }
     }
 
-    private fun xml(value: String): String = value.replace("&", "&amp;")
+    private fun xml(value: String): String {
+        require(value.codePoints().allMatch { it == 9 || it == 10 || it == 13 ||
+            it in 0x20..0xD7FF || it in 0xE000..0xFFFD || it in 0x10000..0x10FFFF }) { "Invalid XML text" }
+        return value.replace("&", "&amp;")
         .replace("<", "&lt;").replace(">", "&gt;").replace("'", "&apos;").replace("\"", "&quot;")
+
+    }
 
     // ─── Helpers ───────────────────────────────────────────────────────────────
 

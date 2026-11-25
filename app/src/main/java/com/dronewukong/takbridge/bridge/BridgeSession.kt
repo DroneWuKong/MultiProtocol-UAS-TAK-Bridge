@@ -3,7 +3,7 @@ package com.dronewukong.takbridge.bridge
 import android.content.Context
 import android.os.Handler
 import android.os.Looper
-import com.dronewukong.takbridge.cot.CotFormatter
+import com.dronewukong.takbridge.cot.TakPublication
 import com.dronewukong.takbridge.mavlink.GpsPosition
 import com.dronewukong.takbridge.mavlink.ProtocolRouter
 import com.dronewukong.takbridge.transport.*
@@ -88,6 +88,7 @@ class BridgeSession(private val context: Context, private val clock: () -> Long 
             it.readText().replace(Regex("\\s+"), "").chunked(2).map { hex -> hex.toInt(16).toByte() }.toByteArray()
         }
         replayGps = fixture("mav2-gps"); replayNoFix = fixture("mav2-no-fix")
+        sender.updateConfig(ConfigStore.loadTakConfig(context))
         simulation = true; active = true; replayStep = 0; previewCount = 0
         sourceProtocol = ProtocolRouter.Protocol.MAVLINK
         router.setProtocol(sourceProtocol)
@@ -146,11 +147,14 @@ class BridgeSession(private val context: Context, private val clock: () -> Long 
         val pos = lastPosition ?: return
         if (!active || (!simulation && !usb.isConnected) || !pos.hasValidFix || !pos.isFresh(now)) return
         val cfg = sender.config
-        val xml = CotFormatter.buildDroneSA(pos = pos,
-            uid = if (simulation) "TAKBridge-SIMULATION" else cfg.uid,
-            callsign = if (simulation) "SIMULATION" else cfg.callsign, cotType = cfg.cotType, staleSec = cfg.staleSeconds, nowMs = now)
-        lastCot = xml
-        if (simulation) previewCount++ else sender.send(xml, pos.timestampMs + 5000)
+        if (now >= minOf(pos.timestampMs + 5000, pos.timestampMs + cfg.staleSeconds * 1000L)) return
+        val publication = try { TakPublication.build(pos, cfg, simulation, now) }
+        catch (_: IllegalArgumentException) {
+            status = "Invalid TAK output settings · stop and review identity/video link"
+            return
+        }
+        lastCot = publication.xml
+        if (simulation) previewCount++ else sender.send(publication.xml, publication.validUntilMs)
     }
 
     fun isFresh(pos: GpsPosition) = pos.isFresh(clock())
@@ -176,6 +180,13 @@ class BridgeSession(private val context: Context, private val clock: () -> Long 
         put("gps_age_ms", lastPosition?.let { clock() - it.timestampMs } ?: -1)
         put("multicast_ready", sender.isMulticastConnected); put("server_connected", sender.isTcpConnected)
         put("multicast_sent", sender.multicastSentCount); put("server_sent", sender.tcpSentCount)
+        put("counter_scope", "PROCESS_LIFETIME")
+        put("delivery_evidence", "SOCKET_WRITES_ONLY")
+        put("atak_receipt", "UNCONFIRMED")
+        put("last_multicast_write_ms", sender.lastMulticastWriteMs)
+        put("last_server_write_ms", sender.lastTcpWriteMs)
+        put("expired_output_events", sender.expiredCount)
+        put("video_link_enabled", sender.config.videoEnabled)
         put("output_error_present", sender.lastError != null); put("local_previews", previewCount)
         put("note", "Sent counters show socket writes, not confirmation of display in ATAK. Coordinates, identity, endpoints and credentials omitted.")
     }.toString(2)

@@ -1,0 +1,12 @@
+<resources>
+    <string name="tak_video_settings">TAK video link</string>
+    <string name="tak_video_enabled">Share video address with TAK recipients</string>
+    <string name="tak_video_address">RTSP address for other TAK devices</string>
+    <string name="tak_video_help">Share an existing camera or relay address alongside fresh aircraft GPS. This sends a link; it does not upload video or start a camera. Every recipient can read the complete address, including query parameters. Use a reachable address without passwords or access tokens. Authentication should be configured separately on each viewer.</string>
+    <string name="tak_video_stop_first">Stop the bridge before saving video settings.</string>
+    <string name="tak_video_saved">Saved. The next live bridge session will share the link with fresh aircraft positions. The software demo previews it locally.</string>
+    <string name="tak_video_disabled">Sharing disabled and saved address cleared. The next fresh position update requests removal of the previous link in ATAK.</string>
+    <string name="tak_video_delivery">Socket writes confirm only local transmission. Verify the marker and video on a receiving ATAK device; receipt and playback are not acknowledged by this bridge.</string>
+    <string name="tak_video_save">Save video settings</string>
+    <string name="tak_video_back">Back to bridge</string>
+</resources>

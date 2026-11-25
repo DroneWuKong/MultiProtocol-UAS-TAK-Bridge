@@ -1,3 +1,6 @@
 # Generated document and screenshot artifacts are binary.
 *.pdf binary
 *.png binary
+
+# Keep the Unix launcher executable even with core.autocrlf=true.
+gradlew text eol=lf
