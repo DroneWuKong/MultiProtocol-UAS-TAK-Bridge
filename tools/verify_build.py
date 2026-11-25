@@ -9,7 +9,8 @@ reports = list((root / 'app/build/test-results/testDebugUnitTest').glob('TEST-*.
 assert reports, 'Missing native test reports: Gradle may not have run'
 suites = [ET.parse(p).getroot() for p in reports]
 expected = {'MainActivityStartupTest', 'TelemetryCompatibilityTest', 'ToolsActionsTest',
-            'BridgeLifecycleTest', 'TakTransportTest', 'ConnectionProfileMigrationTest'}
+            'BridgeLifecycleTest', 'TakTransportTest', 'ConnectionProfileMigrationTest',
+            'TakPublicationTest', 'TakVideoSettingsTest'}
 assert expected <= {s.attrib['name'].split('.')[-1] for s in suites}, 'Required regression suite missing'
 for suite in suites:
     assert int(suite.get('tests', 0)) > 0, f'Empty suite: {suite.get("name")}'

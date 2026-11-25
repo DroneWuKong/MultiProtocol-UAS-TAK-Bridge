@@ -17,10 +17,14 @@ data class TakConfig(
 
     // Identity
     val callsign: String = "DRONE-01",
-    val uid: String = "TAKBridge-${System.currentTimeMillis() % 100000}",
+    val uid: String = "TAKBridge-${java.util.UUID.randomUUID()}",
     val cotType: String = "a-f-A-M-H-Q",
 
     // Timing
     val updateIntervalMs: Long = 1000, // How often to push CoT
-    val staleSeconds: Int = 30         // How long before TAK marks stale
+    val staleSeconds: Int = 30,        // How long before TAK marks stale
+
+    // Explicit opt-in: this address is distributed to all recipients of the marker.
+    val videoEnabled: Boolean = false,
+    val videoUrl: String = ""
 )

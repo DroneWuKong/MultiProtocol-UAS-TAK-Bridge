@@ -441,6 +441,11 @@ class MainActivity : AppCompatActivity() {
             } else connect()
         }
 
+        findViewById<Button>(R.id.btnTakVideo).setOnClickListener {
+            saveConfig()
+            startActivity(Intent(this, TakVideoSettingsActivity::class.java))
+        }
+
         // Map controls
         btnCenterDrone.setOnClickListener {
             autoFollow = true
@@ -506,7 +511,7 @@ class MainActivity : AppCompatActivity() {
         lastPosition = pos
         protocolStatus.text = if (session.active) session.router.getStatusString() else ""
         cotRateText.text = if (session.simulation) "SIM · ${session.previewCount} local previews"
-            else "CoT sent: ${session.sender.multicastSentCount + session.sender.tcpSentCount}"
+            else "Socket writes: ${session.sender.multicastSentCount + session.sender.tcpSentCount}"
         multicastDot.setBackgroundResource(if (session.sender.isMulticastConnected) R.drawable.dot_green else R.drawable.dot_red)
         tcpDot.setBackgroundResource(if (session.sender.isTcpConnected) R.drawable.dot_green else R.drawable.dot_red)
         multicastDot.contentDescription = if (session.sender.isMulticastConnected) "Local TAK socket ready" else "Local TAK socket inactive"
@@ -585,7 +590,6 @@ class MainActivity : AppCompatActivity() {
         val host = editTakHost.text.toString().trim()
         val port = editTakPort.text.toString().toIntOrNull()?.takeIf { it in 1..65535 } ?: ConfigStore.loadTakConfig(this).tcpPort
         ConfigStore.saveTakConfig(this, ConfigStore.loadTakConfig(this).copy(
-            uid = "TAKBridge-$callsign",
             multicastEnabled = findViewById<CheckBox>(R.id.checkMulticast).isChecked,
             callsign = callsign, tcpHost = host, tcpPort = port,
             useTls = checkTls.isChecked

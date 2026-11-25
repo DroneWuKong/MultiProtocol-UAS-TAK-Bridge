@@ -52,15 +52,19 @@ object ConfigStore {
             putBoolean(KEY_TCP_USE_TLS, config.useTls)
             putLong(KEY_UPDATE_INTERVAL, config.updateIntervalMs)
             putInt(KEY_STALE_SECONDS, config.staleSeconds)
+            putBoolean("video_enabled", config.videoEnabled)
+            putString("video_url", config.videoUrl)
             apply()
         }
     }
 
-    fun loadTakConfig(context: Context): TakConfig {
+    @Synchronized fun loadTakConfig(context: Context): TakConfig {
         val p = prefs(context)
+        val stableUid = p.getString(KEY_UID, null)?.takeIf { it.isNotBlank() }
+            ?: "TAKBridge-${java.util.UUID.randomUUID()}".also { p.edit().putString(KEY_UID, it).apply() }
         return TakConfig(
             callsign = p.getString(KEY_CALLSIGN, "DRONE-01") ?: "DRONE-01",
-            uid = p.getString(KEY_UID, "TAKBridge-${System.currentTimeMillis() % 100000}") ?: "TAKBridge-0",
+            uid = stableUid,
             cotType = p.getString(KEY_COT_TYPE, "a-f-A-M-H-Q") ?: "a-f-A-M-H-Q",
             multicastEnabled = p.getBoolean(KEY_MULTICAST_ENABLED, true),
             multicastAddress = p.getString(KEY_MULTICAST_ADDRESS, "239.2.3.1") ?: "239.2.3.1",
@@ -70,7 +74,9 @@ object ConfigStore {
             tcpPort = p.getInt(KEY_TCP_PORT, 8087).takeIf { it in 1..65535 } ?: 8087,
             useTls = p.getBoolean(KEY_TCP_USE_TLS, false),
             updateIntervalMs = p.getLong(KEY_UPDATE_INTERVAL, 1000).coerceAtLeast(100),
-            staleSeconds = p.getInt(KEY_STALE_SECONDS, 30)
+            staleSeconds = p.getInt(KEY_STALE_SECONDS, 30).coerceIn(1, 3600),
+            videoEnabled = p.getBoolean("video_enabled", false),
+            videoUrl = p.getString("video_url", "") ?: ""
         )
     }
 

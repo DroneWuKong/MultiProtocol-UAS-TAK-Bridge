@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/takVideoRoot" android:layout_width="match_parent" android:layout_height="match_parent"
+    android:fillViewport="true" android:background="@color/prismo_background">
+    <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:orientation="vertical" android:padding="20dp">
+        <TextView android:layout_width="match_parent" android:layout_height="wrap_content" android:text="@string/tak_video_settings" android:textColor="@color/prismo_teal" android:textStyle="bold" android:textSize="24sp" />
+        <TextView android:layout_width="match_parent" android:layout_height="wrap_content" android:text="@string/tak_video_help" android:textColor="@color/prismo_text" android:textSize="16sp" android:layout_marginTop="16dp" />
+        <CheckBox android:id="@+id/takVideoEnabled" android:layout_width="match_parent" android:layout_height="wrap_content" android:minHeight="48dp" android:text="@string/tak_video_enabled" android:textColor="@color/prismo_text" android:buttonTint="@color/prismo_teal" android:saveEnabled="false" />
+        <EditText android:id="@+id/takVideoAddress" android:layout_width="match_parent" android:layout_height="wrap_content" android:minHeight="56dp" android:hint="@string/tak_video_address" android:contentDescription="@string/tak_video_address" android:inputType="textUri" android:singleLine="true" android:saveEnabled="false" android:importantForAutofill="no" android:textColor="@color/prismo_text" android:textColorHint="@color/prismo_muted" />
+        <Button android:id="@+id/takVideoSave" android:layout_width="match_parent" android:layout_height="wrap_content" android:minHeight="52dp" android:text="@string/tak_video_save" android:textAllCaps="false" />
+        <TextView android:id="@+id/takVideoStatus" android:layout_width="match_parent" android:layout_height="wrap_content" android:textColor="@color/prismo_teal" android:textSize="16sp" android:accessibilityLiveRegion="polite" android:layout_marginVertical="12dp" />
+        <TextView android:layout_width="match_parent" android:layout_height="wrap_content" android:text="@string/tak_video_delivery" android:textColor="@color/prismo_muted" android:textSize="14sp" />
+        <Button android:id="@+id/takVideoBack" android:layout_width="match_parent" android:layout_height="wrap_content" android:minHeight="52dp" android:text="@string/tak_video_back" android:textAllCaps="false" android:layout_marginTop="16dp" />
+    </LinearLayout>
+</ScrollView>

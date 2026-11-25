@@ -35,6 +35,9 @@ class TakSender(@Suppress("UNUSED_PARAMETER") context: Context) {
     var tlsCaPath = ""
     @Volatile var multicastSentCount = 0L; private set
     @Volatile var tcpSentCount = 0L; private set
+    @Volatile var lastMulticastWriteMs = 0L; private set
+    @Volatile var lastTcpWriteMs = 0L; private set
+    @Volatile var expiredCount = 0L; private set
     @Volatile var lastError: String? = null; private set
     @Volatile var isMulticastConnected = false; private set
     @Volatile var isTcpConnected = false; private set
@@ -42,6 +45,7 @@ class TakSender(@Suppress("UNUSED_PARAMETER") context: Context) {
 
     @Synchronized fun updateConfig(newConfig: TakConfig) {
         require(newConfig.tcpPort in 1..65535 && newConfig.multicastPort in 1..65535) { "Port must be 1–65535" }
+        require(newConfig.staleSeconds in 1..3600) { "CoT lifetime must be 1–3600 seconds" }
         require(newConfig.updateIntervalMs >= 100) { "Update interval too short" }
         config = newConfig
     }
@@ -63,10 +67,11 @@ class TakSender(@Suppress("UNUSED_PARAMETER") context: Context) {
                     if (!current(s)) return@launch
                     update(s) { isMulticastConnected = true; notify(s) }
                     for (message in s.udp) {
-                        if (!current(s) || message.deadline < System.currentTimeMillis()) continue
+                        if (!current(s)) continue
+                        if (message.deadline <= System.currentTimeMillis()) { update(s) { expiredCount++ }; continue }
                         val bytes = message.xml.toByteArray(Charsets.UTF_8)
                         socket.send(DatagramPacket(bytes, bytes.size, address, s.config.multicastPort))
-                        update(s) { multicastSentCount++; notify(s) }
+                        update(s) { multicastSentCount++; lastMulticastWriteMs = System.currentTimeMillis(); notify(s) }
                     }
                 }
             } catch (e: Exception) {
@@ -107,9 +112,9 @@ class TakSender(@Suppress("UNUSED_PARAMETER") context: Context) {
                         val out = socket.getOutputStream()
                         while (isActive && current(s) && !socket.isClosed) {
                             val message = withTimeoutOrNull(250) { s.tcp.receive() } ?: continue
-                            if (message.deadline < System.currentTimeMillis()) continue
+                            if (message.deadline <= System.currentTimeMillis()) { update(s) { expiredCount++ }; continue }
                             out.write(message.xml.toByteArray(Charsets.UTF_8)); out.flush()
-                            update(s) { tcpSentCount++; notify(s) }
+                            update(s) { tcpSentCount++; lastTcpWriteMs = System.currentTimeMillis(); notify(s) }
                         }
                     }
                     update(s) { lastError = "TAK server closed the connection" }
@@ -138,7 +143,7 @@ class TakSender(@Suppress("UNUSED_PARAMETER") context: Context) {
     /** A reconnect never flushes a backlog of stale aircraft positions. */
     @Synchronized fun send(cotXml: String, validUntilMs: Long = System.currentTimeMillis() + 1000) {
         val s = session ?: return
-        if (validUntilMs < System.currentTimeMillis()) return
+        if (validUntilMs <= System.currentTimeMillis()) { expiredCount++; return }
         val message = Message(cotXml, validUntilMs)
         if (s.config.multicastEnabled) s.udp.trySend(message)
         if (s.config.tcpEnabled) s.tcp.trySend(message)

@@ -22,6 +22,14 @@ shows/export counters and connection stages without coordinates or credentials.
 
 See [v1 readiness, release signing and remaining device checks](docs/V1_READINESS.md).
 
+## TAK video links and delivery status
+
+**Connection settings → TAK video link** can attach an existing, reachable RTSP address to the aircraft's fresh position updates. Sharing is opt-in and distributes the complete address to TAK recipients. It does not relay video or start a camera. Disabling sharing clears the saved address and requests removal on the next valid position update. The software demo previews the same metadata locally.
+
+The output counter now says **Socket writes**; it does not claim receipt or display in ATAK. Diagnostics include last-write timestamps and expired-event counts without exporting the video address. Fresh installations use persistent UUID-based aircraft identities, and callsign edits preserve existing IDs.
+
+See [publishing behavior, provenance scope and bench checks](docs/TAK_PUBLISHING.md).
+
 ## What It Does
 
 ```
