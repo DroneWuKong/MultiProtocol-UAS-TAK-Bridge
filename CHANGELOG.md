@@ -1,5 +1,17 @@
 # Changelog
 
+## 0.5.0-beta.1 — 2026-11-25
+
+- Share an existing RTSP link with fresh aircraft position events; remove the saved link and request remote removal when sharing is disabled.
+- Preserve aircraft identity across callsign edits; new installations use persistent UUID identities.
+- Report socket writes, last-write times and expired events without claiming ATAK receipt.
+- Validate coordinates, video addresses and XML text; discard expired queued positions.
+- Publish a non-debuggable, signed **TAK Bridge Beta** APK with a separate application ID.
+- Add direct download links, a three-page quick start, an eight-page manual and real emulator screenshots from the signed APK, with capture hashes.
+- Add repeatable beta build/signature verification and screenshot capture scripts; compile and lint the beta in CI.
+
+The public beta shares video URLs, not video bytes. It does not include an in-app viewer or proprietary accessory implementation. Physical USB/GPS and receiving-device TAK/video playback remain unqualified.
+
 ## 0.4.0 — Prismo interface and guides (2026-10-02)
 
 - Prismo charcoal, teal and cream styling across Map and Tools, with larger controls, a restrained map palette and named connection-state accessibility descriptions.

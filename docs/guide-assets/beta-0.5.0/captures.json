@@ -1,0 +1,93 @@
+{
+  "home.png": {
+    "captured_utc": "2026-11-25T15:40:35.588575+00:00",
+    "method": "adb exec-out screencap -p; unmodified PNG",
+    "scenario": "Android 11 emulator, 480x960 at 180 dpi; no telemetry source; default map is not an aircraft fix",
+    "device_serial": "emulator-5554",
+    "emulator": true,
+    "android_release": "11",
+    "sdk": "30",
+    "model": "Android SDK built for x86_64",
+    "application_id": "com.dronewukong.takbridge.beta",
+    "installed_apk_sha256": "758483ec1cf4d4fa059c27b79f78c55a80627d175f26d7262313f4e5c1c9734a",
+    "png_sha256": "ea883112fc2e3615c5be1704b87ded435fe608804aa4b14932295d4ad6bd63c5"
+  },
+  "demo.png": {
+    "captured_utc": "2026-11-25T15:40:37.738296+00:00",
+    "method": "adb exec-out screencap -p; unmodified PNG",
+    "scenario": "Synthetic MAVLink GPS demo; local CoT previews only, no network publication",
+    "device_serial": "emulator-5554",
+    "emulator": true,
+    "android_release": "11",
+    "sdk": "30",
+    "model": "Android SDK built for x86_64",
+    "application_id": "com.dronewukong.takbridge.beta",
+    "installed_apk_sha256": "758483ec1cf4d4fa059c27b79f78c55a80627d175f26d7262313f4e5c1c9734a",
+    "png_sha256": "b60209d3cc4b544b59d3ad434b8863d815dfadc5c9f8e549347816f5bc134c2f"
+  },
+  "diagnostics.png": {
+    "captured_utc": "2026-11-25T15:40:45.008145+00:00",
+    "method": "adb exec-out screencap -p; unmodified PNG",
+    "scenario": "Diagnostics during synthetic demo; no external receiver; socket write counters zero",
+    "device_serial": "emulator-5554",
+    "emulator": true,
+    "android_release": "11",
+    "sdk": "30",
+    "model": "Android SDK built for x86_64",
+    "application_id": "com.dronewukong.takbridge.beta",
+    "installed_apk_sha256": "758483ec1cf4d4fa059c27b79f78c55a80627d175f26d7262313f4e5c1c9734a",
+    "png_sha256": "815c86fee7929026cab786d7f56b35da6872f0ab70ad49edbb7465f3b9fa931f"
+  },
+  "connection.png": {
+    "captured_utc": "2026-11-25T15:40:59.068358+00:00",
+    "method": "adb exec-out screencap -p; unmodified PNG",
+    "scenario": "Stopped session; USB profile, protocol, baud and callsign settings; no source attached",
+    "device_serial": "emulator-5554",
+    "emulator": true,
+    "android_release": "11",
+    "sdk": "30",
+    "model": "Android SDK built for x86_64",
+    "application_id": "com.dronewukong.takbridge.beta",
+    "installed_apk_sha256": "758483ec1cf4d4fa059c27b79f78c55a80627d175f26d7262313f4e5c1c9734a",
+    "png_sha256": "58b63bf959c3fc288b2ddb8bf9840e322a1bda2c53e43023b15a445741f2260b"
+  },
+  "destination.png": {
+    "captured_utc": "2026-11-25T15:41:10.738951+00:00",
+    "method": "adb exec-out screencap -p; unmodified PNG",
+    "scenario": "Stopped session; TAK destination fields with default TCP port and Local TAK enabled; no server configured",
+    "device_serial": "emulator-5554",
+    "emulator": true,
+    "android_release": "11",
+    "sdk": "30",
+    "model": "Android SDK built for x86_64",
+    "application_id": "com.dronewukong.takbridge.beta",
+    "installed_apk_sha256": "758483ec1cf4d4fa059c27b79f78c55a80627d175f26d7262313f4e5c1c9734a",
+    "png_sha256": "fd0c22a76b0eac13dcfb43e6c73fe33d1048ad74062cb8f53ab93172378db414"
+  },
+  "video.png": {
+    "captured_utc": "2026-11-25T15:41:42.867297+00:00",
+    "method": "adb exec-out screencap -p; unmodified PNG",
+    "scenario": "Video sharing enabled and saved with an illustrative private-LAN RTSP address; no camera or receiver attached; playback not tested",
+    "device_serial": "emulator-5554",
+    "emulator": true,
+    "android_release": "11",
+    "sdk": "30",
+    "model": "Android SDK built for x86_64",
+    "application_id": "com.dronewukong.takbridge.beta",
+    "installed_apk_sha256": "758483ec1cf4d4fa059c27b79f78c55a80627d175f26d7262313f4e5c1c9734a",
+    "png_sha256": "2abe793123c6f962e6607deec9a28a4c20f42c0172f71a31fb2583ef24ce2d09"
+  },
+  "tools.png": {
+    "captured_utc": "2026-11-25T15:42:44.937961+00:00",
+    "method": "adb exec-out screencap -p; unmodified PNG",
+    "scenario": "Bundled tool chooser with keyboard dismissed; Android 11 WebView; no measured RF results",
+    "device_serial": "emulator-5554",
+    "emulator": true,
+    "android_release": "11",
+    "sdk": "30",
+    "model": "Android SDK built for x86_64",
+    "application_id": "com.dronewukong.takbridge.beta",
+    "installed_apk_sha256": "758483ec1cf4d4fa059c27b79f78c55a80627d175f26d7262313f4e5c1c9734a",
+    "png_sha256": "0ec59c259517f93056ed984b57253b37246f69a993624e8aa72a26f5ca830e22"
+  }
+}

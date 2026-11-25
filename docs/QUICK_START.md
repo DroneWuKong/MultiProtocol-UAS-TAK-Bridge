@@ -1,56 +1,63 @@
 # TAK Bridge Quick Start
 
-Prismo / TAK Bridge · Development build 0.4.0
+Prismo / TAK Bridge · Beta 0.5.0-beta.1
 
-## 01. Start here
+## 01. Install and try it
 
-![Actual software-rendered Android screen; no USB source connected.](guide-assets/map-controls.png)
+![Signed beta running on an Android emulator. No physical telemetry source connected.](guide-assets/beta-0.5.0/home.png)
 
-### 1 / Try the screen
+### 1 / Download the APK
 
-Install the development APK on Android 8.0+ with USB host support. Open Map and tap Software demo. Watch the fresh, stale and no-fix states. The demo produces local previews only. Tap Stop demo before connecting live output.
+Open the <a href="https://github.com/DroneWuKong/MultiProtocol-UAS-TAK-Bridge/releases/tag/v0.5.0-beta.1" color="#147463">GitHub beta release</a> on your Android device. Under Assets, choose **TAK-Bridge-0.5.0-beta.1.apk**. The source-code ZIP is for developers; it does not install the app.
 
-### 2 / Match an existing stream
+### 2 / Install TAK Bridge Beta
 
-Use a USB data cable and a source already providing compatible aircraft GPS. Open Connection settings. Check the generic profile, protocol, baud, DTR and callsign against that existing interface. Close the panel.
+Open the downloaded APK. If Android asks, allow your browser or file manager to install this app, then follow the device prompts. Android 8.0 or later is required. Keep normal device protections enabled.
 
-### 3 / Connect and confirm
+The beta has its own icon and settings. It can coexist with an older TAK Bridge install. Future beta updates must use the same signing key; installing over this beta preserves its app data.
 
-Tap Connect, select a serial port if prompted and grant Android USB access. Wait for fresh coordinates and a valid fix. A byte counter or heartbeat alone does not prove GPS.
+### 3 / Try Software demo
 
-### Know where to look
+Open **TAK Bridge Beta** and tap **Software demo**. No USB device, TAK server or camera is needed. Watch the coordinates, marker and GPS status. Tap **Stop demo** when finished.
 
-Tap the coordinate to cycle display formats. + / − zoom; the follow button recentres. Map and Tools are in the bottom navigation. Stop ends the session; switching apps leaves it running.
+> **Practice stays local** — Demo positions are synthetic. The demo does not send them to a network. Map tile downloads still use the internet; missing tiles do not stop telemetry parsing.
 
-> **Device-side setup** — This guide begins with an existing compatible stream. Device-side feature discovery and activation are outside its scope.
+## 02. From demo to live telemetry
 
-## 02. Verify the complete path
+![Real emulator screenshot of the signed beta running its synthetic software demo.](guide-assets/beta-0.5.0/demo.png)
 
-### 4 / Choose a TAK destination
+### 1 / Finish local practice
 
-**Local client:** Enable Local TAK in Connection settings before connecting USB. Configure the receiver for 239.2.3.1:6969. Check network isolation and multicast filtering if nothing arrives.
+The demo cycles fresh GPS, silence and no-fix packets. Watch publishing pause when GPS becomes stale. Open Diagnostics for a local CoT preview, then tap **Stop demo**.
 
-**Server:** Enter the administrator-provided host and port (TCP default 8087). For TLS, enable TLS, import the client .p12 and any required CA through Certificates, then tap Send to TAK and unlock. The host must match the server certificate. Passwords must be entered again after the process ends.
+### 2 / Connect your source
 
-### 5 / Verify the receiving client
+Use a USB host/OTG Android device and data cable. In **Connection settings**, select the profile, protocol and baud matching your existing aircraft GPS stream. Set a callsign, close settings and tap **Connect**. Select a port and grant USB access if prompted.
 
-Confirm the intended callsign and changing position in TAK. CoT counters show socket writes; they do not confirm client display. GPS STALE means publication has paused because the last position is more than five seconds old.
+### 3 / Confirm fresh GPS
 
-| If you see… | Check… |
-| --- | --- |
-| No USB serial interface | Data cable, Android host/OTG and selected source interface. |
-| Bytes but no GPS | Actual upstream GPS stream, protocol, baud and valid fix. |
-| No TAK marker | Group/port or server settings, receiving client and network filtering. |
-| TLS rejected | Password, certificate dates, CA trust and hostname/IP match. |
+Check coordinates and a valid source fix. Bytes alone do not prove GPS. Auto mode is passive; only the Direct FC MSP polling profile requests GPS. Stop before changing connection settings.
 
-### Use Tools when planning
+> **Demo is not a hardware test** — This screenshot shows synthetic data. Validate your real USB interface, cable and aircraft GPS before relying on the bridge.
 
-Open Tools → All tools for searchable RF calculations, terrain paths, mesh scenarios and configuration drafts. Calculators and catalogs are bundled. Map imagery and online elevation need a network; valid HGT or WGS84 GeoTIFF data support offline terrain calculations.
+## 03. Verify TAK and video
 
-> **Keep estimates in context** — RF and coverage results depend on your inputs; they are not field measurements. Check generated configuration text before applying it elsewhere.
+![Actual beta video-sharing dialog. An example address does not demonstrate playback.](guide-assets/beta-0.5.0/video.png)
 
-### Stop, reconnect and share evidence
+### 1 / Choose the destination
 
-Use Stop or the service notification to end the session. Cable loss clears the position and stops the bridge; reconnect explicitly. Diagnostics exports counters without coordinates or credentials. Read the User Manual for the detailed workflows.
+For local reception, enable **Local TAK** before connecting USB and configure the receiver for **239.2.3.1:6969**. For a server, enter its hostname/port and tap **Send to TAK**. TLS needs appropriate certificates, trust and a matching hostname.
 
-Development build 0.4.0. Physical USB/GPS/TAK acceptance remains pending; see V1_READINESS.md. Simulated positions never go to a network.
+### 2 / Check the receiving device
+
+With fresh GPS, confirm the correct aircraft marker and changing location in TAK. **Socket writes** proves only a local write, not server acceptance or ATAK display.
+
+### 3 / Optionally attach video
+
+Stop, open **Connection settings → TAK video link**, enable sharing and save an existing reachable RTSP address. Restart telemetry, then check the marker’s video link and playback on the receiver. This app shares a link; it does not host or display the feed.
+
+### 4 / Finish the session
+
+Use **Stop** or the notification action. To remove a video link, disable sharing and publish a new valid position. See the full manual for TLS setup and troubleshooting.
+
+> **Beta validation** — Physical USB/GPS and receiving TAK/video playback remain unqualified. These screenshots show the signed app on an emulator, not a live deployment.

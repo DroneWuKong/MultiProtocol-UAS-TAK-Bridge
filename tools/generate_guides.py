@@ -1,5 +1,5 @@
 """Rebuild both public PDFs and Markdown from guide_content.py and verified screenshots.
-Requires ReportLab and DejaVu Sans fonts. Images are committed software-test renders.
+Requires ReportLab and DejaVu Sans fonts. Images are unmodified Android emulator captures of the signed beta APK.
 """
 from pathlib import Path
 from xml.sax.saxutils import escape
@@ -106,7 +106,7 @@ def build(pages,filename,name):
             c.setFillColor(TEAL);c.rect(M,611,58,3,fill=1,stroke=0)
             style=ParagraphStyle('cover',fontName='Prismo',fontSize=12,leading=18,textColor=HexColor('#EDF4FA'))
             paragraph(c,page['intro'],style,M,592,465)
-            c.setFont('Prismo',9);c.setFillColor(CREAM);c.drawString(M,535,f'Development build {VERSION}  /  October 2026')
+            c.setFont('Prismo',9);c.setFillColor(CREAM);c.drawString(M,535,f'Beta {VERSION}  /  November 2026')
             x,y,width=M,495,WIDTH
         else:
             c.setFillColor(NAVY);c.rect(0,675,W,117,fill=1,stroke=0)
@@ -132,7 +132,7 @@ def build(pages,filename,name):
     return out
 
 def markdown(pages,filename,title):
-    lines=[f'# {title}',f'\nPrismo / TAK Bridge · Development build {VERSION}\n']
+    lines=[f'# {title}',f'\nPrismo / TAK Bridge · Beta {VERSION}\n']
     for n,page in enumerate(pages,1):
         lines += [f'## {n:02d}. {page["title"]}','']
         if page.get('intro'):lines += [page['intro'],'']

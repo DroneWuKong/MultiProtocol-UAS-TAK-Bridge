@@ -1,5 +1,15 @@
 # Guide screenshots
 
+## Current beta: real emulator captures
+
+The illustrated 0.5.0-beta.1 guides use only the unmodified screenshots in `beta-0.5.0/`. These were captured with Android screencap from the signed beta installed on an emulator. `beta-0.5.0/captures.json` records Android version, scenario, exact installed APK hash and image hashes. Synthetic demo positions are labeled; no physical USB or receiving TAK/video validation is implied.
+
+Reproduce captures with `tools/capture_beta_screenshot.py`, then regenerate the guides with `tools/generate_guides.py`. See [beta documentation](../BETA_RELEASE.md).
+
+## Historical software-test illustrations
+
+The files below are preserved from the earlier guides; they are not the current beta screenshots.
+
 These images depict actual software-rendered application layouts and bundled assets.
 They are illustrations of operation, not physical hardware acceptance evidence.
 

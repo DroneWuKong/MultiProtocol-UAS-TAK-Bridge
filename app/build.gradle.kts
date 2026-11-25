@@ -11,8 +11,8 @@ android {
         applicationId = "com.dronewukong.takbridge"
         minSdk = 26
         targetSdk = 35
-        versionCode = 7
-        versionName = "0.4.0"
+        versionCode = 8
+        versionName = "0.5.0-beta.1"
     }
 
     providers.environmentVariable("TAK_DEBUG_KEYSTORE").orNull?.let { path ->
@@ -29,6 +29,16 @@ android {
         }
     }
 
+    val betaKeyPath = providers.environmentVariable("TAK_BETA_KEYSTORE").orNull
+    if (betaKeyPath != null) {
+        signingConfigs.create("beta") {
+            storeFile = file(betaKeyPath)
+            storePassword = providers.environmentVariable("TAK_BETA_STORE_PASSWORD").orNull
+            keyAlias = providers.environmentVariable("TAK_BETA_KEY_ALIAS").orNull
+            keyPassword = providers.environmentVariable("TAK_BETA_KEY_PASSWORD").orNull
+        }
+    }
+
     buildTypes {
         release {
             if (releaseKeyPath != null) signingConfig = signingConfigs.getByName("release")
@@ -38,6 +48,14 @@ android {
                 "proguard-rules.pro"
             )
         }
+    }
+
+    buildTypes.create("beta") {
+        initWith(buildTypes.getByName("release"))
+        applicationIdSuffix = ".beta"
+        isDebuggable = false
+        matchingFallbacks += listOf("release")
+        if (betaKeyPath != null) signingConfig = signingConfigs.getByName("beta")
     }
 
     compileOptions {
@@ -51,6 +69,7 @@ android {
 
     buildFeatures {
         viewBinding = true
+        buildConfig = true
     }
 
     testOptions.unitTests.isIncludeAndroidResources = true
@@ -87,6 +106,10 @@ dependencies {
 
 // Never silently distribute an unsigned release or substitute a disposable debug key.
 gradle.taskGraph.whenReady {
+    if (allTasks.any { it.name in setOf("assembleBeta", "bundleBeta", "packageBeta") }) {
+        listOf("TAK_BETA_KEYSTORE", "TAK_BETA_STORE_PASSWORD", "TAK_BETA_KEY_ALIAS", "TAK_BETA_KEY_PASSWORD")
+            .forEach { check(!System.getenv(it).isNullOrBlank()) { "Beta signing requires $it; see docs/BETA_RELEASE.md" } }
+    }
     if (allTasks.any { it.name in setOf("assembleRelease", "bundleRelease", "packageRelease") }) {
         listOf("TAK_RELEASE_KEYSTORE", "TAK_RELEASE_STORE_PASSWORD", "TAK_RELEASE_KEY_ALIAS", "TAK_RELEASE_KEY_PASSWORD")
             .forEach { check(!System.getenv(it).isNullOrBlank()) { "Release signing requires $it; see docs/V1_READINESS.md" } }

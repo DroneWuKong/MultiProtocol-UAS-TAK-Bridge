@@ -1,6 +1,8 @@
 # TAK Bridge v1 readiness
 
-Current implementation: 0.4.0 development build, October 2, 2026.
+Current public prerelease: **0.5.0-beta.1**, November 25, 2026. See [beta installation, signing and validation](BETA_RELEASE.md) and [TAK publishing](TAK_PUBLISHING.md).
+
+The sections below retain historical implementation, signing and qualification records. Earlier version numbers and fingerprints describe those builds, not the new beta package.
 
 The Prismo UI refresh adds scrollable connection details and illustrated public
 guides. It retains the telemetry and transport implementation described below.
