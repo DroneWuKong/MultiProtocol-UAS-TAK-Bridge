@@ -3,6 +3,10 @@ on:
   push:
     branches: [main, 'codex/**']
   pull_request:
+# A branch push and its PR should not fetch the same large test SDK concurrently.
+concurrency:
+  group: android-${{ github.head_ref || github.ref_name }}
+  cancel-in-progress: true
 permissions:
   contents: read
 jobs:
@@ -15,6 +19,12 @@ jobs:
           distribution: temurin
           java-version: '17'
       - uses: gradle/actions/setup-gradle@v4
+      - name: Cache Robolectric Android runtimes
+        uses: actions/cache@v4
+        with:
+          path: ~/.m2/repository/org/robolectric
+          key: ${{ runner.os }}-robolectric-${{ hashFiles('app/build.gradle.kts', 'app/src/test/**') }}
+          restore-keys: ${{ runner.os }}-robolectric-
       - uses: actions/setup-node@v4
         with:
           node-version: '22'
