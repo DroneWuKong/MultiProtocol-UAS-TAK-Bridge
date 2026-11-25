@@ -1,187 +1,106 @@
-# MultiProtocol UAS TAK Bridge
+# TAK Bridge
 
-**Drone GPS → MGRS → TAK**
+**Bring an existing aircraft GPS stream into TAK from an Android phone or tablet.**
 
-Standalone Android app that reads supported GPS telemetry from a flight controller or transmitter over USB — MAVLink, MSP, or GHST — converts coordinates to MGRS, and pushes Cursor on Target (CoT) events to TAK (ATAK/WinTAK/iTAK) in real time.
+TAK Bridge reads supported MAVLink, MSP and GHST/CRSF telemetry over USB, shows the aircraft position, and sends Cursor on Target (CoT) updates to a TAK client or server. It can attach an existing RTSP video address to the aircraft marker. The app also includes map and RF planning tools.
 
-Part of the [AI Wingman](https://github.com/DroneWuKong/Ai-Project) ecosystem, but runs independently with zero dependencies on other Wingman components.
+## Download the beta
 
-Hardware descriptions use generic profiles; exact interoperability keys and source
-attribution are retained. See [naming scope](docs/NAMING_POLICY.md).
+**[Download TAK Bridge 0.5.0-beta.1 for Android](https://github.com/DroneWuKong/MultiProtocol-UAS-TAK-Bridge/releases/download/v0.5.0-beta.1/TAK-Bridge-0.5.0-beta.1.apk)** · [Release notes and checksums](https://github.com/DroneWuKong/MultiProtocol-UAS-TAK-Bridge/releases/tag/v0.5.0-beta.1)
 
-## Current development build: 0.4.0
+Requires **Android 8.0 or later**. USB telemetry also requires USB host/OTG support and a data cable. Install the **APK** release asset; the source-code ZIP does not install an Android app.
 
-A foreground service owns active USB/TAK sessions. Switching apps or closing the
-screen leaves the session running; use **STOP** or the notification to end it.
-A cable disconnect clears the position and stops the session. Reconnect explicitly.
+The app appears as **TAK Bridge Beta**. It has its own package and settings, so it can coexist with an older TAK Bridge installation. It is signed with a persistent beta key and has debugging disabled. See [installation, updates and signing details](docs/BETA_RELEASE.md).
 
-**SOFTWARE DEMO** works without USB: recorded-format MAVLink goes through the same
-parser and CoT formatter, with fresh/stale/no-fix phases and a clearly labeled local
-preview. It never sends simulated aircraft positions to a network. **DIAGNOSTICS**
-shows/export counters and connection stages without coordinates or credentials.
+| Start here | Read online | Download PDF |
+| --- | --- | --- |
+| Three-page quick start | [Quick start](docs/QUICK_START.md) | [Quick start PDF](https://github.com/DroneWuKong/MultiProtocol-UAS-TAK-Bridge/releases/download/v0.5.0-beta.1/TAK_Bridge_Quick_Start.pdf) |
+| Illustrated eight-page manual | [User manual](docs/USER_MANUAL.md) | [User manual PDF](https://github.com/DroneWuKong/MultiProtocol-UAS-TAK-Bridge/releases/download/v0.5.0-beta.1/TAK_Bridge_User_Manual.pdf) |
 
-See [v1 readiness, release signing and remaining device checks](docs/V1_READINESS.md).
+## Your first five minutes
 
-## TAK video links and delivery status
+1. **Install:** download the APK on your Android device and open it. If prompted, allow your browser or file manager to install the app, then follow the device prompts. Keep normal device protections enabled.
+2. **Practice:** launch **TAK Bridge Beta → Software demo**. Watch the synthetic position and GPS freshness change. No USB source or TAK server is needed; demo positions stay local.
+3. **Connect:** tap **Stop demo**, open **Connection settings**, and match the profile, protocol and baud to an existing GPS telemetry stream. Connect a USB data cable, tap **Connect**, select the serial port if asked and grant USB access.
+4. **Check GPS:** confirm fresh coordinates and a valid source fix. An open USB port or increasing byte count does not prove GPS reception.
+5. **Send to TAK:** configure Local TAK or your server as described below. Verify the marker and location on the receiving device. Use **Stop** when finished; switching apps does not stop an active session.
 
-**Connection settings → TAK video link** can attach an existing, reachable RTSP address to the aircraft's fresh position updates. Sharing is opt-in and distributes the complete address to TAK recipients. It does not relay video or start a camera. Disabling sharing clears the saved address and requests removal on the next valid position update. The software demo previews the same metadata locally.
+## See the app
 
-The output counter now says **Socket writes**; it does not claim receipt or display in ATAK. Diagnostics include last-write timestamps and expired-event counts without exporting the video address. Fresh installations use persistent UUID-based aircraft identities, and callsign edits preserve existing IDs.
+<p>
+  <img src="docs/guide-assets/beta-0.5.0/home.png" width="240" alt="TAK Bridge Beta home screen on an Android emulator">
+  <img src="docs/guide-assets/beta-0.5.0/demo.png" width="240" alt="The signed beta displaying its synthetic software demo">
+  <img src="docs/guide-assets/beta-0.5.0/video.png" width="240" alt="Actual TAK video link settings dialog">
+</p>
 
-See [publishing behavior, provenance scope and bench checks](docs/TAK_PUBLISHING.md).
+These are **real screenshots of the signed release APK running on an Android emulator**, captured without image edits. Demo data is synthetic. They do not show a physical aircraft, USB connection or receiving TAK client. [Capture details and hashes](docs/guide-assets/beta-0.5.0/captures.json).
 
-## What It Does
+## Send data to ATAK / TAK
 
-```
-Drone FC ──USB OTG──→ Protocol Auto-Detect ──→ Coordinate Formatter ──→ CoT Formatter ──→ TAK
-                       ├─ MAVLink v1/v2          (MGRS/DD/DMS/UTM display)                ├─ Multicast UDP (239.2.3.1:6969)
-                       ├─ MSP v1/v2              Live Map with                         ├─ TAK Server TCP
-                       └─ GHST/CRSF              Drone Marker + Trail                  └─ TAK Server TLS (.p12 cert)
-```
-
-1. **Connects** to a flight controller via USB OTG (phone → FC or phone → transmitter)
-2. **Auto-detects** protocol: MAVLink v1/v2, MSP v1/v2, or GHST/CRSF
-3. **Parses** supported GPS messages from correctly configured telemetry sources
-4. **Converts** lat/lon to MGRS using NGA's official library
-5. **Displays** live map with drone marker (heading rotation), breadcrumb trail, coordinate readout (tap to cycle MGRS / Lat-Lon DD / Lat-Lon DMS / UTM), fix quality, satellites, altitude, speed
-6. **Pushes** CoT events to ATAK/WinTAK/iTAK via configured multicast, TAK Server TCP, or TAK Server TLS
-7. **Tools tab** — the Prismo field tools suite (Channel Planner, Range Estimator, Fresnel Zone, Harmonics, Dipole Length, VTX Config, FC Matcher, ELRS, etc.) runs in an embedded WebView with bundled libraries and catalogs. Online tiles/elevation need network access; local DEMs support offline terrain calculations
-
-## Supported Protocols
-
-| Protocol | Firmware | GPS Behavior | Default Baud |
-|----------|----------|--------------|--------------|
-| MAVLink v1/v2 | PX4, ArduPilot | Requires upstream GPS stream | 115200 |
-| MSP v1/v2 | Betaflight, iNav | Polled at 2Hz only with Direct FC profile | 115200 |
-| GHST/CRSF | Via compatible telemetry mirror | Native GHST / separate CRSF GPS frames | 115200 |
-
-Auto-detect passively feeds all three parsers; decoded GPS locks the protocol. Manual override is available. Only the explicit Direct FC MSP profile sends GPS read requests.
-
-## Hardware targets (physical acceptance pending)
-
-- **Flight Controllers:** Compatible USB telemetry interfaces emitting the supported message formats; firmware configuration matters
-- **USB Chips:** CDC ACM and supported USB-to-serial interfaces
-- **Telemetry Sources:** Existing USB streams using supported protocols; aircraft GPS delivery requires physical verification
-- **Ground Station:** Any Android 8.0+ with USB OTG
-- **Map Tiles:** OpenStreetMap via OSMDroid (no API key required, works offline with cached tiles)
-
-## Connection Methods
-
-### Direct to Flight Controller (Recommended for demos)
-Phone USB-C → OTG adapter → FC USB port. Simplest path — no radio config needed. FC must have GPS module with satellite fix.
-
-### Through Transmitter (For live flight telemetry)
-Phone USB-C → OTG adapter → a compatible USB telemetry output. The source must already provide a supported aircraft GPS stream. Device-side feature enablement is outside this guide's scope.
-
-## TAK Integration
-
-### Multicast (No Server)
-The **Local TAK** checkbox enables UDP output to `239.2.3.1:6969` (default on). Configure ATAK to receive that group/port. Wi-Fi isolation, multicast filtering, VPNs and client settings can prevent delivery. A sent counter proves a socket write, not that ATAK displayed the marker.
-
-### TAK Server (TCP)
-Enter your TAK Server IP and port (default 8087). Auto-reconnect with linear backoff on disconnect.
-
-### TAK Server (TLS)
-Check TLS, open **CERTIFICATES**, import the client `.p12` with its password, and import the server CA `.pem`/`.crt` if needed. The client chain supplies CA trust when no separate CA is imported; otherwise system trust is used. Enter a hostname (or IP) present in the server certificate. Click **TAK** to unlock/connect. Passwords remain in memory only and must be entered again after the process ends. Bad passwords, expired certificates, untrusted servers and hostname mismatches are rejected.
-
-### CoT Details
-- **Type:** `a-f-A-M-H-Q` (Friendly, Air, Military, Rotary-wing, UAV)
-- **UID:** Persistent per callsign
-- **Update Rate:** 1Hz
-- **Stale:** 30 seconds
-- **CE90:** Estimated from HDOP
-- **Detail:** Callsign, speed, heading, fix quality, satellite count
-
-## Map Features
-
-- **Dark/tactical map** — OpenStreetMap tiles mapped to the Prismo charcoal palette
-- **Drone marker** — teal chevron that rotates with heading
-- **Breadcrumb trail** — teal line showing flight path (500 point history, 2m minimum spacing)
-- **Auto-follow** — map tracks drone position, tap map to pan freely, tap ◎ to re-center
-- **Coordinate overlay** — large monospace coordinate displayed over map; tap it (or the format label) to cycle MGRS → Lat/Lon DD → Lat/Lon DMS → UTM. Selection persists across launches; CoT always transmits in decimal degrees regardless of display format.
-
-## Architecture
-
-```
-com.dronewukong.takbridge/
-├── mavlink/
-│   ├── GpsPosition.kt          # Source-agnostic GPS data class
-│   ├── MavlinkGpsParser.kt     # MAVLink v1/v2 GPS extraction
-│   ├── MspGpsParser.kt         # MSP v1/v2 GPS extraction (Betaflight/iNav)
-│   ├── GhstPassthrough.kt      # CRC-checked GHST and CRSF GPS parsers
-│   └── ProtocolRouter.kt       # Auto-detect + route to correct parser
-├── mgrs/
-│   └── CoordinateFormatter.kt  # Multi-format coordinate display (MGRS/DD/DMS/UTM) over NGA MGRS lib
-├── cot/
-│   ├── CotTypes.kt             # MIL-STD-2525 type codes + multicast group/ports
-│   └── CotFormatter.kt         # CoT XML event builder
-├── tak/
-│   ├── TakProtocol.kt          # TAK Protocol v1 framing + ATAK-CIV endpoint/group constants
-│   └── TakInboundMonitor.kt    # Listens on multicast for inbound CoT (emergency, SPI, peer discovery)
-├── transport/
-│   ├── UsbSerialTransport.kt   # USB serial connection manager
-│   ├── TakSender.kt            # Multicast + TCP + TLS output
-│   ├── TakConfig.kt            # TAK output configuration
-│   └── ConfigStore.kt          # SharedPreferences persistence
-└── ui/
-    ├── MainActivity.kt         # Hosts the bottom-nav shell + map logic (Map / Tools tabs)
-    ├── MapFragment.kt          # Map tab — inflates the map layout owned by MainActivity
-    ├── ToolsFragment.kt        # Tools tab — Forge RF tools suite in an offline WebView
-    └── bridge/
-        └── WingmanJsBridge.kt  # JS ↔ Android bridge (GPS location into WebView tools)
+```text
+Existing aircraft GPS stream → Android USB → TAK Bridge → CoT → TAK receiver
+                                               ↑
+                                  Optional existing RTSP address
 ```
 
-The app is a dual-tab Activity: a bottom navigation bar switches between the **Map** tab and the **Tools** tab.
+- **Local TAK:** enable Local TAK before starting USB. Its default multicast destination is `239.2.3.1:6969`; configure the receiving client for that group and port. Wi-Fi isolation, multicast filtering and VPNs can prevent delivery.
+- **TAK Server:** enter the server hostname and port, then tap **Send to TAK**. Use the port and routing your server administrator supplies; 8087 is the default TCP port.
+- **TLS:** enable TLS, open **Certificates**, and import the client `.p12` and any required server CA. The server hostname must match its certificate. Certificate passwords remain in memory and must be re-entered after the process ends.
 
-## Building
+Only fresh, valid aircraft GPS generates new position events. **Socket writes** counts successful local transport writes; it does not confirm server acceptance or ATAK display. Check the receiving client. Diagnostics include last-write timestamps, expired-event counts and connection state without exporting coordinates, credentials or the video address.
 
-Standard Android Studio project. Clone, open, sync Gradle, build.
+Aircraft identities persist across callsign changes. Display coordinates can cycle through MGRS, decimal degrees, DMS and UTM; CoT always uses decimal degrees. Old positions expire according to the receiving client's handling of CoT timestamps.
 
-```bash
-./gradlew testDebugUnitTest assembleDebug
+### Attach a video link
+
+Stop the session, open **Connection settings → TAK video link**, enable sharing and save an existing RTSP address reachable from the receiver. Restart telemetry. Fresh position events now include that link on the same aircraft marker.
+
+**The public beta shares the address; it does not display, host or relay video.** Verify playback in the receiving TAK client. Do not put credentials or access tokens in the shared address. Disabling sharing clears the saved address and requests remote removal on the next valid position update.
+
+See [publishing behavior, video removal and delivery evidence](docs/TAK_PUBLISHING.md).
+
+## Supported inputs and tools
+
+| Input | Behavior |
+| --- | --- |
+| MAVLink v1/v2 | Reads supported upstream GPS messages |
+| MSP v1/v2 | Passive by default; the explicit Direct FC MSP polling profile requests GPS at 2 Hz |
+| GHST / CRSF | Reads supported GPS frames from an existing compatible telemetry stream |
+
+Auto mode listens passively and locks onto decoded GPS. Match baud, USB interface and stream configuration to your source. The app does not enable a transmitter's telemetry feature or turn channel/stick data into GPS.
+
+The **Tools** tab includes channel planning, range and Fresnel estimates, antenna calculators, terrain links and mesh planning. Its code and catalogs are bundled. Online map imagery and elevation require network access; supported local DEM imports can supply offline elevation. Estimates are planning aids, not measurements.
+
+## Beta status
+
+This release adds opt-in RTSP link sharing, persistent aircraft IDs, clearer delivery diagnostics, and stricter position/XML validation. [Changelog](CHANGELOG.md).
+
+Validation includes 56 passing native tests, debug and beta builds, lint with no errors, browser tool checks, signature/manifest checks, and interaction with the installed signed APK on an emulator. Physical USB/GPS, screen-off endurance, deployed TAK routing and receiving-device marker/video playback still require bench validation. [Release evidence, observed UI limitations and remaining checks](docs/BETA_RELEASE.md).
+
+No vendor APK, proprietary accessory decoder or vendor resources were added to this public change. Existing upstream attribution remains. [Provenance scope](docs/TAK_PUBLISHING.md#sources-and-provenance-scope) · [Naming policy](docs/NAMING_POLICY.md). The repository does not currently declare a root project license; bundled dependencies retain their own licenses.
+
+For a bug report, include the beta version, Android version, protocol, reproduction steps and exported diagnostics. [Open an issue](https://github.com/DroneWuKong/MultiProtocol-UAS-TAK-Bridge/issues). Remove private addresses, keys and locations from any extra logs or screenshots.
+
+## Build and contribute
+
+Use JDK 17, Android SDK 35 and the checked-in Gradle wrapper:
+
+```sh
+./gradlew testDebugUnitTest assembleDebug lintDebug --no-daemon
+python3 tools/verify_build.py
 ```
 
-## Dependencies
+Debug output: `app/build/outputs/apk/debug/app-debug.apk`. For the signed beta build and verification scripts, see [maintainer instructions](docs/BETA_RELEASE.md#build-a-beta).
 
-- [usb-serial-for-android](https://github.com/mik3y/usb-serial-for-android) — USB serial driver
-- [NGA MGRS](https://ngageoint.github.io/mgrs-android/) — Official MGRS coordinate library (mil.nga.mgrs)
-- [OSMDroid](https://github.com/osmdroid/osmdroid) — OpenStreetMap tiles (no API key)
-- AndroidX / Material Components / Kotlin Coroutines
+```sh
+npm ci --prefix tools/ui-tests
+cd tools/ui-tests
+npx playwright install --with-deps chromium
+npm test
+```
 
-## Manual and Quick Start
+To regenerate the illustrated guides, create a Python virtual environment, install `tools/requirements-docs.txt`, ensure DejaVu Sans fonts are installed, and run `python tools/generate_guides.py`. Copy is maintained in `tools/guide_content.py`; screenshots and their provenance are committed under `docs/guide-assets/beta-0.5.0/`.
 
-The Prismo interface keeps everyday map actions visible and moves connection details
-into a scrollable **Connection settings** panel. Map and Tools share the dark shell,
-teal accents and cream primary actions.
+Key components: `bridge/BridgeSession` owns sessions; `mavlink/ProtocolRouter` routes telemetry; `cot/TakPublication` builds publication data; `transport/TakSender` handles outputs; `ui/MainActivity` hosts Map and Tools. Dependencies include [usb-serial-for-android](https://github.com/mik3y/usb-serial-for-android), [NGA MGRS](https://ngageoint.github.io/mgrs-android/), [OSMDroid](https://github.com/osmdroid/osmdroid), AndroidX and Kotlin Coroutines.
 
-- [Quick Start PDF](docs/TAK_Bridge_Quick_Start.pdf) — two pages to practice, connect an existing stream and verify TAK delivery.
-- [User Manual PDF](docs/TAK_Bridge_User_Manual.pdf) — eleven illustrated pages covering the map, connections, diagnostics and planning tools.
-- [Quick Start text](docs/QUICK_START.md) and [User Manual text](docs/USER_MANUAL.md) — searchable copies for the repository.
-
-The guides cover bridge operation with an existing compatible stream. Device-side
-feature discovery and activation are outside their scope. Screenshots are actual
-software-test renders; they do not imply physical hardware acceptance.
-
-Rebuild both guides with `python3 tools/generate_guides.py` (ReportLab and DejaVu Sans
-required). Committed screenshots in `docs/guide-assets` come from the Android and
-browser UI checks.
-
-## What This Is NOT
-
-This is not a flight controller. This is not a GCS. This is not ATAK. This is a **bridge** — it reads position data and relays it to TAK. It does not command the drone, change flight modes, or modify parameters. controller/passive profiles only receive; the explicit direct-FC MSP profile sends GPS read requests. Stale or invalid GPS is not published.
-
-## Visual Identity
-
-Dark theme. Teal (`#4ECDC4`) accent. Monospace. Like the rest of the AI Wingman family.
-
----
-
-*Buddy up.*
-
-### Phone Tools UI
-
-Version 0.2.2 adds one searchable tool chooser, a responsive high-contrast layout,
-map loading/error states and repaired native tabs. The map engine and calculator
-assets are bundled; map imagery and online elevation require internet.
-See [UI repair and verification](docs/UI_REPAIR_2026-09-29.md) for the browser and
-Android regression checks.
+This is a telemetry bridge and planning app. It does not command aircraft, change flight modes or modify flight-controller parameters. Part of the [AI Wingman](https://github.com/DroneWuKong/Ai-Project) ecosystem; it runs independently.

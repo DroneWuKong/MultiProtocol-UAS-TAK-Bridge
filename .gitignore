@@ -27,3 +27,8 @@ Thumbs.db
 # Browser UI checks
 tools/ui-tests/node_modules/
 tools/ui-tests/artifacts/
+
+# Local documentation build environments
+.venv-docs/
+__pycache__/
+*.pyc
